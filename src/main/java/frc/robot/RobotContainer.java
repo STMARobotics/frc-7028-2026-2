@@ -34,7 +34,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.Constants.OdometryConstants;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.commands.DefaultIntakeCommand;
+import frc.robot.commands.DeployIntakeCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.ShootCommand;
@@ -139,7 +139,7 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(
         commandFactory.drive(controlBindings.translationX(), controlBindings.translationY(), controlBindings.omega()));
 
-    intakeSubsystem.setDefaultCommand(new DefaultIntakeCommand(intakeSubsystem));
+    intakeSubsystem.setDefaultCommand(new DeployIntakeCommand(intakeSubsystem));
 
     controlBindings.wheelsToX().ifPresent(trigger -> trigger.whileTrue(drivetrain.applyRequest(() -> brake)));
     controlBindings.resetFieldPosition().ifPresent(trigger -> trigger.onTrue(Commands.runOnce(() -> {
@@ -172,7 +172,7 @@ public class RobotContainer {
       ledSubsystem.getIntakeLEDSubsystem().off();
     })));
 
-    controlBindings.deployIntake().ifPresent(trigger -> trigger.onTrue(new DefaultIntakeCommand(intakeSubsystem)));
+    controlBindings.deployIntake().ifPresent(trigger -> trigger.onTrue(new DeployIntakeCommand(intakeSubsystem)));
 
     controlBindings.retractIntake().ifPresent(trigger -> trigger.onTrue(new RetractIntakeCommand(intakeSubsystem)));
 
@@ -241,7 +241,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("Shoot", commandFactory.shootAtHub());
     NamedCommands.registerCommand(
         "Intake",
-          new DefaultIntakeCommand(intakeSubsystem)
+          new DeployIntakeCommand(intakeSubsystem)
               .andThen(new IntakeCommand(intakeSubsystem, ledSubsystem.getIntakeLEDSubsystem())));
     NamedCommands.registerCommand("RetractIntake", new RetractIntakeCommand(intakeSubsystem));
     NamedCommands.registerCommand("Shuttle", commandFactory.shuttleToCorner());

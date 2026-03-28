@@ -22,13 +22,17 @@ public class RetractIntakeCommand extends Command {
   }
 
   @Override
-  public boolean isFinished() {
-    return intakeSubsystem.isRetracted();
+  public void execute() {
+    if (!intakeSubsystem.isRetracted()) {
+      intakeSubsystem.retract();
+    } else {
+      intakeSubsystem.stopDeploy();
+    }
   }
 
   @Override
   public void end(boolean interrupted) {
-    intakeSubsystem.stopDeploy();
+    intakeSubsystem.deploy();
   }
 
 }

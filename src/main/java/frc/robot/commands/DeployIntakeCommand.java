@@ -6,11 +6,11 @@ import frc.robot.subsystems.IntakeSubsytem;
 /**
  * Command to deploy the intake. This command will run until the intake is fully deployed.
  */
-public class DefaultIntakeCommand extends Command {
+public class DeployIntakeCommand extends Command {
 
   private final IntakeSubsytem intakeSubsystem;
 
-  public DefaultIntakeCommand(IntakeSubsytem intakeSubsystem) {
+  public DeployIntakeCommand(IntakeSubsytem intakeSubsystem) {
     this.intakeSubsystem = intakeSubsystem;
 
     addRequirements(intakeSubsystem);
