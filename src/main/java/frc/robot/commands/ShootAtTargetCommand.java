@@ -70,9 +70,6 @@ public class ShootAtTargetCommand extends Command {
 
   @Override
   public void execute() {
-    /*
-     * sets the Yaw, Pitch, and Angle
-     */
     var robotPose = robotPoseSupplier.get();
     var targetTranslation = targetTranslationSelector.apply(robotPose.getTranslation());
 
