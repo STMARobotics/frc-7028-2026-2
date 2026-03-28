@@ -5,7 +5,7 @@ import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.wpilibj.DriverStation.Alliance.Blue;
 import static frc.robot.Constants.FeederConstants.FEEDER_FEED_VELOCITY;
-import static frc.robot.Constants.SpindexerConstants.SPINDEXER_FEED_VELOCITY;
+import static frc.robot.Constants.IndexerConstants.INDEXER_FEED_VELOCITY;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -20,7 +20,7 @@ import frc.robot.Constants.ShootingConstants;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.LEDSubsystemContainer;
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.SpindexerSubsystem;
+import frc.robot.subsystems.IndexerSubsystem;
 import java.util.function.Supplier;
 
 /**
@@ -31,14 +31,14 @@ public class TuneShootingCommand extends Command {
 
   private final ShooterSubsystem shooterSubsystem;
   private final FeederSubsystem feederSubsystem;
-  private final SpindexerSubsystem spindexerSubsystem;
+  private final IndexerSubsystem indexerSubsystem;
   private final Supplier<Pose2d> poseSupplier;
 
   private final DoubleEntry pitchSubscriber;
   private final DoubleEntry flywheelSubscriber;
   private final DoubleEntry yawSubscriber;
   private final DoubleEntry feederVelocitySubscriber;
-  private final DoubleEntry spindexerVelocitySubscriber;
+  private final DoubleEntry indexerVelocitySubscriber;
   private final DoublePublisher distancePublisher;
 
   private boolean shooting = false;
@@ -48,16 +48,16 @@ public class TuneShootingCommand extends Command {
   private MutAngle yawMeasure = Radian.mutable(0);
   private MutAngularVelocity topVelocityMeasure = RotationsPerSecond.mutable(0);
   private MutAngularVelocity feederVelocityMeasure = RotationsPerSecond.mutable(0);
-  private MutAngularVelocity spindexerVelocityMeasure = RotationsPerSecond.mutable(0);
+  private MutAngularVelocity indexerVelocityMeasure = RotationsPerSecond.mutable(0);
 
   public TuneShootingCommand(
-      SpindexerSubsystem spindexerSubsystem,
+      IndexerSubsystem indexerSubsystem,
       FeederSubsystem feederSubsystem,
       ShooterSubsystem shooterSubsystem,
       LEDSubsystemContainer ledSubsystem,
       Supplier<Pose2d> poseSupplier) {
 
-    this.spindexerSubsystem = spindexerSubsystem;
+    this.indexerSubsystem = indexerSubsystem;
     this.feederSubsystem = feederSubsystem;
     this.shooterSubsystem = shooterSubsystem;
     this.poseSupplier = poseSupplier;
@@ -74,11 +74,11 @@ public class TuneShootingCommand extends Command {
     feederVelocitySubscriber.set(FEEDER_FEED_VELOCITY.in(RotationsPerSecond));
     yawSubscriber = table.getDoubleTopic("Yaw (Degrees)").getEntry(180.0);
     yawSubscriber.set(180.0);
-    spindexerVelocitySubscriber = table.getDoubleTopic("Spindexer Velocity (RPS)")
-        .getEntry(SPINDEXER_FEED_VELOCITY.in(RotationsPerSecond));
-    spindexerVelocitySubscriber.set(SPINDEXER_FEED_VELOCITY.in(RotationsPerSecond));
+    indexerVelocitySubscriber = table.getDoubleTopic("Indexer Velocity (RPS)")
+        .getEntry(INDEXER_FEED_VELOCITY.in(RotationsPerSecond));
+    indexerVelocitySubscriber.set(INDEXER_FEED_VELOCITY.in(RotationsPerSecond));
 
-    addRequirements(spindexerSubsystem, shooterSubsystem, feederSubsystem);
+    addRequirements(indexerSubsystem, shooterSubsystem, feederSubsystem);
   }
 
   @Override
@@ -100,8 +100,8 @@ public class TuneShootingCommand extends Command {
     if (shooting || (shooterSubsystem.isFlywheelAtSpeed() && shooterSubsystem.isPitchAtSetpoint())) {
       feederSubsystem
           .runFeeder(feederVelocityMeasure.mut_replace(feederVelocitySubscriber.get(0.0), RotationsPerSecond));
-      spindexerSubsystem
-          .runSpindexer(spindexerVelocityMeasure.mut_replace(spindexerVelocitySubscriber.get(0.0), RotationsPerSecond));
+      indexerSubsystem
+          .runIndexer(indexerVelocityMeasure.mut_replace(indexerVelocitySubscriber.get(0.0), RotationsPerSecond));
       shooting = true;
     }
   }
@@ -109,7 +109,7 @@ public class TuneShootingCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     feederSubsystem.stop();
-    spindexerSubsystem.stop();
+    indexerSubsystem.stop();
     shooterSubsystem.stopAll();
   }
 }

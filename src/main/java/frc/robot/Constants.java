@@ -13,7 +13,7 @@ import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.FeederConstants.FEEDER_FEED_VELOCITY;
 import static frc.robot.Constants.FieldConstants.FIELD_LENGTH;
 import static frc.robot.Constants.FieldConstants.FIELD_WIDTH;
-import static frc.robot.Constants.SpindexerConstants.SPINDEXER_FEED_VELOCITY;
+import static frc.robot.Constants.IndexerConstants.INDEXER_FEED_VELOCITY;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -285,21 +285,21 @@ public final class Constants {
     public static final Current DEPLOY_HOLD_CURRENT = Amps.of(40);
   }
 
-  public static class SpindexerConstants {
-    public static final int DEVICE_ID_SPINDEXER_MOTOR = 15;
+  public static class IndexerConstants {
+    public static final int DEVICE_ID_INDEXER_MOTOR = 15;
     public static final String HOPPER_CAMERA_NAME = "HopperCam";
 
-    public static final Current SPINDEXER_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(80);
-    public static final Current SPINDEXER_PEAK_TORQUE_CURRENT_REVERSE = SPINDEXER_PEAK_TORQUE_CURRENT_FORWARD
+    public static final Current INDEXER_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(80);
+    public static final Current INDEXER_PEAK_TORQUE_CURRENT_REVERSE = INDEXER_PEAK_TORQUE_CURRENT_FORWARD
         .unaryMinus();
-    public static final Current SPINDEXER_STATOR_CURRENT_LIMIT = Amps.of(80);
-    public static final Current SPINDEXER_SUPPLY_CURRENT_LIMIT = Amps.of(50);
+    public static final Current INDEXER_STATOR_CURRENT_LIMIT = Amps.of(80);
+    public static final Current INDEXER_SUPPLY_CURRENT_LIMIT = Amps.of(50);
 
-    public static final SlotConfigs SPINDEXER_SLOT_CONFIGS = new SlotConfigs().withKP(5.0).withKV(0.0).withKS(50.0);
+    public static final SlotConfigs INDEXER_SLOT_CONFIGS = new SlotConfigs().withKP(5.0).withKV(0.0).withKS(50.0);
 
-    public static final AngularVelocity SPINDEXER_FEED_VELOCITY = RotationsPerSecond.of(20);
-    public static final AngularVelocity SPINDEXER_AGITATE_FORWARD_VELOCITY = RotationsPerSecond.of(3);
-    public static final AngularVelocity SPINDEXER_AGITATE_BACKWARD_VELOCITY = RotationsPerSecond.of(-3);
+    public static final AngularVelocity INDEXER_FEED_VELOCITY = RotationsPerSecond.of(20);
+    public static final AngularVelocity INDEXER_AGITATE_FORWARD_VELOCITY = RotationsPerSecond.of(3);
+    public static final AngularVelocity INDEXER_AGITATE_BACKWARD_VELOCITY = RotationsPerSecond.of(-3);
 
     public static final double HOPPER_FULL_THRESHOLD = 85.0; // percent
     public static final Time PIPELINE_RESULT_TTL = Seconds.of(0.25);
@@ -410,14 +410,14 @@ public final class Constants {
             new ShooterSetpoints(
                 Degrees.of(30),
                 RotationsPerSecond.of(20),
-                SPINDEXER_FEED_VELOCITY,
+                INDEXER_FEED_VELOCITY,
                 FEEDER_FEED_VELOCITY));
       map.put(
           17.0,
             new ShooterSetpoints(
                 Degrees.of(30),
                 RotationsPerSecond.of(50),
-                SPINDEXER_FEED_VELOCITY,
+                INDEXER_FEED_VELOCITY,
                 FEEDER_FEED_VELOCITY));
 
       return map;

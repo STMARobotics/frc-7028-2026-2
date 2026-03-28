@@ -27,7 +27,7 @@ import frc.robot.subsystems.LEDSubsystemContainer;
 import frc.robot.subsystems.LEDSubsystemContainer.RobotLEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.ShooterSetpoints;
-import frc.robot.subsystems.SpindexerSubsystem;
+import frc.robot.subsystems.IndexerSubsystem;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -43,7 +43,7 @@ public class ShootAtTargetCommand extends Command {
 
   private final ShooterSubsystem shooterSubsystem;
   private final FeederSubsystem feederSubsystem;
-  private final SpindexerSubsystem spindexerSubsystem;
+  private final IndexerSubsystem indexerSubsystem;
   private final RobotLEDSubsystem robotLedSubsystem;
   private final Supplier<Pose2d> robotPoseSupplier;
   private final Supplier<ChassisSpeeds> robotSpeedSupplier;
@@ -60,7 +60,7 @@ public class ShootAtTargetCommand extends Command {
    * 
    * @param shooterSubsystem shooter subsystem
    * @param feederSubsystem feeder subsystem
-   * @param spindexerSubsystem spindexer subsystem
+   * @param indexerSubsystem indexer subsystem
    * @param robotLedSubsystem led subsystem
    * @param robotPoseSupplier robot pose supplier
    * @param robotSpeedSupplier robot speed supplier
@@ -70,7 +70,7 @@ public class ShootAtTargetCommand extends Command {
   public ShootAtTargetCommand(
       ShooterSubsystem shooterSubsystem,
       FeederSubsystem feederSubsystem,
-      SpindexerSubsystem spindexerSubsystem,
+      IndexerSubsystem indexerSubsystem,
       RobotLEDSubsystem robotLedSubsystem,
       Supplier<Pose2d> robotPoseSupplier,
       Supplier<ChassisSpeeds> robotSpeedSupplier,
@@ -78,14 +78,14 @@ public class ShootAtTargetCommand extends Command {
       InterpolatingTreeMap<Double, ShooterSetpoints> lookupTable) {
     this.shooterSubsystem = shooterSubsystem;
     this.feederSubsystem = feederSubsystem;
-    this.spindexerSubsystem = spindexerSubsystem;
+    this.indexerSubsystem = indexerSubsystem;
     this.robotLedSubsystem = robotLedSubsystem;
     this.robotPoseSupplier = robotPoseSupplier;
     this.robotSpeedSupplier = robotSpeedSupplier;
     this.targetSelector = targetSelector;
     this.lookupTable = lookupTable;
 
-    addRequirements(shooterSubsystem, feederSubsystem, spindexerSubsystem, robotLedSubsystem);
+    addRequirements(shooterSubsystem, feederSubsystem, indexerSubsystem, robotLedSubsystem);
   }
 
   @Override
@@ -117,7 +117,7 @@ public class ShootAtTargetCommand extends Command {
               targetTranslation.minus(shooterTranslation).getAngle().minus(robotPose.getRotation()).getRotations(),
                 Rotations));
       shooterSubsystem.setFlywheelSpeed(lookupTable.get(actualTargetDistance).targetFlywheelSpeed());
-      spindexerSubsystem.stop();
+      indexerSubsystem.stop();
       feederSubsystem.stop();
       robotLedSubsystem.runPatternOnBack(LEDPattern.solid(kRed).blink(Seconds.of(0.1)));
       robotLedSubsystem.runPatternOnLeft(LEDPattern.solid(kRed).blink(Seconds.of(0.1)));
@@ -212,7 +212,7 @@ public class ShootAtTargetCommand extends Command {
     var isYawReady = shooterSubsystem.isYawAtSetpoint();
     if ((isShooting && isYawReady) || (isFlywheelReady && isPitchReady && isYawReady)) {
       // All conditions met. Continuously feeding until the command is interrupted
-      spindexerSubsystem.runSpindexer(shootingSettings.spindexerVelocity());
+      indexerSubsystem.runIndexer(shootingSettings.indexerVelocity());
       feederSubsystem.runFeeder(shootingSettings.feederVelocity());
       robotLedSubsystem.runPatternOnBack(LEDPattern.solid(kGreen));
       robotLedSubsystem.runPatternOnLeft(LEDPattern.solid(kGreen));
@@ -224,7 +224,7 @@ public class ShootAtTargetCommand extends Command {
           LEDSubsystemContainer.ledSegments(kBlue, () -> isFlywheelReady, () -> isPitchReady, () -> isYawReady));
       robotLedSubsystem.runPatternOnBack(
           LEDSubsystemContainer.ledSegments(kBlue, () -> isFlywheelReady, () -> isPitchReady, () -> isYawReady));
-      spindexerSubsystem.stop();
+      indexerSubsystem.stop();
       feederSubsystem.stop();
     }
   }
@@ -233,7 +233,7 @@ public class ShootAtTargetCommand extends Command {
   public void end(boolean interrupted) {
     shooterSubsystem.stopAll();
     feederSubsystem.stop();
-    spindexerSubsystem.stop();
+    indexerSubsystem.stop();
     robotLedSubsystem.offBack();
     robotLedSubsystem.offLeft();
   }

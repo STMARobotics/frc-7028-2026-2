@@ -335,56 +335,56 @@
         "layouts": [],
         "containers": [
           {
-            "title": "Spindexer Dynam Fwd",
+            "title": "Indexer Dynam Fwd",
             "x": 0.0,
             "y": 0.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Command",
             "properties": {
-              "topic": "/SmartDashboard/Spindexer Dynam Fwd",
+              "topic": "/SmartDashboard/Indexer Dynam Fwd",
               "period": 0.06,
               "show_type": true,
               "maximize_button_space": false
             }
           },
           {
-            "title": "Spindexer Dynam Rev",
+            "title": "Indexer Dynam Rev",
             "x": 0.0,
             "y": 128.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Command",
             "properties": {
-              "topic": "/SmartDashboard/Spindexer Dynam Rev",
+              "topic": "/SmartDashboard/Indexer Dynam Rev",
               "period": 0.06,
               "show_type": true,
               "maximize_button_space": false
             }
           },
           {
-            "title": "Spindexer Quasi Fwd",
+            "title": "Indexer Quasi Fwd",
             "x": 0.0,
             "y": 256.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Command",
             "properties": {
-              "topic": "/SmartDashboard/Spindexer Quasi Fwd",
+              "topic": "/SmartDashrd/Indexer Quasi Fwd",
               "period": 0.06,
               "show_type": true,
               "maximize_button_space": false
             }
           },
           {
-            "title": "Spindexer Quasi Rev",
+            "title": "Indexer Quasi Rev",
             "x": 0.0,
             "y": 384.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Command",
             "properties": {
-              "topic": "/SmartDashboard/Spindexer Quasi Rev",
+              "topic": "/SmartDashboard/Indexer Quasi Rev",
               "period": 0.06,
               "show_type": true,
               "maximize_button_space": false

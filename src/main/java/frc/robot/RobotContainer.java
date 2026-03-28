@@ -54,7 +54,7 @@ import frc.robot.subsystems.LEDSubsystemContainer;
 import frc.robot.subsystems.LocalizationSubsystem;
 import frc.robot.subsystems.MitoCANdriaSubsytem;
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.SpindexerSubsystem;
+import frc.robot.subsystems.IndexerSubsystem;
 
 @Logged(strategy = Logged.Strategy.OPT_IN)
 public class RobotContainer {
@@ -83,7 +83,7 @@ public class RobotContainer {
   @Logged
   private final FeederSubsystem feederSubsystem = new FeederSubsystem();
   @Logged
-  private final SpindexerSubsystem spindexerSubsystem = new SpindexerSubsystem();
+  private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
   @Logged
   private final IntakeSubsytem intakeSubsystem = new IntakeSubsytem();
   @Logged
@@ -95,7 +95,7 @@ public class RobotContainer {
   private final CommandFactory commandFactory = new CommandFactory(
       drivetrain,
       shooterSubsystem,
-      spindexerSubsystem,
+      indexerSubsystem,
       feederSubsystem,
       intakeSubsystem,
       ledSubsystem.getIntakeLEDSubsystem(),
@@ -164,14 +164,14 @@ public class RobotContainer {
 
     controlBindings.eject().ifPresent(trigger -> trigger.whileTrue(Commands.run(() -> {
       intakeSubsystem.reverseIntake();
-      spindexerSubsystem.agitate();
+      indexerSubsystem.agitate();
       ledSubsystem.getIntakeLEDSubsystem()
           .runPatternOnIntakeHigh(LEDPattern.rainbow(255, 255).scrollAtRelativeSpeed(Percent.per(Second).of(200)));
       ledSubsystem.getIntakeLEDSubsystem()
           .runPatternOnIntakeLow(LEDPattern.rainbow(255, 255).scrollAtRelativeSpeed(Percent.per(Second).of(200)));
-    }, intakeSubsystem, spindexerSubsystem, ledSubsystem.getIntakeLEDSubsystem()).finallyDo(() -> {
+    }, intakeSubsystem, indexerSubsystem, ledSubsystem.getIntakeLEDSubsystem()).finallyDo(() -> {
       intakeSubsystem.stop();
-      spindexerSubsystem.stop();
+      indexerSubsystem.stop();
       ledSubsystem.getIntakeLEDSubsystem().off();
     })));
 
@@ -183,13 +183,13 @@ public class RobotContainer {
     controlBindings.manualShoot()
         .ifPresent(
             trigger -> trigger
-                .whileTrue(new ShootCommand(spindexerSubsystem, feederSubsystem, shooterSubsystem, Meters.of(2.0))));
+                .whileTrue(new ShootCommand(indexerSubsystem, feederSubsystem, shooterSubsystem, Meters.of(2.0))));
 
     controlBindings.tuneShoot()
         .ifPresent(
             trigger -> trigger.whileTrue(
                 new TuneShootingCommand(
-                    spindexerSubsystem,
+                    indexerSubsystem,
                     feederSubsystem,
                     shooterSubsystem,
                     ledSubsystem,
@@ -285,11 +285,11 @@ public class RobotContainer {
     SmartDashboard.putData("Rotate Dynam Fwd", drivetrain.sysIdRotationDynamCommand(kForward));
     SmartDashboard.putData("Rotate Dynam Rev", drivetrain.sysIdRotationDynamCommand(kReverse));
 
-    // Spindexer
-    SmartDashboard.putData("Spindexer Quasi Fwd", spindexerSubsystem.sysIdSpindexerQuasistaticCommand(kForward));
-    SmartDashboard.putData("Spindexer Quasi Rev", spindexerSubsystem.sysIdSpindexerQuasistaticCommand(kReverse));
-    SmartDashboard.putData("Spindexer Dynam Fwd", spindexerSubsystem.sysIdSpindexerDynamicCommand(kForward));
-    SmartDashboard.putData("Spindexer Dynam Rev", spindexerSubsystem.sysIdSpindexerDynamicCommand(kReverse));
+    // Indexer
+    SmartDashboard.putData("Indexer Quasi Fwd", indexerSubsystem.sysIdIndexerQuasistaticCommand(kForward));
+    SmartDashboard.putData("Indexer Quasi Rev", indexerSubsystem.sysIdIndexerQuasistaticCommand(kReverse));
+    SmartDashboard.putData("Indexer Dynam Fwd", indexerSubsystem.sysIdIndexerDynamicCommand(kForward));
+    SmartDashboard.putData("Indexer Dynam Rev", indexerSubsystem.sysIdIndexerDynamicCommand(kReverse));
 
     // Feeder
     SmartDashboard.putData("Feeder Quasi Fwd", feederSubsystem.sysIdFeederQuasistaticCommand(kForward));

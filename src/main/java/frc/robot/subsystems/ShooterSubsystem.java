@@ -517,13 +517,13 @@ public class ShooterSubsystem extends SubsystemBase {
    * 
    * @param targetPitch pitch angle
    * @param targetFlywheelSpeed flywheel velocity
-   * @param spindexerVelocity spindexer velocity
+   * @param indexerVelocity indexer velocity
    * @param feederVelocity feeder velocity
    */
   public static record ShooterSetpoints(
       Angle targetPitch,
       AngularVelocity targetFlywheelSpeed,
-      AngularVelocity spindexerVelocity,
+      AngularVelocity indexerVelocity,
       AngularVelocity feederVelocity) {
     /**
      * Interpolates between this and another ShootingSettings.
@@ -542,8 +542,8 @@ public class ShooterSubsystem extends SubsystemBase {
                     t)),
           RotationsPerSecond.of(
               MathUtil.interpolate(
-                  spindexerVelocity.in(RotationsPerSecond),
-                    endValue.spindexerVelocity.in(RotationsPerSecond),
+                  indexerVelocity.in(RotationsPerSecond),
+                    endValue.indexerVelocity.in(RotationsPerSecond),
                     t)),
           RotationsPerSecond.of(
               MathUtil.interpolate(

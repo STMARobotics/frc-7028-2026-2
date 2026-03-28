@@ -39,7 +39,7 @@ import frc.robot.subsystems.IntakeSubsytem;
 import frc.robot.subsystems.LEDSubsystemContainer.IntakeLEDSubsystem;
 import frc.robot.subsystems.LEDSubsystemContainer.RobotLEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.SpindexerSubsystem;
+import frc.robot.subsystems.IndexerSubsystem;
 import java.util.function.Supplier;
 
 /**
@@ -48,7 +48,7 @@ import java.util.function.Supplier;
 public class CommandFactory {
   private final CommandSwerveDrivetrain drivetrainSubsystem;
   private final ShooterSubsystem shooterSubsystem;
-  private final SpindexerSubsystem spindexerSubsystem;
+  private final IndexerSubsystem indexerSubsystem;
   private final FeederSubsystem feederSubsystem;
   private final IntakeSubsytem intakeSubsystem;
   private final IntakeLEDSubsystem intakeLEDSubsystem;
@@ -59,7 +59,7 @@ public class CommandFactory {
    * 
    * @param drivetrainSubsystem drivetrain subsystem
    * @param shooterSubsystem shooter subsystem
-   * @param spindexerSubsystem spindexer subsystem
+   * @param indexerSubsystem indexer subsystem
    * @param feederSubsystem feeder subsystem
    * @param intakeSubsystem intake subsystem
    * @param ledSubsystem led subsystem
@@ -67,14 +67,14 @@ public class CommandFactory {
   public CommandFactory(
       CommandSwerveDrivetrain drivetrainSubsystem,
       ShooterSubsystem shooterSubsystem,
-      SpindexerSubsystem spindexerSubsystem,
+      IndexerSubsystem indexerSubsystem,
       FeederSubsystem feederSubsystem,
       IntakeSubsytem intakeSubsystem,
       IntakeLEDSubsystem intakeLEDSubsystem,
       RobotLEDSubsystem robotLEDSubsystem) {
     this.drivetrainSubsystem = drivetrainSubsystem;
     this.shooterSubsystem = shooterSubsystem;
-    this.spindexerSubsystem = spindexerSubsystem;
+    this.indexerSubsystem = indexerSubsystem;
     this.feederSubsystem = feederSubsystem;
     this.intakeSubsystem = intakeSubsystem;
     this.intakeLEDSubsystem = intakeLEDSubsystem;
@@ -90,7 +90,7 @@ public class CommandFactory {
     return new ShootAtTargetCommand(
         shooterSubsystem,
         feederSubsystem,
-        spindexerSubsystem,
+        indexerSubsystem,
         robotLEDSubsystem,
         () -> drivetrainSubsystem.getState().Pose,
         drivetrainSubsystem::getCurrentFieldChassisSpeeds,
@@ -107,7 +107,7 @@ public class CommandFactory {
     return new ShootAtTargetCommand(
         shooterSubsystem,
         feederSubsystem,
-        spindexerSubsystem,
+        indexerSubsystem,
         robotLEDSubsystem,
         () -> drivetrainSubsystem.getState().Pose,
         drivetrainSubsystem::getCurrentFieldChassisSpeeds,
