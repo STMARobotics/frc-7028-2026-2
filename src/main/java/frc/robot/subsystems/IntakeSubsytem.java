@@ -47,6 +47,8 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -72,6 +74,9 @@ public class IntakeSubsytem extends SubsystemBase {
   private final StatusSignal<AngularVelocity> deployVelocitySignal = deployMotor.getVelocity(false);
   private final StatusSignal<Temperature> deployTempSignal = deployMotor.getDeviceTemp(false);
   private final StatusSignal<Boolean> deployTempFaultSignal = deployMotor.getFault_DeviceTemp(false);
+
+  private final AnalogInput deploySensorInput = new AnalogInput(0);
+  private final AnalogPotentiometer deploySensor = new AnalogPotentiometer(deploySensorInput, 180, 30);
 
   // SysId routines
   // NOTE: the output type is amps, NOT volts (even though it says volts)
@@ -134,6 +139,7 @@ public class IntakeSubsytem extends SubsystemBase {
                 .withReverseSoftLimitEnable(true)
                 .withReverseSoftLimitThreshold(DEPLOY_REVERSE_LIMIT));
     deployMotor.getConfigurator().apply(deployConfig);
+    deployMotor.setPosition(deploySensor.get());
     // TODO add potentiometer
 
   }
