@@ -239,7 +239,6 @@ public class RobotContainer {
 
   private void configurePathPlannerCommands() {
     NamedCommands.registerCommand("Shoot", commandFactory.shootAtHub());
-    NamedCommands.registerCommand("AgitateIntake", commandFactory.agitateIntakeCommand());
     NamedCommands.registerCommand(
         "Intake",
           new DefaultIntakeCommand(intakeSubsystem)
