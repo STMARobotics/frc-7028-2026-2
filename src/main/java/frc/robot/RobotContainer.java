@@ -38,7 +38,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.DeployIntakeCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.RetractIntakeCommand;
-import frc.robot.commands.ShootCommand;
+import frc.robot.commands.ShootAtTargetCommand;
 import frc.robot.commands.TuneShootingCommand;
 import frc.robot.commands.led.DefaultLEDCommand;
 import frc.robot.commands.led.LEDBootAnimationCommand;
@@ -179,7 +179,7 @@ public class RobotContainer {
     controlBindings.manualShoot()
         .ifPresent(
             trigger -> trigger
-                .whileTrue(new ShootCommand(indexerSubsystem, feederSubsystem, shooterSubsystem, Meters.of(2.0))));
+                .whileTrue(new ShootAtTargetCommand(indexerSubsystem, feederSubsystem, shooterSubsystem, Meters.of(2.0))));
 
     controlBindings.tuneShoot()
         .ifPresent(
