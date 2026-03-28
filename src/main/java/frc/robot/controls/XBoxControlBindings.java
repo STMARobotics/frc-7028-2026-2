@@ -51,11 +51,6 @@ public class XBoxControlBindings extends ControlBindings {
   }
 
   @Override
-  public Optional<Trigger> resetFieldPositionFromAprilTags() {
-    return Optional.of(driverController.back());
-  }
-
-  @Override
   public Optional<Trigger> runIntake() {
     return Optional.of(driverController.rightBumper());
   }

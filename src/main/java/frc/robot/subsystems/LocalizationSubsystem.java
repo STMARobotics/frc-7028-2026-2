@@ -16,7 +16,6 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -26,7 +25,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.PoseEstimate;
 import frc.robot.VisionMeasurementConsumer;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -40,7 +38,6 @@ import java.util.function.Supplier;
 public class LocalizationSubsystem extends SubsystemBase {
 
   private final VisionMeasurementConsumer visionMeasurementConsumer;
-  private final Consumer<Pose2d> poseResetConsumer;
   private final Supplier<AngularVelocity> robotAngularVelocitySupplier;
 
   /**
@@ -54,11 +51,9 @@ public class LocalizationSubsystem extends SubsystemBase {
    */
   public LocalizationSubsystem(
       VisionMeasurementConsumer addVisionMeasurement,
-      Consumer<Pose2d> poseResetConsumer,
       Supplier<Pose2d> poseSupplier,
       Supplier<AngularVelocity> angularVelocitySupplier) {
     this.visionMeasurementConsumer = addVisionMeasurement;
-    this.poseResetConsumer = poseResetConsumer;
     this.robotAngularVelocitySupplier = angularVelocitySupplier;
 
     for (int i = 0; i < APRILTAG_CAMERA_NAMES.length; i++) {
@@ -71,24 +66,6 @@ public class LocalizationSubsystem extends SubsystemBase {
             ROBOT_TO_CAMERA_TRANSFORMS[i].getRotation().getMeasureY().in(Degrees),
             ROBOT_TO_CAMERA_TRANSFORMS[i].getRotation().getMeasureZ().in(Degrees));
     }
-  }
-
-  /**
-   * Resets the robot's pose to the given new pose.
-   * 
-   * @param newPose the new pose to reset to (this is absolute and will not be flipped based on the alliance)
-   */
-  public void resetPose(Pose2d newPose) {
-    poseResetConsumer.accept(newPose);
-  }
-
-  /**
-   * Resets the robot's pose to the given new pose.
-   * 
-   * @param newPose the new pose to reset to (this is absolute and will not be flipped based on the alliance)
-   */
-  public void resetPose(Pose3d newPose) {
-    poseResetConsumer.accept(newPose.toPose2d());
   }
 
   /**
@@ -106,31 +83,6 @@ public class LocalizationSubsystem extends SubsystemBase {
   }
 
   /**
-   * Resets the robot's pose using the best available AprilTag pose estimate from the Limelight cameras
-   * <p>
-   * This isn't intended for regular use, it's for resetting for practice or if something goes very wrong
-   */
-  public void resetPoseFromAprilTags() {
-    PoseEstimate bestAprilTagPose = null;
-    double bestDeviation = Double.MAX_VALUE;
-
-    for (String cameraName : APRILTAG_CAMERA_NAMES) {
-      PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(cameraName);
-      if (isValidPoseEstimate(poseEstimate)) {
-        double adjustedXYDeviation = APRILTAG_TRANSLATION_STD_DEV + (0.01 * Math.pow(poseEstimate.avgTagDist, 2));
-        if (bestDeviation > adjustedXYDeviation) {
-          bestAprilTagPose = poseEstimate;
-          bestDeviation = adjustedXYDeviation;
-        }
-      }
-    }
-
-    if (bestAprilTagPose != null) {
-      resetPose(bestAprilTagPose.pose.toPose2d());
-    }
-  }
-
-  /**
    * Validates a pose estimate based on common criteria.
    * <p>
    * Checks if the pose has valid tag count, is within field boundaries, and is within the tag distance threshold.
@@ -140,7 +92,7 @@ public class LocalizationSubsystem extends SubsystemBase {
    */
   private boolean isValidPoseEstimate(PoseEstimate poseEstimate) {
     return poseEstimate != null && poseEstimate.tagCount > 0
-        && isValidFieldTranslation(poseEstimate.pose.getTranslation()) && poseEstimate.tagCount > 1
+        && isValidFieldTranslation(poseEstimate.pose.getTranslation())
         && poseEstimate.avgTagDist < TAG_DISTANCE_THRESHOLD.in(Meters);
   }
 
@@ -168,16 +120,18 @@ public class LocalizationSubsystem extends SubsystemBase {
    * @return the best validated pose estimate from all cameras, or null if no valid estimates
    */
   private void periodicLimelight() {
+    AngularVelocity robotAngularVelocity = robotAngularVelocitySupplier.get();
+    if (robotAngularVelocity.lt(ANGULAR_VELOCITY_THRESHOLD.unaryMinus())
+        || robotAngularVelocity.gt(ANGULAR_VELOCITY_THRESHOLD)) {
+      // Spinnning too fast to trust vision
+      return;
+    }
 
     for (String cameraName : APRILTAG_CAMERA_NAMES) {
       PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(cameraName);
 
-      if (isValidPoseEstimate(poseEstimate)
-          && robotAngularVelocitySupplier.get().gt(ANGULAR_VELOCITY_THRESHOLD.unaryMinus())
-          && robotAngularVelocitySupplier.get().lt(ANGULAR_VELOCITY_THRESHOLD)) {
-
+      if (isValidPoseEstimate(poseEstimate)) {
         double adjustedXYDeviation = APRILTAG_TRANSLATION_STD_DEV + (0.01 * Math.pow(poseEstimate.avgTagDist, 2));
-        // QuestNav is considered unhealthy, fall back to LimeLight measurements
         Matrix<N3, N1> adjustedDeviations = VecBuilder.fill(adjustedXYDeviation, adjustedXYDeviation, Double.MAX_VALUE);
         visionMeasurementConsumer
             .addVisionMeasurement(poseEstimate.pose.toPose2d(), poseEstimate.timestampSeconds, adjustedDeviations);

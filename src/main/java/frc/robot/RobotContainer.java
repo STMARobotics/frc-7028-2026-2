@@ -22,6 +22,7 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -76,7 +77,6 @@ public class RobotContainer {
   @Logged
   private final LocalizationSubsystem localizationSubsystem = new LocalizationSubsystem(
       drivetrain::addVisionMeasurement,
-      drivetrain::resetPose,
       () -> drivetrain.getState().Pose,
       drivetrain::getIMUYawVelocity);
   @Logged
@@ -143,12 +143,8 @@ public class RobotContainer {
     controlBindings.wheelsToX().ifPresent(trigger -> trigger.whileTrue(drivetrain.applyRequest(() -> brake)));
     controlBindings.resetFieldPosition().ifPresent(trigger -> trigger.onTrue(Commands.runOnce(() -> {
       Pose3d newPose = DriverStation.getAlliance().orElse(Blue) == Blue ? RESET_POSE_BLUE : RESET_POSE_RED;
-      localizationSubsystem.resetPose(newPose);
+      drivetrain.resetPose(new Pose2d());
     })));
-    controlBindings.resetFieldPositionFromAprilTags()
-        .ifPresent(
-            trigger -> trigger
-                .whileTrue(Commands.run(localizationSubsystem::resetPoseFromAprilTags).ignoringDisable(true)));
 
     // Intake controls
     controlBindings.runIntake()
@@ -178,8 +174,8 @@ public class RobotContainer {
     // Shooting controls
     controlBindings.manualShoot()
         .ifPresent(
-            trigger -> trigger
-                .whileTrue(new ShootAtTargetCommand(indexerSubsystem, feederSubsystem, shooterSubsystem, Meters.of(2.0))));
+            trigger -> trigger.whileTrue(
+                new ShootAtTargetCommand(indexerSubsystem, feederSubsystem, shooterSubsystem, Meters.of(2.0))));
 
     controlBindings.tuneShoot()
         .ifPresent(
@@ -217,7 +213,7 @@ public class RobotContainer {
       RobotConfig config = RobotConfig.fromGUISettings();
       AutoBuilder.configure(
           () -> drivetrain.getState().Pose, // Supplier of current robot pose
-            localizationSubsystem::resetPose, // Consumer for seeding pose against auto
+            drivetrain::resetPose, // Consumer for seeding pose against auto
             () -> drivetrain.getState().Speeds, // Supplier of current robot speeds
             // Consumer of ChassisSpeeds and feedforwards to drive the robot
             (speeds, feedforwards) -> drivetrain.setControl(

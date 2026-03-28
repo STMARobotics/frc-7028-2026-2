@@ -54,17 +54,6 @@ public abstract class ControlBindings {
   }
 
   /**
-   * Trigger to reset the robot position using AprilTags on the field.
-   * <p>
-   * This is only intended to be used for practice, not in competition
-   * 
-   * @return optional trigger
-   */
-  public Optional<Trigger> resetFieldPositionFromAprilTags() {
-    return Optional.empty();
-  }
-
-  /**
    * Trigger for running the intake
    *
    * @return optional trigger

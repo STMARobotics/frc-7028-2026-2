@@ -97,9 +97,4 @@ public class JoystickControlBindings extends ControlBindings {
     return Optional.of(leftJoystick.button(11));
   }
 
-  @Override
-  public Optional<Trigger> resetFieldPositionFromAprilTags() {
-    return Optional.of(leftJoystick.button(16));
-  }
-
 }
