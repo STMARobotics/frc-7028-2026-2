@@ -12,7 +12,6 @@ import static edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForwa
 import static edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse;
 import static frc.robot.Constants.TeleopDriveConstants.RESET_POSE_BLUE;
 import static frc.robot.Constants.TeleopDriveConstants.RESET_POSE_RED;
-import static frc.robot.Constants.TeleopDriveConstants.SHOOT_VELOCITY_MULTIPLIER;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -39,7 +38,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.DeployIntakeCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.RetractIntakeCommand;
-import frc.robot.commands.ShootAtTargetCommand;
+import frc.robot.commands.ShootCommand;
 import frc.robot.commands.TuneShootingCommand;
 import frc.robot.commands.led.DefaultLEDCommand;
 import frc.robot.commands.led.LEDBootAnimationCommand;
@@ -140,6 +139,8 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(
         commandFactory.drive(controlBindings.translationX(), controlBindings.translationY(), controlBindings.omega()));
 
+    intakeSubsystem.setDefaultCommand(new DeployIntakeCommand(intakeSubsystem));
+
     controlBindings.wheelsToX().ifPresent(trigger -> trigger.whileTrue(drivetrain.applyRequest(() -> brake)));
     controlBindings.resetFieldPosition().ifPresent(trigger -> trigger.onTrue(Commands.runOnce(() -> {
       Pose3d newPose = DriverStation.getAlliance().orElse(Blue) == Blue ? RESET_POSE_BLUE : RESET_POSE_RED;
@@ -175,7 +176,13 @@ public class RobotContainer {
     controlBindings.manualShoot()
         .ifPresent(
             trigger -> trigger.whileTrue(
-                new ShootAtTargetCommand(indexerSubsystem, feederSubsystem, shooterSubsystem, Meters.of(2.0))));
+                new ShootCommand(
+                    indexerSubsystem,
+                    feederSubsystem,
+                    shooterSubsystem,
+                    drivetrain,
+                    intakeSubsystem,
+                    Meters.of(2.0))));
 
     controlBindings.tuneShoot()
         .ifPresent(
@@ -187,16 +194,7 @@ public class RobotContainer {
                     ledSubsystem,
                     () -> drivetrain.getState().Pose)));
 
-    controlBindings.autoShoot()
-        .ifPresent(
-            trigger -> trigger.whileTrue(
-                commandFactory.shootAtHubWhileDriving(
-                    () -> controlBindings.translationX().get().times(SHOOT_VELOCITY_MULTIPLIER),
-                      () -> controlBindings.translationY().get().times(SHOOT_VELOCITY_MULTIPLIER),
-                      () -> controlBindings.omega()
-                          .get()
-                          .times(SHOOT_VELOCITY_MULTIPLIER)
-                          .times(SHOOT_VELOCITY_MULTIPLIER))));
+    controlBindings.autoShoot().ifPresent(trigger -> trigger.whileTrue(commandFactory.shootAtHub()));
 
     controlBindings.shuttle().ifPresent(trigger -> trigger.whileTrue(commandFactory.shuttleToCorner()));
 
@@ -237,7 +235,6 @@ public class RobotContainer {
 
   private void configurePathPlannerCommands() {
     NamedCommands.registerCommand("Shoot", commandFactory.shootAtHub());
-    NamedCommands.registerCommand("AgitateIntake", commandFactory.agitateIntakeCommand());
     NamedCommands.registerCommand(
         "Intake",
           new DeployIntakeCommand(intakeSubsystem)

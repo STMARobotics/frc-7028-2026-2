@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.CANIVORE_BUS;
@@ -15,11 +16,13 @@ import static frc.robot.Constants.IntakeConstants.DEPLOY_REVERSE_LIMIT;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_SLOT_CONFIGS;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_STATOR_CURRENT_LIMIT;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_SUPPLY_CURRENT_LIMIT;
-import static frc.robot.Constants.IntakeConstants.DEPLOY_TOLERANCE;
 import static frc.robot.Constants.IntakeConstants.DEVICE_ID_DEPLOY_MOTOR;
 import static frc.robot.Constants.IntakeConstants.DEVICE_ID_ROLLER_MOTOR;
+import static frc.robot.Constants.IntakeConstants.POTENTIOMETER_MAX_VALUE;
+import static frc.robot.Constants.IntakeConstants.POTENTIOMETER_MIN_VALUE;
 import static frc.robot.Constants.IntakeConstants.RETRACTED_POSITION;
 import static frc.robot.Constants.IntakeConstants.ROLLER_EJECT_VELOCITY;
+import static frc.robot.Constants.IntakeConstants.ROLLER_INTAKE_SLOW_VELOCITY;
 import static frc.robot.Constants.IntakeConstants.ROLLER_INTAKE_VELOCITY;
 import static frc.robot.Constants.IntakeConstants.ROLLER_PEAK_TORQUE_CURRENT_FORWARD;
 import static frc.robot.Constants.IntakeConstants.ROLLER_PEAK_TORQUE_CURRENT_REVERSE;
@@ -139,9 +142,8 @@ public class IntakeSubsytem extends SubsystemBase {
                 .withReverseSoftLimitEnable(true)
                 .withReverseSoftLimitThreshold(DEPLOY_REVERSE_LIMIT));
     deployMotor.getConfigurator().apply(deployConfig);
-    deployMotor.setPosition(deploySensor.get());
-    // TODO add potentiometer
 
+    deployMotor.setPosition(potentiometerToRotations(deploySensor.get()));
   }
 
   /**
@@ -206,18 +208,26 @@ public class IntakeSubsytem extends SubsystemBase {
     rollerMotor.setControl(rollerControl.withVelocity(ROLLER_EJECT_VELOCITY));
   }
 
+  public void runIntakeSlow() {
+    rollerMotor.setControl(rollerControl.withVelocity(ROLLER_INTAKE_SLOW_VELOCITY));
+  }
+
   /**
    * Deploys the intake
    */
   public void deploy() {
-    deployMotor.setControl(deployControl.withPosition(DEPLOYED_POSITION));
+    deployMotor.setControl(
+        deployControl.withPosition(DEPLOYED_POSITION)
+            .withLimitReverseMotion(deploySensor.get() >= POTENTIOMETER_MAX_VALUE));
   }
 
   /**
    * Retracts the intake
    */
   public void retract() {
-    deployMotor.setControl(deployControl.withPosition(RETRACTED_POSITION));
+    deployMotor.setControl(
+        deployControl.withPosition(RETRACTED_POSITION)
+            .withLimitReverseMotion(deploySensor.get() <= POTENTIOMETER_MIN_VALUE));
   }
 
   /**
@@ -228,7 +238,7 @@ public class IntakeSubsytem extends SubsystemBase {
   }
 
   /**
-   * Stops the deploy
+   * Stops the deploy motor
    */
   public void stopDeploy() {
     deployMotor.stopMotor();
@@ -251,7 +261,8 @@ public class IntakeSubsytem extends SubsystemBase {
   public boolean isDeployed() {
     BaseStatusSignal.refreshAll(deployPositionSignal, deployVelocitySignal);
     Angle deployPosition = BaseStatusSignal.getLatencyCompensatedValue(deployPositionSignal, deployVelocitySignal);
-    return deployPosition.isNear(DEPLOYED_POSITION, DEPLOY_TOLERANCE);
+    return (deployPosition.lte(DEPLOYED_POSITION)
+        || potentiometerToRotations(deploySensor.get()) <= DEPLOYED_POSITION.in(Rotations));
   }
 
   /**
@@ -263,7 +274,8 @@ public class IntakeSubsytem extends SubsystemBase {
   public boolean isRetracted() {
     BaseStatusSignal.refreshAll(deployPositionSignal, deployVelocitySignal);
     Angle deployPosition = BaseStatusSignal.getLatencyCompensatedValue(deployPositionSignal, deployVelocitySignal);
-    return deployPosition.isNear(RETRACTED_POSITION, DEPLOY_TOLERANCE);
+    return (deployPosition.gte(RETRACTED_POSITION)
+        || potentiometerToRotations(deploySensor.get()) >= RETRACTED_POSITION.in(Rotations));
   }
 
   /**
@@ -284,5 +296,10 @@ public class IntakeSubsytem extends SubsystemBase {
   @Logged(name = "Deploy Motor Temp Fault")
   public boolean isDeployMotorDeviceTempFault() {
     return deployTempFaultSignal.refresh().getValue();
+  }
+
+  private double potentiometerToRotations(double potentiometerValue) {
+    return ((potentiometerValue - POTENTIOMETER_MIN_VALUE) / (POTENTIOMETER_MAX_VALUE - POTENTIOMETER_MIN_VALUE))
+        * (DEPLOY_FORWARD_LIMIT.in(Rotations));
   }
 }

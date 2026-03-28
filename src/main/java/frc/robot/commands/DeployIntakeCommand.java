@@ -22,8 +22,12 @@ public class DeployIntakeCommand extends Command {
   }
 
   @Override
-  public boolean isFinished() {
-    return intakeSubsystem.isDeployed();
+  public void execute() {
+    if (!intakeSubsystem.isDeployed()) {
+      intakeSubsystem.deploy();
+    } else {
+      intakeSubsystem.stopDeploy();
+    }
   }
 
   @Override
