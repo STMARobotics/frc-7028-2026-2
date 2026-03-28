@@ -118,7 +118,7 @@ public final class Constants {
     // there is no load. A tradeoff is that this will increase the time it takes to adjust the flywheel speed downward.
     public static final Current FLYWHEEL_PEAK_TORQUE_CURRENT_REVERSE = Amps.of(15);
     public static final Current FLYWHEEL_STATOR_CURRENT_LIMIT = Amps.of(170);
-    public static final Current FLYWHEEL_SUPPLY_CURRENT_LIMIT = Amps.of(40);
+    public static final Current FLYWHEEL_SUPPLY_CURRENT_LIMIT = Amps.of(80);
 
     public static final SlotConfigs FLYWHEEL_SLOT_CONFIGS = new SlotConfigs().withKP(23.0).withKS(20.0);
 
