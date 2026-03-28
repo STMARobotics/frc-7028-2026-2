@@ -1,23 +1,36 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.wpilibj.LEDPattern.GradientType.kContinuous;
 import static edu.wpi.first.wpilibj.util.Color.kBlack;
 import static edu.wpi.first.wpilibj.util.Color.kGreen;
+import static frc.robot.Constants.FieldConstants.FIELD_WIDTH;
+import static frc.robot.Constants.ShootingConstants.SHUTTLE_BLUE_HIGH;
+import static frc.robot.Constants.ShootingConstants.SHUTTLE_BLUE_LOW;
+import static frc.robot.Constants.ShootingConstants.SHUTTLE_OFFSET_DISTANCE;
+import static frc.robot.Constants.ShootingConstants.SHUTTLE_RED_HIGH;
+import static frc.robot.Constants.ShootingConstants.SHUTTLE_RED_LOW;
+import static frc.robot.Constants.ShootingConstants.TARGET_BLUE;
+import static frc.robot.Constants.ShootingConstants.TARGET_RED;
 import static frc.robot.Constants.TeleopDriveConstants.MAX_TELEOP_ANGULAR_VELOCITY;
 import static frc.robot.Constants.TeleopDriveConstants.MAX_TELEOP_VELOCITY;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.commands.DeployIntakeCommand;
+import frc.robot.commands.DefaultIntakeCommand;
 import frc.robot.commands.RetractIntakeCommand;
+import frc.robot.commands.ShootAtTargetCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -72,8 +85,14 @@ public class CommandFactory {
    * @return a new command to shoot at the hub
    */
   public Command shootAtHub() {
-    // TODO put a command here
-    return Commands.none();
+    return new ShootAtTargetCommand(
+        indexerSubsystem,
+        feederSubsystem,
+        shooterSubsystem,
+        drivetrainSubsystem,
+        intakeSubsystem,
+        () -> drivetrainSubsystem.getState().Pose,
+        t -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? TARGET_BLUE : TARGET_RED);
   }
 
   /**
@@ -82,8 +101,27 @@ public class CommandFactory {
    * @return a new command to shuttle fuel to the corner
    */
   public Command shuttleToCorner() {
-    // TODO put a command here
-    return Commands.none();
+    return new ShootAtTargetCommand(
+        indexerSubsystem,
+        feederSubsystem,
+        shooterSubsystem,
+        drivetrainSubsystem,
+        intakeSubsystem,
+        () -> drivetrainSubsystem.getState().Pose,
+        targetTranslation -> {
+          Translation2d target;
+          if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
+            target = targetTranslation.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_BLUE_HIGH : SHUTTLE_BLUE_LOW;
+          } else {
+            target = targetTranslation.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_RED_HIGH : SHUTTLE_RED_LOW;
+          }
+          // Adjust the target to be "offset distance" short of target along the vector between the robot and the target
+          Translation2d vectorToTarget = target.minus(targetTranslation);
+          double distanceToTarget = vectorToTarget.getNorm();
+          Translation2d adjustedTarget = targetTranslation
+              .plus(vectorToTarget.times((distanceToTarget - SHUTTLE_OFFSET_DISTANCE.in(Meters)) / distanceToTarget));
+          return adjustedTarget;
+        });
   }
 
   /**
@@ -93,26 +131,11 @@ public class CommandFactory {
    */
   public Command agitateIntakeCommand() {
     return new RetractIntakeCommand(intakeSubsystem).until(intakeSubsystem::isRetracted)
-        .andThen(new DeployIntakeCommand(intakeSubsystem))
+        .andThen(new DefaultIntakeCommand(intakeSubsystem))
         .alongWith(Commands.run(intakeSubsystem::runIntake))
         .alongWith(
             intakeLEDSubsystem.runPatternOnAllCommand(
                 LEDPattern.gradient(kContinuous, kGreen, kBlack).scrollAtRelativeSpeed(Percent.per(Second).of(200))));
-  }
-
-  /**
-   * Creates a command to shoot at the hub and also drive the robot using the passed translation and rotation suppliers.
-   * 
-   * @param translationXSupplier supplier for the robot's x translation velocity
-   * @param translationYSupplier supplier for the robot's y translation velocity
-   * @param omegaSupplier supplier for the robot's rotational velocity
-   * @return a new ShootAtTargetCommand that also drives the robot
-   */
-  public Command shootAtHubWhileDriving(
-      Supplier<LinearVelocity> translationXSupplier,
-      Supplier<LinearVelocity> translationYSupplier,
-      Supplier<AngularVelocity> omegaSupplier) {
-    return shootAtHub().alongWith(drive(translationXSupplier, translationYSupplier, omegaSupplier));
   }
 
   /**

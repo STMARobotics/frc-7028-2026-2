@@ -182,6 +182,7 @@ public final class Constants {
     public static final SlotConfigs ROLLER_SLOT_CONFIGS = new SlotConfigs().withKP(12).withKS(5.1);
 
     public static final AngularVelocity ROLLER_INTAKE_VELOCITY = RotationsPerSecond.of(80.0);
+    public static final AngularVelocity ROLLER_INTAKE_SLOW_VELOCITY = RotationsPerSecond.of(40.0);
     public static final AngularVelocity ROLLER_EJECT_VELOCITY = RotationsPerSecond.of(-30.0);
 
     // Deploy constants
@@ -190,6 +191,8 @@ public final class Constants {
 
     public static final Angle DEPLOY_REVERSE_LIMIT = Rotations.of(0.0);
     public static final Angle DEPLOY_FORWARD_LIMIT = Rotations.of(0.152);
+    public static final double POTENTIOMETER_MIN_VALUE = 0.0;
+    public static final double POTENTIOMETER_MAX_VALUE = 1.0;
 
     public static final SlotConfigs DEPLOY_SLOT_CONFIGS = new SlotConfigs().withGravityType(GravityTypeValue.Arm_Cosine)
         .withKP(25.0)

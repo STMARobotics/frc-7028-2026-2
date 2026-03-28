@@ -1,22 +1,21 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static frc.robot.Constants.ShootingConstants.HUB_SETPOINTS_BY_DISTANCE_METERS;
 
-import java.util.function.Supplier;
-
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
+import frc.robot.subsystems.IntakeSubsytem;
 import frc.robot.subsystems.ShooterSubsystem;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /*
  * Command to shoot fuel without aiming. It will shoot at a fixed yaw, pitch, and velocity
@@ -25,10 +24,15 @@ public class ShootAtTargetCommand extends Command {
   private final IndexerSubsystem indexerSubsystem;
   private final FeederSubsystem feederSubsystem;
   private final ShooterSubsystem shooterSubsystem;
-  private final AngularVelocity shooterAngularVelocity;
   private final CommandSwerveDrivetrain drivetrain;
-  private final Supplier<Pose2d> robotPoseSupplier; 
-  private final Supplier<Translation2d> targetTranslationSupplier;
+  private final IntakeSubsytem intakeSubsytem;
+  private final Supplier<Pose2d> robotPoseSupplier;
+  private final Function<Translation2d, Translation2d> targetTranslationSelector;
+  private final SwerveRequest.FieldCentricFacingAngle swerveRequestFacing = new SwerveRequest.FieldCentricFacingAngle()
+      .withDriveRequestType(DriveRequestType.Velocity)
+      .withSteerRequestType(SteerRequestType.MotionMagicExpo)
+      .withVelocityX(0.0)
+      .withVelocityY(0.0);
 
   private boolean isShooting = false;
 
@@ -44,22 +48,21 @@ public class ShootAtTargetCommand extends Command {
       IndexerSubsystem indexerSubsystem,
       FeederSubsystem feederSubsystem,
       ShooterSubsystem shooterSubsystem,
-      Distance targetDistance,
       CommandSwerveDrivetrain drivetrain,
+      IntakeSubsytem intakeSubsytem,
       Supplier<Pose2d> robotPoseSupplier,
-      Supplier<Translation2d> targetTranslationSupplier ) {
+      Function<Translation2d, Translation2d> targetTranslationSelector) {
     this.feederSubsystem = feederSubsystem;
     this.indexerSubsystem = indexerSubsystem;
     this.shooterSubsystem = shooterSubsystem;
     this.drivetrain = drivetrain;
+    this.intakeSubsytem = intakeSubsytem;
     this.robotPoseSupplier = robotPoseSupplier;
-    this.targetTranslationSupplier = targetTranslationSupplier;
+    this.targetTranslationSelector = targetTranslationSelector;
 
-    shooterAngularVelocity = RotationsPerSecond.of(HUB_SETPOINTS_BY_DISTANCE_METERS.get(targetDistance.in(Meters)));
-
-    addRequirements(feederSubsystem, indexerSubsystem, shooterSubsystem, drivetrain);
+    addRequirements(feederSubsystem, indexerSubsystem, shooterSubsystem, drivetrain, intakeSubsytem);
   }
-  
+
   @Override
   public void initialize() {
     isShooting = false;
@@ -70,11 +73,15 @@ public class ShootAtTargetCommand extends Command {
     /*
      * sets the Yaw, Pitch, and Angle
      */
-  var robotPose = robotPoseSupplier.get();
-  var targetTranslation = targetTranslationSupplier.get();
+    var robotPose = robotPoseSupplier.get();
+    var targetTranslation = targetTranslationSelector.apply(robotPose.getTranslation());
 
-  var angleToTarget = targetTranslation.minus(robotPose.getTranslation()).getAngle();
-  
+    var targetRotation = targetTranslation.minus(robotPose.getTranslation()).getAngle();
+    drivetrain.setControl(swerveRequestFacing.withTargetDirection(targetRotation));
+
+    var targetDistance = targetTranslation.getDistance(robotPose.getTranslation());
+
+    var shooterAngularVelocity = RotationsPerSecond.of(HUB_SETPOINTS_BY_DISTANCE_METERS.get(targetDistance));
 
     shooterSubsystem.setFlywheelSpeed(shooterAngularVelocity);
     /*
@@ -84,8 +91,10 @@ public class ShootAtTargetCommand extends Command {
     if (isShooting || shooterSubsystem.isReadyToShoot()) {
       drivetrain.applyRequest(() -> new SwerveRequest.SwerveDriveBrake());
       isShooting = true;
-      // TODO run indexer and feeder
-        
+      feederSubsystem.feedShooter();
+      indexerSubsystem.feedShooter();
+      intakeSubsytem.retract();
+      intakeSubsytem.runIntakeSlow();
     }
   }
 
