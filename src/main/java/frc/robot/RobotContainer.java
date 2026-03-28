@@ -34,8 +34,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.Constants.OdometryConstants;
-import frc.robot.Constants.QuestNavConstants;
-import frc.robot.commands.DefaultShooterCommand;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.DeployIntakeCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.RetractIntakeCommand;
@@ -49,12 +48,12 @@ import frc.robot.controls.XBoxControlBindings;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsytem;
 import frc.robot.subsystems.LEDSubsystemContainer;
 import frc.robot.subsystems.LocalizationSubsystem;
 import frc.robot.subsystems.MitoCANdriaSubsytem;
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.IndexerSubsystem;
 
 @Logged(strategy = Logged.Strategy.OPT_IN)
 public class RobotContainer {
@@ -69,7 +68,7 @@ public class RobotContainer {
       TunerConstants.DrivetrainConstants,
       0,
       OdometryConstants.STATE_STD_DEVS,
-      QuestNavConstants.QUESTNAV_STD_DEVS,
+      VisionConstants.APRILTAG_STD_DEVS,
       TunerConstants.FrontLeft,
       TunerConstants.FrontRight,
       TunerConstants.BackLeft,
@@ -134,8 +133,6 @@ public class RobotContainer {
     // Set up default commmands
     ledSubsystem.getIntakeLEDSubsystem().setDefaultCommand(new DefaultLEDCommand(ledSubsystem.getIntakeLEDSubsystem()));
     ledSubsystem.getRobotLEDSubsystem().setDefaultCommand(new DefaultLEDCommand(ledSubsystem.getRobotLEDSubsystem()));
-
-    shooterSubsystem.setDefaultCommand(new DefaultShooterCommand(shooterSubsystem));
   }
 
   private void configureBindings() {
@@ -244,14 +241,14 @@ public class RobotContainer {
   }
 
   private void configurePathPlannerCommands() {
-    NamedCommands.registerCommand("Shoot", commandFactory.shootAtHub().finallyDo(shooterSubsystem::stow));
+    NamedCommands.registerCommand("Shoot", commandFactory.shootAtHub());
     NamedCommands.registerCommand("AgitateIntake", commandFactory.agitateIntakeCommand());
     NamedCommands.registerCommand(
         "Intake",
           new DeployIntakeCommand(intakeSubsystem)
               .andThen(new IntakeCommand(intakeSubsystem, ledSubsystem.getIntakeLEDSubsystem())));
     NamedCommands.registerCommand("RetractIntake", new RetractIntakeCommand(intakeSubsystem));
-    NamedCommands.registerCommand("Shuttle", commandFactory.shuttleToCorner().finallyDo(shooterSubsystem::stow));
+    NamedCommands.registerCommand("Shuttle", commandFactory.shuttleToCorner());
   }
 
   public Command getAutonomousCommand() {
@@ -313,15 +310,5 @@ public class RobotContainer {
     SmartDashboard.putData("Shooter Flywheel Quasi Rev", shooterSubsystem.sysIdFlywheelQuasistaticCommand(kReverse));
     SmartDashboard.putData("Shooter Flywheel Dynam Fwd", shooterSubsystem.sysIdFlywheelDynamicCommand(kForward));
     SmartDashboard.putData("Shooter Flywheel Dynam Rev", shooterSubsystem.sysIdFlywheelDynamicCommand(kReverse));
-
-    SmartDashboard.putData("Shooter Yaw Quasi Fwd", shooterSubsystem.sysIdYawQuasistaticCommand(kForward));
-    SmartDashboard.putData("Shooter Yaw Quasi Rev", shooterSubsystem.sysIdYawQuasistaticCommand(kReverse));
-    SmartDashboard.putData("Shooter Yaw Dynam Fwd", shooterSubsystem.sysIdYawDynamicCommand(kForward));
-    SmartDashboard.putData("Shooter Yaw Dynam Rev", shooterSubsystem.sysIdYawDynamicCommand(kReverse));
-
-    SmartDashboard.putData("Shooter Pitch Quasi Fwd", shooterSubsystem.sysIdPitchQuasistaticCommand(kForward));
-    SmartDashboard.putData("Shooter Pitch Quasi Rev", shooterSubsystem.sysIdPitchQuasistaticCommand(kReverse));
-    SmartDashboard.putData("Shooter Pitch Dynam Fwd", shooterSubsystem.sysIdPitchDynamicCommand(kForward));
-    SmartDashboard.putData("Shooter Pitch Dynam Rev", shooterSubsystem.sysIdPitchDynamicCommand(kReverse));
   }
 }

@@ -4,7 +4,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.CANIVORE_BUS;
 import static frc.robot.Constants.FeederConstants.DEVICE_ID_FEEDER_CANRANGE;
-import static frc.robot.Constants.FeederConstants.DEVICE_ID_FEEDER_MOTOR;
+import static frc.robot.Constants.FeederConstants.DEVICE_ID_FEEDER_LEADER;
 import static frc.robot.Constants.FeederConstants.FEEDER_FEED_VELOCITY;
 import static frc.robot.Constants.FeederConstants.FEEDER_PEAK_TORQUE_CURRENT_FORWARD;
 import static frc.robot.Constants.FeederConstants.FEEDER_PEAK_TORQUE_CURRENT_REVERSE;
@@ -40,7 +40,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
  */
 @Logged(strategy = Logged.Strategy.OPT_IN)
 public class FeederSubsystem extends SubsystemBase {
-  private final TalonFX feederMotor = new TalonFX(DEVICE_ID_FEEDER_MOTOR, CANIVORE_BUS);
+  private final TalonFX feederMotor = new TalonFX(DEVICE_ID_FEEDER_LEADER, CANIVORE_BUS);
+  // TODO add follower
   private final CANrange feederCanRange = new CANrange(DEVICE_ID_FEEDER_CANRANGE, CANIVORE_BUS);
 
   private final VelocityTorqueCurrentFOC feederVelocityTorque = new VelocityTorqueCurrentFOC(0.0);

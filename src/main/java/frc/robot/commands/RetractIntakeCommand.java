@@ -17,19 +17,13 @@ public class RetractIntakeCommand extends Command {
   }
 
   @Override
-  public void execute() {
-    if (intakeSubsystem.isRetracted()) {
-      // Once retracted, hold it in place
-      intakeSubsystem.holdRetracted();
-    } else {
-      // Not retracted, so retract it
-      intakeSubsystem.retract();
-    }
+  public void initialize() {
+    intakeSubsystem.retract();
   }
 
   @Override
   public boolean isFinished() {
-    return false;
+    return intakeSubsystem.isRetracted();
   }
 
   @Override

@@ -1,7 +1,5 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.wpilibj.DriverStation.Alliance.Blue;
 import static frc.robot.Constants.FeederConstants.FEEDER_FEED_VELOCITY;
@@ -12,15 +10,14 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ShootingConstants;
 import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.LEDSubsystemContainer;
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.IndexerSubsystem;
 import java.util.function.Supplier;
 
 /**
@@ -44,8 +41,6 @@ public class TuneShootingCommand extends Command {
   private boolean shooting = false;
   private Translation2d hubTranslation;
 
-  private MutAngle pitchMeasure = Radian.mutable(0);
-  private MutAngle yawMeasure = Radian.mutable(0);
   private MutAngularVelocity topVelocityMeasure = RotationsPerSecond.mutable(0);
   private MutAngularVelocity feederVelocityMeasure = RotationsPerSecond.mutable(0);
   private MutAngularVelocity indexerVelocityMeasure = RotationsPerSecond.mutable(0);
@@ -94,10 +89,8 @@ public class TuneShootingCommand extends Command {
     var turretDistanceToHub = ShooterSubsystem.getShooterTranslation(poseSupplier.get()).getDistance(hubTranslation);
     distancePublisher.accept(turretDistanceToHub);
 
-    shooterSubsystem.setPitchAngle(pitchMeasure.mut_replace(pitchSubscriber.get(0.0), Degrees));
-    shooterSubsystem.setYawAngle(yawMeasure.mut_replace(yawSubscriber.get(180.0), Degrees));
     shooterSubsystem.setFlywheelSpeed(topVelocityMeasure.mut_replace(flywheelSubscriber.get(0.0), RotationsPerSecond));
-    if (shooting || (shooterSubsystem.isFlywheelAtSpeed() && shooterSubsystem.isPitchAtSetpoint())) {
+    if (shooting || shooterSubsystem.isFlywheelAtSpeed()) {
       feederSubsystem
           .runFeeder(feederVelocityMeasure.mut_replace(feederVelocitySubscriber.get(0.0), RotationsPerSecond));
       indexerSubsystem
@@ -110,6 +103,6 @@ public class TuneShootingCommand extends Command {
   public void end(boolean interrupted) {
     feederSubsystem.stop();
     indexerSubsystem.stop();
-    shooterSubsystem.stopAll();
+    shooterSubsystem.stop();
   }
 }

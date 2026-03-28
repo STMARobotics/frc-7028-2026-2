@@ -76,9 +76,7 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   public Command sysIdIndexerDynamicCommand(Direction direction) {
-    return indexerSysIdRoutine.dynamic(direction)
-        .withName("SysId indexer dynamic " + direction)
-        .finallyDo(this::stop);
+    return indexerSysIdRoutine.dynamic(direction).withName("SysId indexer dynamic " + direction).finallyDo(this::stop);
   }
 
   public Command sysIdIndexerQuasistaticCommand(Direction direction) {

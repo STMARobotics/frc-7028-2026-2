@@ -9,19 +9,13 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.CANIVORE_BUS;
 import static frc.robot.Constants.IntakeConstants.DEPLOYED_POSITION;
-import static frc.robot.Constants.IntakeConstants.DEPLOY_CANCODER_OFFSET;
-import static frc.robot.Constants.IntakeConstants.DEPLOY_DISCONTINUITY_POINT;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_FORWARD_LIMIT;
-import static frc.robot.Constants.IntakeConstants.DEPLOY_HOLD_CURRENT;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_MOTION_MAGIC_CONFIGS;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_REVERSE_LIMIT;
-import static frc.robot.Constants.IntakeConstants.DEPLOY_ROTOR_TO_SENSOR_RATIO;
-import static frc.robot.Constants.IntakeConstants.DEPLOY_SENSOR_TO_MECHANISM_RATIO;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_SLOT_CONFIGS;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_STATOR_CURRENT_LIMIT;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_SUPPLY_CURRENT_LIMIT;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_TOLERANCE;
-import static frc.robot.Constants.IntakeConstants.DEVICE_ID_DEPLOY_CANCODER;
 import static frc.robot.Constants.IntakeConstants.DEVICE_ID_DEPLOY_MOTOR;
 import static frc.robot.Constants.IntakeConstants.DEVICE_ID_ROLLER_MOTOR;
 import static frc.robot.Constants.IntakeConstants.RETRACTED_POSITION;
@@ -36,10 +30,7 @@ import static frc.robot.Constants.IntakeConstants.ROLLER_SUPPLY_CURRENT_LIMIT;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
@@ -49,11 +40,9 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -71,7 +60,6 @@ public class IntakeSubsytem extends SubsystemBase {
 
   private final TalonFX rollerMotor = new TalonFX(DEVICE_ID_ROLLER_MOTOR, CANIVORE_BUS);
   private final TalonFX deployMotor = new TalonFX(DEVICE_ID_DEPLOY_MOTOR, CANIVORE_BUS);
-  private final CANcoder deployCANcoder = new CANcoder(DEVICE_ID_DEPLOY_CANCODER, CANIVORE_BUS);
 
   // Motor request objects
   private final MotionMagicVoltage deployControl = new MotionMagicVoltage(0.0).withEnableFOC(true);
@@ -79,9 +67,6 @@ public class IntakeSubsytem extends SubsystemBase {
 
   private final TorqueCurrentFOC rollerSysIdControl = new TorqueCurrentFOC(0.0);
   private final VoltageOut deploySysIdControl = new VoltageOut(0.0).withEnableFOC(true);
-  // Torque control to hold the intake, ignoring the soft limit
-  private final TorqueCurrentFOC deployHoldControl = new TorqueCurrentFOC(DEPLOY_HOLD_CURRENT)
-      .withIgnoreSoftwareLimits(true);
 
   private final StatusSignal<Angle> deployPositionSignal = deployMotor.getPosition(false);
   private final StatusSignal<AngularVelocity> deployVelocitySignal = deployMotor.getVelocity(false);
@@ -132,22 +117,10 @@ public class IntakeSubsytem extends SubsystemBase {
                 .withSupplyCurrentLimitEnable(true));
     rollerMotor.getConfigurator().apply(rollerConfig);
 
-    // Configure the CANcoder for the deploy
-    var deployCancoderConfig = new CANcoderConfiguration();
-    deployCancoderConfig.withMagnetSensor(
-        new MagnetSensorConfigs().withMagnetOffset(DEPLOY_CANCODER_OFFSET)
-            .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
-            .withAbsoluteSensorDiscontinuityPoint(DEPLOY_DISCONTINUITY_POINT));
-    deployCANcoder.getConfigurator().apply(deployCancoderConfig);
-
     // Configure the deploy motor
     var deployConfig = new TalonFXConfiguration();
     deployConfig.withMotorOutput(
         new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast).withInverted(InvertedValue.Clockwise_Positive))
-        .withFeedback(
-            new FeedbackConfigs().withRotorToSensorRatio(DEPLOY_ROTOR_TO_SENSOR_RATIO)
-                .withSensorToMechanismRatio(DEPLOY_SENSOR_TO_MECHANISM_RATIO)
-                .withFusedCANcoder(deployCANcoder))
         .withSlot0(Slot0Configs.from(DEPLOY_SLOT_CONFIGS))
         .withMotionMagic(DEPLOY_MOTION_MAGIC_CONFIGS)
         .withCurrentLimits(
@@ -161,12 +134,8 @@ public class IntakeSubsytem extends SubsystemBase {
                 .withReverseSoftLimitEnable(true)
                 .withReverseSoftLimitThreshold(DEPLOY_REVERSE_LIMIT));
     deployMotor.getConfigurator().apply(deployConfig);
+    // TODO add potentiometer
 
-    // If the intake started in the retracted position, continue to hold it retracted. Otherwise, leave it neutral so it
-    // stays deployed.
-    if (isRetracted()) {
-      // holdRetracted();
-    }
   }
 
   /**
@@ -243,13 +212,6 @@ public class IntakeSubsytem extends SubsystemBase {
    */
   public void retract() {
     deployMotor.setControl(deployControl.withPosition(RETRACTED_POSITION));
-  }
-
-  /**
-   * Applies some torque to hold the intake in the retracted position.
-   */
-  public void holdRetracted() {
-    deployMotor.setControl(deployHoldControl);
   }
 
   /**
