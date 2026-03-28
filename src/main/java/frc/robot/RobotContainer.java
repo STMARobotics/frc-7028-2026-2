@@ -161,7 +161,6 @@ public class RobotContainer {
 
     controlBindings.eject().ifPresent(trigger -> trigger.whileTrue(Commands.run(() -> {
       intakeSubsystem.reverseIntake();
-      indexerSubsystem.agitate();
       ledSubsystem.getIntakeLEDSubsystem()
           .runPatternOnIntakeHigh(LEDPattern.rainbow(255, 255).scrollAtRelativeSpeed(Percent.per(Second).of(200)));
       ledSubsystem.getIntakeLEDSubsystem()

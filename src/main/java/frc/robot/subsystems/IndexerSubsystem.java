@@ -4,8 +4,6 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.CANIVORE_BUS;
 import static frc.robot.Constants.IndexerConstants.DEVICE_ID_INDEXER_MOTOR;
-import static frc.robot.Constants.IndexerConstants.INDEXER_AGITATE_BACKWARD_VELOCITY;
-import static frc.robot.Constants.IndexerConstants.INDEXER_AGITATE_FORWARD_VELOCITY;
 import static frc.robot.Constants.IndexerConstants.INDEXER_FEED_VELOCITY;
 import static frc.robot.Constants.IndexerConstants.INDEXER_PEAK_TORQUE_CURRENT_FORWARD;
 import static frc.robot.Constants.IndexerConstants.INDEXER_PEAK_TORQUE_CURRENT_REVERSE;
@@ -59,7 +57,7 @@ public class IndexerSubsystem extends SubsystemBase {
    * Creates a new Subsystem for the Indexer
    */
   public IndexerSubsystem() {
-    var spinTalonconfig = new TalonFXConfiguration().withSlot0(Slot0Configs.from(INDEXER_SLOT_CONFIGS))
+    var dexTalonconfig = new TalonFXConfiguration().withSlot0(Slot0Configs.from(INDEXER_SLOT_CONFIGS))
         .withMotorOutput(
             new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Coast))
@@ -72,7 +70,7 @@ public class IndexerSubsystem extends SubsystemBase {
                 .withSupplyCurrentLimit(INDEXER_SUPPLY_CURRENT_LIMIT)
                 .withSupplyCurrentLimitEnable(true));
 
-    indexerMotor.getConfigurator().apply(spinTalonconfig);
+    indexerMotor.getConfigurator().apply(dexTalonconfig);
   }
 
   public Command sysIdIndexerDynamicCommand(Direction direction) {
@@ -93,16 +91,6 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   /**
-   * Agitates the indexer back and forth to prevent jams
-   */
-  public Command agitate() {
-    return run(this::spinForward).withTimeout(0.5)
-        .andThen(run(this::spinBackward).withTimeout(0.5))
-        .repeatedly()
-        .finallyDo(this::stop);
-  }
-
-  /**
    * Run the indexer at the set velocity. Used for tuning, should not be used for normal operation.
    * 
    * @param velocity the velocity to run the indexer
@@ -117,19 +105,4 @@ public class IndexerSubsystem extends SubsystemBase {
   public void stop() {
     indexerMotor.stopMotor();
   }
-
-  /**
-   * Spins the indexer forward
-   */
-  private void spinForward() {
-    indexerMotor.setControl(indexerVelocityTorque.withVelocity(INDEXER_AGITATE_FORWARD_VELOCITY));
-  }
-
-  /**
-   * Spins the indexer backward
-   */
-  private void spinBackward() {
-    indexerMotor.setControl(indexerVelocityTorque.withVelocity(INDEXER_AGITATE_BACKWARD_VELOCITY));
-  }
-
 }

@@ -210,7 +210,6 @@ public final class Constants {
 
   public static class IndexerConstants {
     public static final int DEVICE_ID_INDEXER_MOTOR = 15;
-    public static final String HOPPER_CAMERA_NAME = "HopperCam";
 
     public static final Current INDEXER_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(80);
     public static final Current INDEXER_PEAK_TORQUE_CURRENT_REVERSE = INDEXER_PEAK_TORQUE_CURRENT_FORWARD.unaryMinus();
@@ -223,8 +222,6 @@ public final class Constants {
     public static final AngularVelocity INDEXER_AGITATE_FORWARD_VELOCITY = RotationsPerSecond.of(3);
     public static final AngularVelocity INDEXER_AGITATE_BACKWARD_VELOCITY = RotationsPerSecond.of(-3);
 
-    public static final double HOPPER_FULL_THRESHOLD = 85.0; // percent
-    public static final Time PIPELINE_RESULT_TTL = Seconds.of(0.25);
   }
 
   /**
