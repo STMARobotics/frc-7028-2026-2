@@ -86,8 +86,8 @@ public class TuneShootingCommand extends Command {
 
   @Override
   public void execute() {
-    var turretDistanceToHub = ShooterSubsystem.getShooterTranslation(poseSupplier.get()).getDistance(hubTranslation);
-    distancePublisher.accept(turretDistanceToHub);
+    var distanceToHub = poseSupplier.get().getTranslation().getDistance(hubTranslation);
+    distancePublisher.accept(distanceToHub);
 
     shooterSubsystem.setFlywheelSpeed(topVelocityMeasure.mut_replace(flywheelSubscriber.get(0.0), RotationsPerSecond));
     if (shooting || shooterSubsystem.isFlywheelAtSpeed()) {

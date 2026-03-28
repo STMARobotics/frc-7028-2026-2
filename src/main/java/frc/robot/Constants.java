@@ -8,7 +8,6 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
 import static frc.robot.Constants.FieldConstants.FIELD_LENGTH;
 import static frc.robot.Constants.FieldConstants.FIELD_WIDTH;
 
@@ -32,7 +31,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.units.measure.Time;
 import frc.robot.generated.TunerConstants;
 
 public final class Constants {
@@ -118,11 +116,9 @@ public final class Constants {
     // there is no load. A tradeoff is that this will increase the time it takes to adjust the flywheel speed downward.
     public static final Current FLYWHEEL_PEAK_TORQUE_CURRENT_REVERSE = Amps.of(15);
     public static final Current FLYWHEEL_STATOR_CURRENT_LIMIT = Amps.of(170);
-    public static final Current FLYWHEEL_SUPPLY_CURRENT_LIMIT = Amps.of(40);
+    public static final Current FLYWHEEL_SUPPLY_CURRENT_LIMIT = Amps.of(80);
 
     public static final SlotConfigs FLYWHEEL_SLOT_CONFIGS = new SlotConfigs().withKP(23.0).withKS(20.0);
-
-    public static final Translation2d ROBOT_TO_SHOOTER = new Translation2d(Inches.of(-4.5), Inches.of(-7.563));
 
     public static final AngularVelocity FLYWHEEL_VELOCITY_TOLERANCE = RotationsPerSecond.of(1.5);
   }

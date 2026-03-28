@@ -7,6 +7,8 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.CANIVORE_BUS;
 import static frc.robot.Constants.ShooterConstants.DEVICE_ID_FLYWHEEL_FOLLOWER_0;
+import static frc.robot.Constants.ShooterConstants.DEVICE_ID_FLYWHEEL_FOLLOWER_1;
+import static frc.robot.Constants.ShooterConstants.DEVICE_ID_FLYWHEEL_FOLLOWER_2;
 import static frc.robot.Constants.ShooterConstants.DEVICE_ID_FLYWHEEL_LEADER;
 import static frc.robot.Constants.ShooterConstants.FLYWHEEL_PEAK_TORQUE_CURRENT_FORWARD;
 import static frc.robot.Constants.ShooterConstants.FLYWHEEL_PEAK_TORQUE_CURRENT_REVERSE;
@@ -14,7 +16,6 @@ import static frc.robot.Constants.ShooterConstants.FLYWHEEL_SLOT_CONFIGS;
 import static frc.robot.Constants.ShooterConstants.FLYWHEEL_STATOR_CURRENT_LIMIT;
 import static frc.robot.Constants.ShooterConstants.FLYWHEEL_SUPPLY_CURRENT_LIMIT;
 import static frc.robot.Constants.ShooterConstants.FLYWHEEL_VELOCITY_TOLERANCE;
-import static frc.robot.Constants.ShooterConstants.ROBOT_TO_SHOOTER;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.SignalLogger;
@@ -25,7 +26,6 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -33,8 +33,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -46,11 +44,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 @Logged(strategy = Logged.Strategy.OPT_IN)
 public class ShooterSubsystem extends SubsystemBase {
   private final TalonFX flywheelLeaderMotor = new TalonFX(DEVICE_ID_FLYWHEEL_LEADER, CANIVORE_BUS);
-  private final TalonFX flywheelFollowerMotor = new TalonFX(DEVICE_ID_FLYWHEEL_FOLLOWER_0, CANIVORE_BUS);
-  // TODO rename follower 0 and add two more followers
+  private final TalonFX flywheelFollower0Motor = new TalonFX(DEVICE_ID_FLYWHEEL_FOLLOWER_0, CANIVORE_BUS);
+  private final TalonFX flywheelFollower1Motor = new TalonFX(DEVICE_ID_FLYWHEEL_FOLLOWER_1, CANIVORE_BUS);
+  private final TalonFX flywheelFollower2Motor = new TalonFX(DEVICE_ID_FLYWHEEL_FOLLOWER_2, CANIVORE_BUS);
 
-  private final MotionMagicVoltage yawPositionRequest = new MotionMagicVoltage(0.0).withEnableFOC(true);
-  private final MotionMagicVoltage pitchPositionRequest = new MotionMagicVoltage(0.0).withEnableFOC(true);
   private final VelocityTorqueCurrentFOC flywheelVelocityRequest = new VelocityTorqueCurrentFOC(0.0);
 
   private final TorqueCurrentFOC sysIdFlywheelTorqueCurrent = new TorqueCurrentFOC(0.0);
@@ -91,11 +88,15 @@ public class ShooterSubsystem extends SubsystemBase {
         .withSlot0(Slot0Configs.from(FLYWHEEL_SLOT_CONFIGS));
 
     flywheelLeaderMotor.getConfigurator().apply(flywheelConfig);
-    flywheelFollowerMotor.getConfigurator().apply(flywheelConfig);
-    // Max the leader update frequency so follower can respond quickly
+    flywheelFollower0Motor.getConfigurator().apply(flywheelConfig);
+    flywheelFollower1Motor.getConfigurator().apply(flywheelConfig);
+    flywheelFollower2Motor.getConfigurator().apply(flywheelConfig);
+    // Max the leader update frequency so followers can respond quickly
     flywheelLeaderMotor.getTorqueCurrent().setUpdateFrequency(1000);
 
-    flywheelFollowerMotor.setControl(new Follower(flywheelLeaderMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+    flywheelFollower0Motor.setControl(new Follower(flywheelLeaderMotor.getDeviceID(), MotorAlignmentValue.Aligned));
+    flywheelFollower1Motor.setControl(new Follower(flywheelLeaderMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+    flywheelFollower2Motor.setControl(new Follower(flywheelLeaderMotor.getDeviceID(), MotorAlignmentValue.Opposed));
   }
 
   /**
@@ -131,7 +132,9 @@ public class ShooterSubsystem extends SubsystemBase {
     flywheelLeaderMotor.setControl(flywheelVelocityRequest.withVelocity(flywheelVelocity));
   }
 
-  /** Stops the shooter */
+  /**
+   * Stops the shooter
+   */
   public void stop() {
     flywheelLeaderMotor.stopMotor();
   }
@@ -167,16 +170,6 @@ public class ShooterSubsystem extends SubsystemBase {
   @Logged
   public boolean isReadyToShoot() {
     return isFlywheelAtSpeed();
-  }
-
-  /**
-   * Gets the translation of the turret center in field coordinates.
-   * 
-   * @param robotPose the current pose of the robot
-   * @return the translation of the turret center in field coordinates
-   */
-  public static Translation2d getShooterTranslation(Pose2d robotPose) {
-    return robotPose.getTranslation().plus(ROBOT_TO_SHOOTER.rotateBy(robotPose.getRotation()));
   }
 
 }

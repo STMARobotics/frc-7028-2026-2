@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.CANIVORE_BUS;
 import static frc.robot.Constants.FeederConstants.DEVICE_ID_FEEDER_CANRANGE;
+import static frc.robot.Constants.FeederConstants.DEVICE_ID_FEEDER_FOLLOWER;
 import static frc.robot.Constants.FeederConstants.DEVICE_ID_FEEDER_LEADER;
 import static frc.robot.Constants.FeederConstants.FEEDER_FEED_VELOCITY;
 import static frc.robot.Constants.FeederConstants.FEEDER_PEAK_TORQUE_CURRENT_FORWARD;
@@ -22,11 +23,13 @@ import com.ctre.phoenix6.configs.ProximityParamsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -40,8 +43,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
  */
 @Logged(strategy = Logged.Strategy.OPT_IN)
 public class FeederSubsystem extends SubsystemBase {
-  private final TalonFX feederMotor = new TalonFX(DEVICE_ID_FEEDER_LEADER, CANIVORE_BUS);
-  // TODO add follower
+  private final TalonFX feederLeaderMotor = new TalonFX(DEVICE_ID_FEEDER_LEADER, CANIVORE_BUS);
+  private final TalonFX feederFollowerMotor = new TalonFX(DEVICE_ID_FEEDER_FOLLOWER, CANIVORE_BUS);
   private final CANrange feederCanRange = new CANrange(DEVICE_ID_FEEDER_CANRANGE, CANIVORE_BUS);
 
   private final VelocityTorqueCurrentFOC feederVelocityTorque = new VelocityTorqueCurrentFOC(0.0);
@@ -58,7 +61,7 @@ public class FeederSubsystem extends SubsystemBase {
           null,
           state -> SignalLogger.writeString("Feeder SysId", state.toString())),
       new SysIdRoutine.Mechanism(
-          amps -> feederMotor.setControl(feederTorqueControl.withOutput(amps.in(Volts))),
+          amps -> feederLeaderMotor.setControl(feederTorqueControl.withOutput(amps.in(Volts))),
           null,
           this));
 
@@ -79,7 +82,10 @@ public class FeederSubsystem extends SubsystemBase {
                 .withSupplyCurrentLimitEnable(true));
     feederTalonconfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    feederMotor.getConfigurator().apply(feederTalonconfig);
+    feederLeaderMotor.getConfigurator().apply(feederTalonconfig);
+    feederFollowerMotor.getConfigurator().apply(feederTalonconfig);
+
+    feederFollowerMotor.setControl(new Follower(feederLeaderMotor.getDeviceID(), MotorAlignmentValue.Opposed));
   }
 
   public Command sysIdFeederDynamicCommand(Direction direction) {
@@ -94,7 +100,7 @@ public class FeederSubsystem extends SubsystemBase {
    * Spins the feeder to feed the shooter
    */
   public void feedShooter() {
-    feederMotor.setControl(feederVelocityTorque.withVelocity(FEEDER_FEED_VELOCITY));
+    feederLeaderMotor.setControl(feederVelocityTorque.withVelocity(FEEDER_FEED_VELOCITY));
   }
 
   /**
@@ -103,21 +109,21 @@ public class FeederSubsystem extends SubsystemBase {
    * @param velocity the velocity to run the feeder
    */
   public void runFeeder(AngularVelocity velocity) {
-    feederMotor.setControl(feederVelocityTorque.withVelocity(velocity));
+    feederLeaderMotor.setControl(feederVelocityTorque.withVelocity(velocity));
   }
 
   /**
    * Spins the feeder backward to unjam the feeder
    */
   public void unjam() {
-    feederMotor.setControl(feederVelocityTorque.withVelocity(FEEDER_UNJAM_VELOCITY));
+    feederLeaderMotor.setControl(feederVelocityTorque.withVelocity(FEEDER_UNJAM_VELOCITY));
   }
 
   /**
    * Stops the feeder motor
    */
   public void stop() {
-    feederMotor.stopMotor();
+    feederLeaderMotor.stopMotor();
   }
 
   /**
