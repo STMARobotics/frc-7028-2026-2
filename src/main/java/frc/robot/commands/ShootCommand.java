@@ -7,9 +7,9 @@ import static frc.robot.Constants.ShootingConstants.HUB_SETPOINTS_BY_DISTANCE_ME
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.ShooterSetpoints;
-import frc.robot.subsystems.IndexerSubsystem;
 
 /*
  * Command to shoot fuel without aiming. It will shoot at a fixed yaw, pitch, and velocity

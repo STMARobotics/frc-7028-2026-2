@@ -49,12 +49,12 @@ import frc.robot.controls.XBoxControlBindings;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsytem;
 import frc.robot.subsystems.LEDSubsystemContainer;
 import frc.robot.subsystems.LocalizationSubsystem;
 import frc.robot.subsystems.MitoCANdriaSubsytem;
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.IndexerSubsystem;
 
 @Logged(strategy = Logged.Strategy.OPT_IN)
 public class RobotContainer {

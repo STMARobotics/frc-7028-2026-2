@@ -290,8 +290,7 @@ public final class Constants {
     public static final String HOPPER_CAMERA_NAME = "HopperCam";
 
     public static final Current INDEXER_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(80);
-    public static final Current INDEXER_PEAK_TORQUE_CURRENT_REVERSE = INDEXER_PEAK_TORQUE_CURRENT_FORWARD
-        .unaryMinus();
+    public static final Current INDEXER_PEAK_TORQUE_CURRENT_REVERSE = INDEXER_PEAK_TORQUE_CURRENT_FORWARD.unaryMinus();
     public static final Current INDEXER_STATOR_CURRENT_LIMIT = Amps.of(80);
     public static final Current INDEXER_SUPPLY_CURRENT_LIMIT = Amps.of(50);
 
