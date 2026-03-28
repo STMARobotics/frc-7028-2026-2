@@ -1,14 +1,14 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static frc.robot.Constants.ShootingConstants.HUB_SETPOINTS_BY_DISTANCE_METERS;
 
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.ShooterSubsystem.ShooterSetpoints;
 import frc.robot.subsystems.SpindexerSubsystem;
 
 /*
@@ -18,7 +18,8 @@ public class ShootCommand extends Command {
   private final SpindexerSubsystem spindexerSubsystem;
   private final FeederSubsystem feederSubsystem;
   private final ShooterSubsystem shooterSubsystem;
-  private final ShooterSetpoints setpoints;
+  private final AngularVelocity shooterAngularVelocity;
+
   private boolean isShooting = false;
 
   /**
@@ -38,7 +39,7 @@ public class ShootCommand extends Command {
     this.spindexerSubsystem = spindexerSubsystem;
     this.shooterSubsystem = shooterSubsystem;
 
-    setpoints = HUB_SETPOINTS_BY_DISTANCE_METERS.get(targetDistance.in(Meters));
+    shooterAngularVelocity = RotationsPerSecond.of(HUB_SETPOINTS_BY_DISTANCE_METERS.get(targetDistance.in(Meters)));
 
     addRequirements(feederSubsystem, spindexerSubsystem, shooterSubsystem);
   }
@@ -53,23 +54,20 @@ public class ShootCommand extends Command {
     /*
      * sets the Yaw, Pitch, and Angle
      */
-    shooterSubsystem.setYawAngle(Degrees.of(180));
-    shooterSubsystem.setPitchAngle(setpoints.targetPitch());
-    shooterSubsystem.setFlywheelSpeed(setpoints.targetFlywheelSpeed());
+    shooterSubsystem.setFlywheelSpeed(shooterAngularVelocity);
     /*
      * Checks to make sure the shooter is ready and up to speed
      * before runnig the spindexer and feeder
      */
     if (isShooting || shooterSubsystem.isReadyToShoot()) {
       isShooting = true;
-      spindexerSubsystem.runSpindexer(setpoints.spindexerVelocity());
-      feederSubsystem.runFeeder(setpoints.feederVelocity());
+      // TODO run indexer and feeder
     }
   }
 
   public void end(boolean interrupted) {
     spindexerSubsystem.stop();
     feederSubsystem.stop();
-    shooterSubsystem.stopAll();
+    shooterSubsystem.stop();
   }
 }
