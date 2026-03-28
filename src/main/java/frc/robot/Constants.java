@@ -122,8 +122,6 @@ public final class Constants {
 
     public static final SlotConfigs FLYWHEEL_SLOT_CONFIGS = new SlotConfigs().withKP(23.0).withKS(20.0);
 
-    public static final Translation2d ROBOT_TO_SHOOTER = new Translation2d(Inches.of(-4.5), Inches.of(-7.563));
-
     public static final AngularVelocity FLYWHEEL_VELOCITY_TOLERANCE = RotationsPerSecond.of(1.5);
   }
 
