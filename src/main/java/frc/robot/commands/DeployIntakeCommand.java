@@ -4,11 +4,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IntakeSubsytem;
 
 /**
- * Command to deploy the intake. This command will run until the intake is fully deployed.
+ * Command to deploy the intake and turn it off once deployed. This command will run until interrupted.
  */
 public class DeployIntakeCommand extends Command {
 
   private final IntakeSubsytem intakeSubsystem;
+  private boolean hasDeployed = false;
 
   public DeployIntakeCommand(IntakeSubsytem intakeSubsystem) {
     this.intakeSubsystem = intakeSubsystem;
@@ -19,13 +20,14 @@ public class DeployIntakeCommand extends Command {
   @Override
   public void initialize() {
     intakeSubsystem.deploy();
+    hasDeployed = false;
   }
 
   @Override
   public void execute() {
-    if (!intakeSubsystem.isDeployed()) {
-      intakeSubsystem.deploy();
-    } else {
+    if (hasDeployed || intakeSubsystem.isDeployed()) {
+      // Turn the intake off once it's deployed
+      hasDeployed = true;
       intakeSubsystem.stopDeploy();
     }
   }

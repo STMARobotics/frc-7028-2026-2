@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.CANIVORE_BUS;
+import static frc.robot.Constants.IntakeConstants.CHANNEL_ID_DEPLOY_POTENTIOMETER;
 import static frc.robot.Constants.IntakeConstants.DEPLOYED_POSITION;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_FORWARD_LIMIT;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_MOTION_MAGIC_CONFIGS;
@@ -18,11 +19,11 @@ import static frc.robot.Constants.IntakeConstants.DEPLOY_STATOR_CURRENT_LIMIT;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_SUPPLY_CURRENT_LIMIT;
 import static frc.robot.Constants.IntakeConstants.DEVICE_ID_DEPLOY_MOTOR;
 import static frc.robot.Constants.IntakeConstants.DEVICE_ID_ROLLER_MOTOR;
-import static frc.robot.Constants.IntakeConstants.POTENTIOMETER_MAX_VALUE;
-import static frc.robot.Constants.IntakeConstants.POTENTIOMETER_MIN_VALUE;
+import static frc.robot.Constants.IntakeConstants.POTENTIOMETER_FULL_RANGE;
+import static frc.robot.Constants.IntakeConstants.POTENTIOMETER_OFFSET;
 import static frc.robot.Constants.IntakeConstants.RETRACTED_POSITION;
 import static frc.robot.Constants.IntakeConstants.ROLLER_EJECT_VELOCITY;
-import static frc.robot.Constants.IntakeConstants.ROLLER_INTAKE_SLOW_VELOCITY;
+import static frc.robot.Constants.IntakeConstants.ROLLER_INTAKE_SHOOTING_VELOCITY;
 import static frc.robot.Constants.IntakeConstants.ROLLER_INTAKE_VELOCITY;
 import static frc.robot.Constants.IntakeConstants.ROLLER_PEAK_TORQUE_CURRENT_FORWARD;
 import static frc.robot.Constants.IntakeConstants.ROLLER_PEAK_TORQUE_CURRENT_REVERSE;
@@ -50,7 +51,6 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Temperature;
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -78,8 +78,12 @@ public class IntakeSubsytem extends SubsystemBase {
   private final StatusSignal<Temperature> deployTempSignal = deployMotor.getDeviceTemp(false);
   private final StatusSignal<Boolean> deployTempFaultSignal = deployMotor.getFault_DeviceTemp(false);
 
-  private final AnalogInput deploySensorInput = new AnalogInput(0);
-  private final AnalogPotentiometer deploySensor = new AnalogPotentiometer(deploySensorInput, 180, 30);
+  // TODO set these constants, and confirm the potentiometer is in phase with the motor (zero is out, retracting is
+  // positive)
+  private final AnalogPotentiometer deploySensor = new AnalogPotentiometer(
+      CHANNEL_ID_DEPLOY_POTENTIOMETER,
+      POTENTIOMETER_FULL_RANGE,
+      POTENTIOMETER_OFFSET);
 
   // SysId routines
   // NOTE: the output type is amps, NOT volts (even though it says volts)
@@ -142,8 +146,7 @@ public class IntakeSubsytem extends SubsystemBase {
                 .withReverseSoftLimitEnable(true)
                 .withReverseSoftLimitThreshold(DEPLOY_REVERSE_LIMIT));
     deployMotor.getConfigurator().apply(deployConfig);
-
-    deployMotor.setPosition(potentiometerToRotations(deploySensor.get()));
+    deployMotor.setPosition(deploySensor.get());
   }
 
   /**
@@ -208,17 +211,13 @@ public class IntakeSubsytem extends SubsystemBase {
     rollerMotor.setControl(rollerControl.withVelocity(ROLLER_EJECT_VELOCITY));
   }
 
-  public void runIntakeSlow() {
-    rollerMotor.setControl(rollerControl.withVelocity(ROLLER_INTAKE_SLOW_VELOCITY));
-  }
-
   /**
    * Deploys the intake
    */
   public void deploy() {
     deployMotor.setControl(
         deployControl.withPosition(DEPLOYED_POSITION)
-            .withLimitReverseMotion(deploySensor.get() >= POTENTIOMETER_MAX_VALUE));
+            .withLimitReverseMotion(deploySensor.get() >= DEPLOYED_POSITION.in(Rotations)));
   }
 
   /**
@@ -227,7 +226,15 @@ public class IntakeSubsytem extends SubsystemBase {
   public void retract() {
     deployMotor.setControl(
         deployControl.withPosition(RETRACTED_POSITION)
-            .withLimitReverseMotion(deploySensor.get() <= POTENTIOMETER_MIN_VALUE));
+            .withLimitReverseMotion(deploySensor.get() <= RETRACTED_POSITION.in(Rotations)));
+  }
+
+  /**
+   * Retracts the intake and runs the rollers at a slow speed to help feed fuel into the feeder
+   */
+  public void retractForShooting() {
+    retract();
+    rollerMotor.setControl(rollerControl.withVelocity(ROLLER_INTAKE_SHOOTING_VELOCITY));
   }
 
   /**
@@ -261,8 +268,7 @@ public class IntakeSubsytem extends SubsystemBase {
   public boolean isDeployed() {
     BaseStatusSignal.refreshAll(deployPositionSignal, deployVelocitySignal);
     Angle deployPosition = BaseStatusSignal.getLatencyCompensatedValue(deployPositionSignal, deployVelocitySignal);
-    return (deployPosition.lte(DEPLOYED_POSITION)
-        || potentiometerToRotations(deploySensor.get()) <= DEPLOYED_POSITION.in(Rotations));
+    return (deployPosition.lte(DEPLOYED_POSITION) || deploySensor.get() <= DEPLOYED_POSITION.in(Rotations));
   }
 
   /**
@@ -274,8 +280,7 @@ public class IntakeSubsytem extends SubsystemBase {
   public boolean isRetracted() {
     BaseStatusSignal.refreshAll(deployPositionSignal, deployVelocitySignal);
     Angle deployPosition = BaseStatusSignal.getLatencyCompensatedValue(deployPositionSignal, deployVelocitySignal);
-    return (deployPosition.gte(RETRACTED_POSITION)
-        || potentiometerToRotations(deploySensor.get()) >= RETRACTED_POSITION.in(Rotations));
+    return (deployPosition.gte(RETRACTED_POSITION) || deploySensor.get() >= RETRACTED_POSITION.in(Rotations));
   }
 
   /**
@@ -296,10 +301,5 @@ public class IntakeSubsytem extends SubsystemBase {
   @Logged(name = "Deploy Motor Temp Fault")
   public boolean isDeployMotorDeviceTempFault() {
     return deployTempFaultSignal.refresh().getValue();
-  }
-
-  private double potentiometerToRotations(double potentiometerValue) {
-    return ((potentiometerValue - POTENTIOMETER_MIN_VALUE) / (POTENTIOMETER_MAX_VALUE - POTENTIOMETER_MIN_VALUE))
-        * (DEPLOY_FORWARD_LIMIT.in(Rotations));
   }
 }

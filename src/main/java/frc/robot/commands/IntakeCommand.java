@@ -11,17 +11,24 @@ import frc.robot.subsystems.IntakeSubsytem;
 import frc.robot.subsystems.LEDSubsystemContainer.IntakeLEDSubsystem;
 
 /**
- * Command to intake fuel from the floor. This has a prerequisite of the intake being deployed.
+ * Command to intake fuel from the floor by deploying the intake and running the roller.
  */
 public class IntakeCommand extends Command {
 
   private final IntakeSubsytem intakeSubsytem;
   private final IntakeLEDSubsystem intakeLEDSubsystem;
-
   private final LEDPattern patternLeft = LEDPattern.gradient(GradientType.kDiscontinuous, Color.kBlack, Color.kOrange)
       .scrollAtRelativeSpeed(Percent.per(Second).of(200));
   private final LEDPattern patternRight = patternLeft.reversed();
 
+  private boolean hasDeployed = false;
+
+  /**
+   * Constructor for IntakeCommand
+   * 
+   * @param intakeSubsytem the intake subsystem
+   * @param intakeLEDSubsystem the intake LED subsystem
+   */
   public IntakeCommand(IntakeSubsytem intakeSubsytem, IntakeLEDSubsystem intakeLEDSubsystem) {
     this.intakeSubsytem = intakeSubsytem;
     this.intakeLEDSubsystem = intakeLEDSubsystem;
@@ -32,10 +39,16 @@ public class IntakeCommand extends Command {
   @Override
   public void initialize() {
     intakeSubsytem.runIntake();
+    intakeSubsytem.deploy();
+    hasDeployed = false;
   }
 
   @Override
   public void execute() {
+    if (hasDeployed || intakeSubsytem.isDeployed()) {
+      hasDeployed = true;
+      intakeSubsytem.stopDeploy();
+    }
     intakeLEDSubsystem.runPatternOnIntakeHighLeft(patternLeft);
     intakeLEDSubsystem.runPatternOnIntakeHighRight(patternRight);
     intakeLEDSubsystem.runPatternOnIntakeLowLeft(patternLeft);
@@ -44,8 +57,7 @@ public class IntakeCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    intakeSubsytem.stopIntaking();
-
+    intakeSubsytem.stop();
     intakeLEDSubsystem.off();
   }
 

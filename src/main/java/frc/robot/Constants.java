@@ -8,7 +8,6 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static frc.robot.Constants.FieldConstants.FIELD_LENGTH;
 import static frc.robot.Constants.FieldConstants.FIELD_WIDTH;
 
 import com.ctre.phoenix6.CANBus;
@@ -173,6 +172,7 @@ public final class Constants {
     public static final int DEVICE_ID_ROLLER_MOTOR = 11;
     public static final int DEVICE_ID_ROLLER_FOLLOWER = 12;
     public static final int DEVICE_ID_DEPLOY_POTENTIOMETER = 1;
+    public static final int CHANNEL_ID_DEPLOY_POTENTIOMETER = 0;
 
     // Roller constants
     public static final Current ROLLER_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(100);
@@ -182,7 +182,7 @@ public final class Constants {
     public static final SlotConfigs ROLLER_SLOT_CONFIGS = new SlotConfigs().withKP(12).withKS(5.1);
 
     public static final AngularVelocity ROLLER_INTAKE_VELOCITY = RotationsPerSecond.of(80.0);
-    public static final AngularVelocity ROLLER_INTAKE_SLOW_VELOCITY = RotationsPerSecond.of(40.0);
+    public static final AngularVelocity ROLLER_INTAKE_SHOOTING_VELOCITY = RotationsPerSecond.of(40.0);
     public static final AngularVelocity ROLLER_EJECT_VELOCITY = RotationsPerSecond.of(-30.0);
 
     // Deploy constants
@@ -191,8 +191,11 @@ public final class Constants {
 
     public static final Angle DEPLOY_REVERSE_LIMIT = Rotations.of(0.0);
     public static final Angle DEPLOY_FORWARD_LIMIT = Rotations.of(0.152);
-    public static final double POTENTIOMETER_MIN_VALUE = 0.0;
-    public static final double POTENTIOMETER_MAX_VALUE = 1.0;
+    // Value used to scale the potentiometer to motor rotations. This is the full range of the intake, in motor
+    // rotations
+    public static final double POTENTIOMETER_FULL_RANGE = 0.0;
+    // The offset of the potentiometer from the actual position of the intake
+    public static final double POTENTIOMETER_OFFSET = 0.0;
 
     public static final SlotConfigs DEPLOY_SLOT_CONFIGS = new SlotConfigs().withGravityType(GravityTypeValue.Arm_Cosine)
         .withKP(25.0)
@@ -218,9 +221,6 @@ public final class Constants {
     public static final SlotConfigs INDEXER_SLOT_CONFIGS = new SlotConfigs().withKP(5.0).withKV(0.0).withKS(50.0);
 
     public static final AngularVelocity INDEXER_FEED_VELOCITY = RotationsPerSecond.of(20);
-    public static final AngularVelocity INDEXER_AGITATE_FORWARD_VELOCITY = RotationsPerSecond.of(3);
-    public static final AngularVelocity INDEXER_AGITATE_BACKWARD_VELOCITY = RotationsPerSecond.of(-3);
-
   }
 
   /**
@@ -264,12 +264,6 @@ public final class Constants {
   public static class ShootingConstants {
     public static final Angle AIM_TOLERANCE = Degrees.of(1.5);
 
-    // Danger zone is the region on the X axis where we don't want to shoot or shuttle from because of the trench
-    public static final Distance DANGER_ZONE_MIN_BLUE = Meters.of(4.25);
-    public static final Distance DANGER_ZONE_MAX_BLUE = Meters.of(4.95);
-    public static final Distance DANGER_ZONE_MIN_RED = FIELD_LENGTH.minus(DANGER_ZONE_MAX_BLUE);
-    public static final Distance DANGER_ZONE_MAX_RED = FIELD_LENGTH.minus(DANGER_ZONE_MIN_BLUE);
-
     private static InterpolatingDoubleTreeMap createShooterInterpolator() {
       var map = new InterpolatingDoubleTreeMap();
       map.put(0.0, 0.0);
@@ -287,10 +281,10 @@ public final class Constants {
     public static final InterpolatingDoubleTreeMap SHUTTLE_SETPOINTS_BY_DISTANCE_METERS = createShuttleInterpolator();
 
     /** Translation of the hub on the blue side */
-    public static final Translation2d TARGET_BLUE = new Translation2d(Inches.of(182.143595), Inches.of(158.84375));
+    public static final Translation2d HUB_BLUE = new Translation2d(Inches.of(182.143595), Inches.of(158.84375));
 
     /** Translation of the hub on the red side */
-    public static final Translation2d TARGET_RED = new Translation2d(Inches.of(469.078905), Inches.of(158.84375));
+    public static final Translation2d HUB_RED = new Translation2d(Inches.of(469.078905), Inches.of(158.84375));
 
     /** Translations for shuttling on the blue side, with Z > 1/2 of the field */
     public static final Translation2d SHUTTLE_BLUE_HIGH = new Translation2d(

@@ -1,6 +1,8 @@
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static frc.robot.Constants.ShootingConstants.AIM_TOLERANCE;
 import static frc.robot.Constants.ShootingConstants.HUB_SETPOINTS_BY_DISTANCE_METERS;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -18,7 +20,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /*
- * Command to shoot fuel without aiming. It will shoot at a fixed yaw, pitch, and velocity
+ * Command to aim at a target and shoot fuel. This command will run until interrupted.
  */
 public class ShootAtTargetCommand extends Command {
   private final IndexerSubsystem indexerSubsystem;
@@ -28,6 +30,7 @@ public class ShootAtTargetCommand extends Command {
   private final IntakeSubsytem intakeSubsytem;
   private final Supplier<Pose2d> robotPoseSupplier;
   private final Function<Translation2d, Translation2d> targetTranslationSelector;
+  private final SwerveRequest.SwerveDriveBrake swerveDriveBrake = new SwerveRequest.SwerveDriveBrake();
   private final SwerveRequest.FieldCentricFacingAngle swerveRequestFacing = new SwerveRequest.FieldCentricFacingAngle()
       .withDriveRequestType(DriveRequestType.Velocity)
       .withSteerRequestType(SteerRequestType.MotionMagicExpo)
@@ -37,12 +40,15 @@ public class ShootAtTargetCommand extends Command {
   private boolean isShooting = false;
 
   /**
-   * Constructor for ShootCommand
+   * Constructor for ShootAtTargetCommand
    * 
    * @param indexerSubsystem the indexer subsystem
    * @param feederSubsystem the feeder subsystem
    * @param shooterSubsystem the shooter subsystem
-   * @param targetDistance the distance of the target to use for setpoints
+   * @param drivetrain the drivetrain subsystem
+   * @param intakeSubsytem the intake subsystem
+   * @param robotPoseSupplier the supplier for the robot's pose
+   * @param targetTranslationSelector the function to select the target translation
    */
   public ShootAtTargetCommand(
       IndexerSubsystem indexerSubsystem,
@@ -72,32 +78,29 @@ public class ShootAtTargetCommand extends Command {
   public void execute() {
     var robotPose = robotPoseSupplier.get();
     var targetTranslation = targetTranslationSelector.apply(robotPose.getTranslation());
-
-    var targetRotation = targetTranslation.minus(robotPose.getTranslation()).getAngle();
-    drivetrain.setControl(swerveRequestFacing.withTargetDirection(targetRotation));
+    var headingToTarget = targetTranslation.minus(robotPose.getTranslation()).getAngle();
+    drivetrain.setControl(swerveRequestFacing.withTargetDirection(headingToTarget));
 
     var targetDistance = targetTranslation.getDistance(robotPose.getTranslation());
-
     var shooterAngularVelocity = RotationsPerSecond.of(HUB_SETPOINTS_BY_DISTANCE_METERS.get(targetDistance));
-
     shooterSubsystem.setFlywheelSpeed(shooterAngularVelocity);
-    /*
-     * Checks to make sure the shooter is ready and up to speed
-     * before runnig the indexer and feeder
-     */
-    if (isShooting || shooterSubsystem.isReadyToShoot()) {
-      drivetrain.applyRequest(() -> new SwerveRequest.SwerveDriveBrake());
+
+    // Check to make sure the shooter is ready and the drivetrain is aimed before shooting
+    var aimError = Math.abs(headingToTarget.minus(robotPose.getRotation()).getRadians());
+    if (isShooting || (shooterSubsystem.isReadyToShoot() && aimError <= AIM_TOLERANCE.in(Radian))) {
       isShooting = true;
+      drivetrain.setControl(swerveDriveBrake);
       feederSubsystem.feedShooter();
       indexerSubsystem.feedShooter();
-      intakeSubsytem.retract();
-      intakeSubsytem.runIntakeSlow();
+      intakeSubsytem.retractForShooting();
     }
   }
 
   public void end(boolean interrupted) {
-    indexerSubsystem.stop();
-    feederSubsystem.stop();
     shooterSubsystem.stop();
+    drivetrain.setControl(new SwerveRequest.Idle());
+    feederSubsystem.stop();
+    indexerSubsystem.stop();
+    intakeSubsytem.stop();
   }
 }

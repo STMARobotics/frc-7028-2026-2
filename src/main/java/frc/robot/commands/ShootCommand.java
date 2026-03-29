@@ -15,7 +15,7 @@ import frc.robot.subsystems.IntakeSubsytem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 /*
- * Command to shoot fuel without aiming. It will shoot at a fixed yaw, pitch, and velocity
+ * Command to shoot fuel without aiming. It will shoot at a fixed velocity
  */
 public class ShootCommand extends Command {
   private final IndexerSubsystem indexerSubsystem;
@@ -24,6 +24,7 @@ public class ShootCommand extends Command {
   private final CommandSwerveDrivetrain drivetrain;
   private final IntakeSubsytem intakeSubsytem;
   private final AngularVelocity shooterAngularVelocity;
+  private final SwerveRequest.SwerveDriveBrake swerveBrakeRequest = new SwerveRequest.SwerveDriveBrake();
 
   private boolean isShooting = false;
 
@@ -33,7 +34,9 @@ public class ShootCommand extends Command {
    * @param indexerSubsystem the indexer subsystem
    * @param feederSubsystem the feeder subsystem
    * @param shooterSubsystem the shooter subsystem
-   * @param targetDistance the distance of the target to use for setpoints
+   * @param drivetrain the drivetrain subsystem
+   * @param intakeSubsytem the intake subsystem
+   * @param targetDistance the distance to the target to use for velocity lookup
    */
   public ShootCommand(
       IndexerSubsystem indexerSubsystem,
@@ -60,28 +63,23 @@ public class ShootCommand extends Command {
 
   @Override
   public void execute() {
-    /*
-     * sets the Yaw, Pitch, and Angle
-     */
     shooterSubsystem.setFlywheelSpeed(shooterAngularVelocity);
-    drivetrain.applyRequest(() -> new SwerveRequest.SwerveDriveBrake());
+    drivetrain.setControl(swerveBrakeRequest);
 
-    /*
-     * Checks to make sure the shooter is ready and up to speed
-     * before runnig the indexer and feeder
-     */
+    // Check to make sure the shooter is ready before running the indexer and feeder
     if (isShooting || shooterSubsystem.isReadyToShoot()) {
       isShooting = true;
       feederSubsystem.feedShooter();
       indexerSubsystem.feedShooter();
-      intakeSubsytem.retract();
-      intakeSubsytem.runIntakeSlow();
+      intakeSubsytem.retractForShooting();
     }
   }
 
   public void end(boolean interrupted) {
-    indexerSubsystem.stop();
-    feederSubsystem.stop();
     shooterSubsystem.stop();
+    drivetrain.setControl(new SwerveRequest.Idle());
+    feederSubsystem.stop();
+    indexerSubsystem.stop();
+    intakeSubsytem.stop();
   }
 }

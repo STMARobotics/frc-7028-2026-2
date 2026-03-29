@@ -80,8 +80,8 @@ public class TuneShootingCommand extends Command {
   public void initialize() {
     shooting = false;
     var alliance = DriverStation.getAlliance();
-    hubTranslation = (alliance.isEmpty() || alliance.get() == Blue) ? ShootingConstants.TARGET_BLUE
-        : ShootingConstants.TARGET_RED;
+    hubTranslation = (alliance.isEmpty() || alliance.get() == Blue) ? ShootingConstants.HUB_BLUE
+        : ShootingConstants.HUB_RED;
   }
 
   @Override

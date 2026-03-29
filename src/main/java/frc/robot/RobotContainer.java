@@ -51,7 +51,6 @@ import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsytem;
 import frc.robot.subsystems.LEDSubsystemContainer;
 import frc.robot.subsystems.LocalizationSubsystem;
-import frc.robot.subsystems.MitoCANdriaSubsytem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 @Logged(strategy = Logged.Strategy.OPT_IN)
@@ -85,8 +84,6 @@ public class RobotContainer {
   private final IntakeSubsytem intakeSubsystem = new IntakeSubsytem();
   @Logged
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-  @Logged
-  private final MitoCANdriaSubsytem mitoCANdriaSubsytem = new MitoCANdriaSubsytem();
   private final LEDSubsystemContainer ledSubsystem = new LEDSubsystemContainer();
 
   private final CommandFactory commandFactory = new CommandFactory(
@@ -131,14 +128,13 @@ public class RobotContainer {
     // Set up default commmands
     ledSubsystem.getIntakeLEDSubsystem().setDefaultCommand(new DefaultLEDCommand(ledSubsystem.getIntakeLEDSubsystem()));
     ledSubsystem.getRobotLEDSubsystem().setDefaultCommand(new DefaultLEDCommand(ledSubsystem.getRobotLEDSubsystem()));
+    intakeSubsystem.setDefaultCommand(new DeployIntakeCommand(intakeSubsystem));
   }
 
   private void configureBindings() {
     // Default drivetrain command for teleop control
     drivetrain.setDefaultCommand(
         commandFactory.drive(controlBindings.translationX(), controlBindings.translationY(), controlBindings.omega()));
-
-    intakeSubsystem.setDefaultCommand(new DeployIntakeCommand(intakeSubsystem));
 
     controlBindings.wheelsToX().ifPresent(trigger -> trigger.whileTrue(drivetrain.applyRequest(() -> brake)));
     controlBindings.resetFieldPosition().ifPresent(trigger -> trigger.onTrue(Commands.runOnce(() -> {

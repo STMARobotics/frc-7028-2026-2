@@ -2,13 +2,13 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Meters;
 import static frc.robot.Constants.FieldConstants.FIELD_WIDTH;
+import static frc.robot.Constants.ShootingConstants.HUB_BLUE;
+import static frc.robot.Constants.ShootingConstants.HUB_RED;
 import static frc.robot.Constants.ShootingConstants.SHUTTLE_BLUE_HIGH;
 import static frc.robot.Constants.ShootingConstants.SHUTTLE_BLUE_LOW;
 import static frc.robot.Constants.ShootingConstants.SHUTTLE_OFFSET_DISTANCE;
 import static frc.robot.Constants.ShootingConstants.SHUTTLE_RED_HIGH;
 import static frc.robot.Constants.ShootingConstants.SHUTTLE_RED_LOW;
-import static frc.robot.Constants.ShootingConstants.TARGET_BLUE;
-import static frc.robot.Constants.ShootingConstants.TARGET_RED;
 import static frc.robot.Constants.TeleopDriveConstants.MAX_TELEOP_ANGULAR_VELOCITY;
 import static frc.robot.Constants.TeleopDriveConstants.MAX_TELEOP_VELOCITY;
 
@@ -83,7 +83,7 @@ public class CommandFactory {
         drivetrainSubsystem,
         intakeSubsystem,
         () -> drivetrainSubsystem.getState().Pose,
-        t -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? TARGET_BLUE : TARGET_RED);
+        t -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? HUB_BLUE : HUB_RED);
   }
 
   /**
