@@ -3,20 +3,20 @@ package frc.robot.commands.led;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.LEDSubsystemContainer.IntakeLEDSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 
 /** Command to run the boot animation on the LED strips */
 public class LEDBootAnimationCommand extends Command {
 
   private static final int BLIP_SIZE = 5;
-  private final IntakeLEDSubsystem intakeLedSubsystem;
+  private final LEDSubsystem intakeLedSubsystem;
   private final Timer timer = new Timer();
 
   private int blipIndex = -1;
   private boolean done = false;
   private boolean initialized = false;
 
-  public LEDBootAnimationCommand(IntakeLEDSubsystem intakeLedSubsystem) {
+  public LEDBootAnimationCommand(LEDSubsystem intakeLedSubsystem) {
     this.intakeLedSubsystem = intakeLedSubsystem;
 
     addRequirements(intakeLedSubsystem);
@@ -38,7 +38,7 @@ public class LEDBootAnimationCommand extends Command {
         intakeLedSubsystem.off();
         initialized = true;
       }
-      intakeLedSubsystem.runPatternOnAll((reader, writer) -> {
+      intakeLedSubsystem.runPattern((reader, writer) -> {
         for (int index = 0; index < reader.getLength(); index++) {
           if (index <= blipIndex && index >= blipIndex - (BLIP_SIZE - 1)) {
             writer.setLED(index, Color.kOrange);
@@ -49,7 +49,7 @@ public class LEDBootAnimationCommand extends Command {
       });
 
       blipIndex++;
-      done = blipIndex - (BLIP_SIZE + 1) >= intakeLedSubsystem.getIntakeStripLength();
+      done = blipIndex - (BLIP_SIZE + 1) >= intakeLedSubsystem.getStripLength();
     }
   }
 

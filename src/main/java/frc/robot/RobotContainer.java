@@ -49,7 +49,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsytem;
-import frc.robot.subsystems.LEDSubsystemContainer;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LocalizationSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
@@ -84,7 +84,7 @@ public class RobotContainer {
   private final IntakeSubsytem intakeSubsystem = new IntakeSubsytem();
   @Logged
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-  private final LEDSubsystemContainer ledSubsystem = new LEDSubsystemContainer();
+  private final LEDSubsystem ledSubsystem = new LEDSubsystem();
 
   private final CommandFactory commandFactory = new CommandFactory(
       drivetrain,
@@ -92,8 +92,7 @@ public class RobotContainer {
       indexerSubsystem,
       feederSubsystem,
       intakeSubsystem,
-      ledSubsystem.getIntakeLEDSubsystem(),
-      ledSubsystem.getRobotLEDSubsystem());
+      ledSubsystem);
 
   /* Path follower */
   private final SendableChooser<Command> autoChooser;
@@ -122,12 +121,11 @@ public class RobotContainer {
     CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
 
     // Run the boot animation
-    var bootAnimation = new LEDBootAnimationCommand(ledSubsystem.getIntakeLEDSubsystem());
+    var bootAnimation = new LEDBootAnimationCommand(ledSubsystem);
     CommandScheduler.getInstance().schedule(bootAnimation);
 
     // Set up default commmands
-    ledSubsystem.getIntakeLEDSubsystem().setDefaultCommand(new DefaultLEDCommand(ledSubsystem.getIntakeLEDSubsystem()));
-    ledSubsystem.getRobotLEDSubsystem().setDefaultCommand(new DefaultLEDCommand(ledSubsystem.getRobotLEDSubsystem()));
+    ledSubsystem.setDefaultCommand(new DefaultLEDCommand(ledSubsystem));
     intakeSubsystem.setDefaultCommand(new DeployIntakeCommand(intakeSubsystem));
   }
 
@@ -143,24 +141,20 @@ public class RobotContainer {
     })));
 
     // Intake controls
-    controlBindings.runIntake()
-        .ifPresent(trigger -> trigger.onTrue(new IntakeCommand(intakeSubsystem, ledSubsystem.getIntakeLEDSubsystem())));
+    controlBindings.runIntake().ifPresent(trigger -> trigger.onTrue(new IntakeCommand(intakeSubsystem, ledSubsystem)));
 
     controlBindings.stopIntake().ifPresent(trigger -> trigger.onTrue(Commands.runOnce(() -> {
       intakeSubsystem.stop();
-      ledSubsystem.getIntakeLEDSubsystem().off();
-    }, intakeSubsystem, ledSubsystem.getIntakeLEDSubsystem())));
+      ledSubsystem.off();
+    }, intakeSubsystem, ledSubsystem)));
 
     controlBindings.eject().ifPresent(trigger -> trigger.whileTrue(Commands.run(() -> {
       intakeSubsystem.reverseIntake();
-      ledSubsystem.getIntakeLEDSubsystem()
-          .runPatternOnIntakeHigh(LEDPattern.rainbow(255, 255).scrollAtRelativeSpeed(Percent.per(Second).of(200)));
-      ledSubsystem.getIntakeLEDSubsystem()
-          .runPatternOnIntakeLow(LEDPattern.rainbow(255, 255).scrollAtRelativeSpeed(Percent.per(Second).of(200)));
-    }, intakeSubsystem, indexerSubsystem, ledSubsystem.getIntakeLEDSubsystem()).finallyDo(() -> {
+      ledSubsystem.runPattern(LEDPattern.rainbow(255, 255).scrollAtRelativeSpeed(Percent.per(Second).of(200)));
+    }, intakeSubsystem, indexerSubsystem, ledSubsystem).finallyDo(() -> {
       intakeSubsystem.stop();
       indexerSubsystem.stop();
-      ledSubsystem.getIntakeLEDSubsystem().off();
+      ledSubsystem.off();
     })));
 
     controlBindings.deployIntake().ifPresent(trigger -> trigger.onTrue(new DeployIntakeCommand(intakeSubsystem)));
@@ -232,8 +226,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("Shoot", commandFactory.shootAtHub());
     NamedCommands.registerCommand(
         "Intake",
-          new DeployIntakeCommand(intakeSubsystem)
-              .andThen(new IntakeCommand(intakeSubsystem, ledSubsystem.getIntakeLEDSubsystem())));
+          new DeployIntakeCommand(intakeSubsystem).andThen(new IntakeCommand(intakeSubsystem, ledSubsystem)));
     NamedCommands.registerCommand("RetractIntake", new RetractIntakeCommand(intakeSubsystem));
     NamedCommands.registerCommand("Shuttle", commandFactory.shuttleToCorner());
   }

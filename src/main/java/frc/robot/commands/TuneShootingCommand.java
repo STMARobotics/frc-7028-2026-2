@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ShootingConstants;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
-import frc.robot.subsystems.LEDSubsystemContainer;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import java.util.function.Supplier;
 
@@ -49,7 +49,7 @@ public class TuneShootingCommand extends Command {
       IndexerSubsystem indexerSubsystem,
       FeederSubsystem feederSubsystem,
       ShooterSubsystem shooterSubsystem,
-      LEDSubsystemContainer ledSubsystem,
+      LEDSubsystem ledSubsystem,
       Supplier<Pose2d> poseSupplier) {
 
     this.indexerSubsystem = indexerSubsystem;

@@ -11,14 +11,14 @@ import static edu.wpi.first.wpilibj.util.Color.kBlue;
 import static edu.wpi.first.wpilibj.util.Color.kDarkRed;
 import static edu.wpi.first.wpilibj.util.Color.kIndianRed;
 import static edu.wpi.first.wpilibj.util.Color.kOrange;
-import static frc.robot.subsystems.LEDSubsystemContainer.candyCane;
+import static frc.robot.subsystems.LEDSubsystem.candyCane;
 
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.LEDSubsystemContainer.LEDSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 
 /**
  * The default command for controlling the LEDs
@@ -27,7 +27,7 @@ public class DefaultLEDCommand extends Command {
 
   private static final Time CANDY_CANE_SPEED = Seconds.of(0.5);
 
-  private final LEDSubsystem ledSubsystem;
+  private final frc.robot.subsystems.LEDSubsystem ledSubsystem;
 
   /**
    * Creates a new DefaultLEDCommand
@@ -51,7 +51,7 @@ public class DefaultLEDCommand extends Command {
     } else {
       pattern = kOff;
     }
-    ledSubsystem.runPatternOnAll(pattern);
+    ledSubsystem.runPattern(pattern);
   }
 
   @Override

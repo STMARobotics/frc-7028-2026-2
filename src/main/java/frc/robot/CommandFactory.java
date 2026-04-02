@@ -26,8 +26,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsytem;
-import frc.robot.subsystems.LEDSubsystemContainer.IntakeLEDSubsystem;
-import frc.robot.subsystems.LEDSubsystemContainer.RobotLEDSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import java.util.function.Supplier;
 
@@ -40,8 +39,7 @@ public class CommandFactory {
   private final IndexerSubsystem indexerSubsystem;
   private final FeederSubsystem feederSubsystem;
   private final IntakeSubsytem intakeSubsystem;
-  private final IntakeLEDSubsystem intakeLEDSubsystem;
-  private final RobotLEDSubsystem robotLEDSubsystem;
+  private final LEDSubsystem ledSubsystem;
 
   /**
    * Constructor for Commandfactory, takes in all subsystems as parameters to use in command creation methods.
@@ -59,15 +57,13 @@ public class CommandFactory {
       IndexerSubsystem indexerSubsystem,
       FeederSubsystem feederSubsystem,
       IntakeSubsytem intakeSubsystem,
-      IntakeLEDSubsystem intakeLEDSubsystem,
-      RobotLEDSubsystem robotLEDSubsystem) {
+      LEDSubsystem ledSubsystem) {
     this.drivetrainSubsystem = drivetrainSubsystem;
     this.shooterSubsystem = shooterSubsystem;
     this.indexerSubsystem = indexerSubsystem;
     this.feederSubsystem = feederSubsystem;
     this.intakeSubsystem = intakeSubsystem;
-    this.intakeLEDSubsystem = intakeLEDSubsystem;
-    this.robotLEDSubsystem = robotLEDSubsystem;
+    this.ledSubsystem = ledSubsystem;
   }
 
   /**
