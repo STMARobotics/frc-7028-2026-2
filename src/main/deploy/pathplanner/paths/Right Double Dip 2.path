@@ -37,7 +37,7 @@
       },
       "prevControl": {
         "x": 9.068592715231787,
-        "y": -0.2919205298013239
+        "y": -0.29192052980132377
       },
       "nextControl": null,
       "isLocked": false,
@@ -61,19 +61,7 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "Shoot",
-      "waypointRelativePos": 1.9561837455830569,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "Shoot"
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 5.0,
     "maxAcceleration": 3.0,
