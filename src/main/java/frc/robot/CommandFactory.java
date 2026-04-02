@@ -1,5 +1,6 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static frc.robot.Constants.FieldConstants.FIELD_WIDTH;
 import static frc.robot.Constants.ShootingConstants.HUB_BLUE;
@@ -112,7 +113,8 @@ public class CommandFactory {
   }
 
   /**
-   * Creates a new Command to control the drivetrain using the provided translation and rotation suppliers.
+   * Creates a new Command to control the drivetrain field-oriented using the provided translation and rotation
+   * suppliers.
    *
    * @param translationXSupplier supplier for the robot's x translation velocity
    * @param translationYSupplier supplier for the robot's y translation velocity
@@ -125,6 +127,7 @@ public class CommandFactory {
       Supplier<AngularVelocity> omegaSupplier) {
     /* Setting up bindings for necessary control of the swerve drive platform */
     final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+        .withCenterOfRotation(new Translation2d(Inches.of(6.0), Inches.zero())) // rotate around center with intake out
         .withDeadband(MAX_TELEOP_VELOCITY.times(0.01))
         .withRotationalDeadband(MAX_TELEOP_ANGULAR_VELOCITY.times(0.01))
         .withDriveRequestType(DriveRequestType.Velocity)
