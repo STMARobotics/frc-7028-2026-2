@@ -17,9 +17,9 @@ public class IntakeCommand extends Command {
 
   private final IntakeSubsytem intakeSubsytem;
   private final LEDSubsystem ledSubsystem;
-  private final LEDPattern patternLeft = LEDPattern.gradient(GradientType.kDiscontinuous, Color.kBlack, Color.kOrange)
+  private final LEDPattern patternOne = LEDPattern.gradient(GradientType.kDiscontinuous, Color.kBlack, Color.kOrange)
       .scrollAtRelativeSpeed(Percent.per(Second).of(200));
-  private final LEDPattern patternRight = patternLeft.reversed();
+  private final LEDPattern patternTwo = patternOne.reversed();
 
   private boolean hasDeployed = false;
 
@@ -49,7 +49,7 @@ public class IntakeCommand extends Command {
       hasDeployed = true;
       intakeSubsytem.stopDeploy();
     }
-    ledSubsystem.runPatternOnHalvesAsCommand(patternLeft, patternRight);
+    ledSubsystem.runPatternOnHalvesAsCommand(patternOne, patternTwo);
   }
 
   @Override

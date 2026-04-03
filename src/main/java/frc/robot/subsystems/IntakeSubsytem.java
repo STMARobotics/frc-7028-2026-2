@@ -4,7 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
@@ -18,6 +18,7 @@ import static frc.robot.Constants.IntakeConstants.DEPLOY_SLOT_CONFIGS;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_STATOR_CURRENT_LIMIT;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_SUPPLY_CURRENT_LIMIT;
 import static frc.robot.Constants.IntakeConstants.DEVICE_ID_DEPLOY_MOTOR;
+import static frc.robot.Constants.IntakeConstants.DEVICE_ID_ROLLER_FOLLOWER;
 import static frc.robot.Constants.IntakeConstants.DEVICE_ID_ROLLER_MOTOR;
 import static frc.robot.Constants.IntakeConstants.POTENTIOMETER_FULL_RANGE;
 import static frc.robot.Constants.IntakeConstants.POTENTIOMETER_OFFSET;
@@ -40,17 +41,19 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -63,7 +66,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 @Logged(strategy = Logged.Strategy.OPT_IN)
 public class IntakeSubsytem extends SubsystemBase {
 
-  private final TalonFX rollerMotor = new TalonFX(DEVICE_ID_ROLLER_MOTOR, CANIVORE_BUS);
+  private final TalonFX rollerLeaderMotor = new TalonFX(DEVICE_ID_ROLLER_MOTOR, CANIVORE_BUS);
+  private final TalonFX rollerFollowerMotor = new TalonFX(DEVICE_ID_ROLLER_FOLLOWER, CANIVORE_BUS);
   private final TalonFX deployMotor = new TalonFX(DEVICE_ID_DEPLOY_MOTOR, CANIVORE_BUS);
 
   // Motor request objects
@@ -75,15 +79,14 @@ public class IntakeSubsytem extends SubsystemBase {
 
   private final StatusSignal<Angle> deployPositionSignal = deployMotor.getPosition(false);
   private final StatusSignal<AngularVelocity> deployVelocitySignal = deployMotor.getVelocity(false);
-  private final StatusSignal<Temperature> deployTempSignal = deployMotor.getDeviceTemp(false);
-  private final StatusSignal<Boolean> deployTempFaultSignal = deployMotor.getFault_DeviceTemp(false);
 
-  // TODO set these constants, and confirm the potentiometer is in phase with the motor (zero is out, retracting is
+  // TODO set these constants, and confirm the potentiometer is in phase with the motor (zero is deployed, retracting is
   // positive)
+  @Logged(name = "Potentiometer")
   private final AnalogPotentiometer deploySensor = new AnalogPotentiometer(
       CHANNEL_ID_DEPLOY_POTENTIOMETER,
-      POTENTIOMETER_FULL_RANGE,
-      POTENTIOMETER_OFFSET);
+      POTENTIOMETER_FULL_RANGE.in(Rotations),
+      POTENTIOMETER_OFFSET.in(Rotations));
 
   // SysId routines
   // NOTE: the output type is amps, NOT volts (even though it says volts)
@@ -95,7 +98,7 @@ public class IntakeSubsytem extends SubsystemBase {
           null,
           state -> SignalLogger.writeString("Intake Roller SysId", state.toString())),
       new SysIdRoutine.Mechanism(
-          (amps) -> rollerMotor.setControl(rollerSysIdControl.withOutput(amps.in(Volts))),
+          (amps) -> rollerLeaderMotor.setControl(rollerSysIdControl.withOutput(amps.in(Volts))),
           null,
           this));
 
@@ -116,8 +119,10 @@ public class IntakeSubsytem extends SubsystemBase {
   public IntakeSubsytem() {
     // Configure the roller motor
     var rollerConfig = new TalonFXConfiguration();
-    rollerConfig.withMotorOutput(
-        new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast).withInverted(InvertedValue.Clockwise_Positive))
+    rollerConfig
+        .withMotorOutput(
+            new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast)
+                .withInverted(InvertedValue.CounterClockwise_Positive))
         .withSlot0(Slot0Configs.from(ROLLER_SLOT_CONFIGS))
         .withTorqueCurrent(
             new TorqueCurrentConfigs().withPeakForwardTorqueCurrent(ROLLER_PEAK_TORQUE_CURRENT_FORWARD)
@@ -127,7 +132,23 @@ public class IntakeSubsytem extends SubsystemBase {
                 .withStatorCurrentLimitEnable(true)
                 .withStatorCurrentLimit(ROLLER_STATOR_CURRENT_LIMIT)
                 .withSupplyCurrentLimitEnable(true));
-    rollerMotor.getConfigurator().apply(rollerConfig);
+    rollerLeaderMotor.getConfigurator().apply(rollerConfig);
+    rollerFollowerMotor.getConfigurator().apply(rollerConfig);
+
+    // Max update frequency for leader for fast following
+    rollerLeaderMotor.getTorqueCurrent(false).setUpdateFrequency(Hertz.of(1000));
+    // Keep default update frequency for current signals for logging
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        Hertz.of(100),
+          rollerLeaderMotor.getVelocity(false),
+          rollerLeaderMotor.getStatorCurrent(false),
+          rollerLeaderMotor.getSupplyCurrent(false),
+          rollerFollowerMotor.getStatorCurrent(false),
+          rollerFollowerMotor.getSupplyCurrent(false));
+    // Turn unused and follower signals down, but not off, for logging
+    ParentDevice.optimizeBusUtilizationForAll(rollerLeaderMotor, rollerFollowerMotor);
+
+    rollerFollowerMotor.setControl(new Follower(rollerLeaderMotor.getDeviceID(), MotorAlignmentValue.Opposed));
 
     // Configure the deploy motor
     var deployConfig = new TalonFXConfiguration();
@@ -146,7 +167,18 @@ public class IntakeSubsytem extends SubsystemBase {
                 .withReverseSoftLimitEnable(true)
                 .withReverseSoftLimitThreshold(DEPLOY_REVERSE_LIMIT));
     deployMotor.getConfigurator().apply(deployConfig);
-    deployMotor.setPosition(deploySensor.get());
+    deployMotor.setPosition(getPotentiometerValue());
+
+    // Keep default update frequency for important signals for logging
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        Hertz.of(100),
+          deployPositionSignal,
+          deployVelocitySignal,
+          deployMotor.getMotorVoltage(false),
+          deployMotor.getStatorCurrent(false),
+          deployMotor.getSupplyCurrent(false));
+    // Turn unused signals down, but not off, for logging
+    deployMotor.optimizeBusUtilization();
   }
 
   /**
@@ -201,14 +233,14 @@ public class IntakeSubsytem extends SubsystemBase {
    * Runs the intake rollers to intake fuel
    */
   public void runIntake() {
-    rollerMotor.setControl(rollerControl.withVelocity(ROLLER_INTAKE_VELOCITY));
+    rollerLeaderMotor.setControl(rollerControl.withVelocity(ROLLER_INTAKE_VELOCITY));
   }
 
   /**
    * Reverses the intake rollers to eject fuel
    */
   public void reverseIntake() {
-    rollerMotor.setControl(rollerControl.withVelocity(ROLLER_EJECT_VELOCITY));
+    rollerLeaderMotor.setControl(rollerControl.withVelocity(ROLLER_EJECT_VELOCITY));
   }
 
   /**
@@ -217,7 +249,7 @@ public class IntakeSubsytem extends SubsystemBase {
   public void deploy() {
     deployMotor.setControl(
         deployControl.withPosition(DEPLOYED_POSITION)
-            .withLimitReverseMotion(deploySensor.get() >= DEPLOYED_POSITION.in(Rotations)));
+            .withLimitReverseMotion(getPotentiometerValue() >= DEPLOYED_POSITION.in(Rotations)));
   }
 
   /**
@@ -226,7 +258,7 @@ public class IntakeSubsytem extends SubsystemBase {
   public void retract() {
     deployMotor.setControl(
         deployControl.withPosition(RETRACTED_POSITION)
-            .withLimitReverseMotion(deploySensor.get() <= RETRACTED_POSITION.in(Rotations)));
+            .withLimitReverseMotion(getPotentiometerValue() <= RETRACTED_POSITION.in(Rotations)));
   }
 
   /**
@@ -234,14 +266,14 @@ public class IntakeSubsytem extends SubsystemBase {
    */
   public void retractForShooting() {
     retract();
-    rollerMotor.setControl(rollerControl.withVelocity(ROLLER_INTAKE_SHOOTING_VELOCITY));
+    rollerLeaderMotor.setControl(rollerControl.withVelocity(ROLLER_INTAKE_SHOOTING_VELOCITY));
   }
 
   /**
    * Stops the intake rollers
    */
   public void stopIntaking() {
-    rollerMotor.stopMotor();
+    rollerLeaderMotor.stopMotor();
   }
 
   /**
@@ -268,7 +300,7 @@ public class IntakeSubsytem extends SubsystemBase {
   public boolean isDeployed() {
     BaseStatusSignal.refreshAll(deployPositionSignal, deployVelocitySignal);
     Angle deployPosition = BaseStatusSignal.getLatencyCompensatedValue(deployPositionSignal, deployVelocitySignal);
-    return (deployPosition.lte(DEPLOYED_POSITION) || deploySensor.get() <= DEPLOYED_POSITION.in(Rotations));
+    return (deployPosition.lte(DEPLOYED_POSITION) || getPotentiometerValue() <= DEPLOYED_POSITION.in(Rotations));
   }
 
   /**
@@ -280,26 +312,17 @@ public class IntakeSubsytem extends SubsystemBase {
   public boolean isRetracted() {
     BaseStatusSignal.refreshAll(deployPositionSignal, deployVelocitySignal);
     Angle deployPosition = BaseStatusSignal.getLatencyCompensatedValue(deployPositionSignal, deployVelocitySignal);
-    return (deployPosition.gte(RETRACTED_POSITION) || deploySensor.get() >= RETRACTED_POSITION.in(Rotations));
+    return (deployPosition.gte(RETRACTED_POSITION) || getPotentiometerValue() >= RETRACTED_POSITION.in(Rotations));
   }
 
   /**
-   * Gets the current temperature of the deploy motor
+   * Gets the position of the intake from the potentiometer. This is intended for internal use and logging, not for
+   * direct use.
    * 
-   * @return temperature of the deploy motor
+   * @return the position reading from the potentiometer
    */
-  @Logged(name = "Deploy Motor Temp (C)")
-  public double getDeployMotorTemp() {
-    return deployTempSignal.refresh().getValue().in(Celsius);
+  private double getPotentiometerValue() {
+    return deploySensor.get();
   }
 
-  /**
-   * Gets the deploy motor temperature fault value
-   * 
-   * @return true if the deploy motor has a temperature fault, false otherwise
-   */
-  @Logged(name = "Deploy Motor Temp Fault")
-  public boolean isDeployMotorDeviceTempFault() {
-    return deployTempFaultSignal.refresh().getValue();
-  }
 }

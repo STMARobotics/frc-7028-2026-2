@@ -18,6 +18,7 @@ import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -105,10 +106,10 @@ public final class Constants {
    * Constants for the shooter subsystem
    */
   public static class ShooterConstants {
-    public static final int DEVICE_ID_FLYWHEEL_LEADER = 26;
-    public static final int DEVICE_ID_FLYWHEEL_FOLLOWER_0 = 27;
-    public static final int DEVICE_ID_FLYWHEEL_FOLLOWER_1 = 28;
-    public static final int DEVICE_ID_FLYWHEEL_FOLLOWER_2 = 29;
+    public static final int DEVICE_ID_FLYWHEEL_LEADER = 26; // Right side
+    public static final int DEVICE_ID_FLYWHEEL_FOLLOWER_0 = 27; // Right side
+    public static final int DEVICE_ID_FLYWHEEL_FOLLOWER_1 = 28; // Left side
+    public static final int DEVICE_ID_FLYWHEEL_FOLLOWER_2 = 29; // Left side
 
     public static final Current FLYWHEEL_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(160);
     // Reverse current is positive to allow for increased P for rapid recovery, while avoiding negative output when
@@ -119,6 +120,9 @@ public final class Constants {
 
     public static final SlotConfigs FLYWHEEL_SLOT_CONFIGS = new SlotConfigs().withKP(23.0).withKS(20.0);
 
+    // The robot shoots out the back
+    public static final Rotation2d SHOOTER_OFFSET_ANGLE = new Rotation2d(Math.PI);
+
     public static final AngularVelocity FLYWHEEL_VELOCITY_TOLERANCE = RotationsPerSecond.of(1.5);
   }
 
@@ -127,20 +131,18 @@ public final class Constants {
    */
   public static class VisionConstants {
     public static final int DEVICE_ID_MITOCANDRIA = 0;
-    public static final String[] APRILTAG_CAMERA_NAMES = { "limelight-left", "limelight-back" };// "limelight-right",
-                                                                                                // "limelight-left",
-    // "limelight-back"
-    // };
+    public static final String[] APRILTAG_CAMERA_NAMES = { "limelight-left", "limelight-right" };
+    // "limelight-back" };
     public static final Transform3d[] ROBOT_TO_CAMERA_TRANSFORMS = new Transform3d[] {
         new Transform3d(
-            new Translation3d(-0.241813, 0.349273, 0.203479),
-            new Rotation3d(0.0, degreesToRadians(28), -Math.PI / 2.0)),
-        // new Transform3d(
-        // new Translation3d(Inches.of(-15.062), Inches.of(-8.718), Inches.of(11.96)),
-        // new Rotation3d(Math.PI, degreesToRadians(30), Math.PI / 2.0)) };
+            new Translation3d(Inches.of(-6.230084), Inches.of(14.513163), Inches.of(15.352343)),
+            new Rotation3d(0.0, -degreesToRadians(16), Math.PI / 2.0)),
         new Transform3d(
-            new Translation3d(Inches.of(-10.050), Inches.of(-11.04), Inches.of(12.015)),
-            new Rotation3d(Math.PI, degreesToRadians(28), Math.PI)) };
+            new Translation3d(Inches.of(-6.230084), Inches.of(-14.513163), Inches.of(15.352343)),
+            new Rotation3d(0.0, -degreesToRadians(16), -Math.PI / 2.0)), };
+    // new Transform3d(
+    // new Translation3d(Inches.of(-10.050), Inches.of(-11.04), Inches.of(12.015)),
+    // new Rotation3d(Math.PI, degreesToRadians(28), Math.PI)) };
 
     public static final int LIMELIGHT_BLUE_PIPELINE = 0;
     public static final int LIMELIGHT_RED_PIPELINE = 1;
@@ -171,8 +173,7 @@ public final class Constants {
     public static final int DEVICE_ID_DEPLOY_MOTOR = 10;
     public static final int DEVICE_ID_ROLLER_MOTOR = 11;
     public static final int DEVICE_ID_ROLLER_FOLLOWER = 12;
-    public static final int DEVICE_ID_DEPLOY_POTENTIOMETER = 1;
-    public static final int CHANNEL_ID_DEPLOY_POTENTIOMETER = 0;
+    public static final int CHANNEL_ID_DEPLOY_POTENTIOMETER = 3;
 
     // Roller constants
     public static final Current ROLLER_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(100);
@@ -189,13 +190,17 @@ public final class Constants {
     public static final Current DEPLOY_STATOR_CURRENT_LIMIT = Amps.of(60);
     public static final Current DEPLOY_SUPPLY_CURRENT_LIMIT = Amps.of(30);
 
-    public static final Angle DEPLOY_REVERSE_LIMIT = Rotations.of(0.0);
-    public static final Angle DEPLOY_FORWARD_LIMIT = Rotations.of(0.152);
-    // Value used to scale the potentiometer to motor rotations. This is the full range of the intake, in motor
-    // rotations
-    public static final double POTENTIOMETER_FULL_RANGE = 0.0;
-    // The offset of the potentiometer from the actual position of the intake
-    public static final double POTENTIOMETER_OFFSET = 0.0;
+    // Deploy limits in motor angle
+    public static final Angle DEPLOY_REVERSE_LIMIT = Rotations.of(0.0); // Deployed
+    public static final Angle DEPLOY_FORWARD_LIMIT = Rotations.of(100); // Retracted
+    // Deploy limits in potentiometer values
+    public static final double POTENTIOMETER_REVERSE_LIMIT = 0.0;
+    public static final double POTENTIOMETER_FORWARD_LIMIT = 1.0;
+    // Calculated "full range" of the potentiometer in motor rotations, if it was capable of turning all 10 turns
+    public static final Angle POTENTIOMETER_FULL_RANGE = DEPLOY_FORWARD_LIMIT.minus(DEPLOY_REVERSE_LIMIT)
+        .div(POTENTIOMETER_FORWARD_LIMIT - POTENTIOMETER_REVERSE_LIMIT);
+    // The offset of the potentiometer from the actual position of the intake in motor angle
+    public static final Angle POTENTIOMETER_OFFSET = Rotations.of(0.0);
 
     public static final SlotConfigs DEPLOY_SLOT_CONFIGS = new SlotConfigs().withGravityType(GravityTypeValue.Arm_Cosine)
         .withKP(25.0)
@@ -211,7 +216,8 @@ public final class Constants {
   }
 
   public static class IndexerConstants {
-    public static final int DEVICE_ID_INDEXER_MOTOR = 15;
+    public static final int DEVICE_ID_INDEXER_MOTOR_LEADER = 15;
+    public static final int DEVICE_ID_INDEXER_MOTOR_FOLLOWER = 16;
 
     public static final Current INDEXER_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(80);
     public static final Current INDEXER_PEAK_TORQUE_CURRENT_REVERSE = INDEXER_PEAK_TORQUE_CURRENT_FORWARD.unaryMinus();
@@ -229,7 +235,6 @@ public final class Constants {
   public static class FeederConstants {
     public static final int DEVICE_ID_FEEDER_LEADER = 20;
     public static final int DEVICE_ID_FEEDER_FOLLOWER = 21;
-    public static final int DEVICE_ID_FEEDER_CANRANGE = 20;
 
     public static final Current FEEDER_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(140);
     public static final Current FEEDER_PEAK_TORQUE_CURRENT_REVERSE = FEEDER_PEAK_TORQUE_CURRENT_FORWARD.unaryMinus();
@@ -260,10 +265,11 @@ public final class Constants {
    */
   public static class ShootingConstants {
     public static final Angle AIM_TOLERANCE = Degrees.of(1.5);
+    public static final double HEADING_P = 6.0;
 
     private static InterpolatingDoubleTreeMap createShooterInterpolator() {
       var map = new InterpolatingDoubleTreeMap();
-      map.put(0.0, 0.0);
+      map.put(0.0, 30.0);
       return map;
     }
 
@@ -271,7 +277,7 @@ public final class Constants {
 
     private static InterpolatingDoubleTreeMap createShuttleInterpolator() {
       var map = new InterpolatingDoubleTreeMap();
-      map.put(0.0, 0.0);
+      map.put(0.0, 30.0);
       return map;
     }
 

@@ -79,6 +79,7 @@ public class CommandFactory {
         shooterSubsystem,
         drivetrainSubsystem,
         intakeSubsystem,
+        ledSubsystem,
         () -> drivetrainSubsystem.getState().Pose,
         t -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? HUB_BLUE : HUB_RED);
   }
@@ -95,6 +96,7 @@ public class CommandFactory {
         shooterSubsystem,
         drivetrainSubsystem,
         intakeSubsystem,
+        ledSubsystem,
         () -> drivetrainSubsystem.getState().Pose,
         targetTranslation -> {
           Translation2d target;

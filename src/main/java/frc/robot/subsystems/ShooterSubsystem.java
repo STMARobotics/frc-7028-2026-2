@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static com.ctre.phoenix6.signals.NeutralModeValue.Coast;
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
@@ -28,6 +29,7 @@ import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -52,8 +54,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private final TorqueCurrentFOC sysIdFlywheelTorqueCurrent = new TorqueCurrentFOC(0.0);
 
-  private final StatusSignal<AngularVelocity> flywheelVelocity = flywheelLeaderMotor.getVelocity();
-  private final StatusSignal<AngularAcceleration> flywheelAcceleration = flywheelLeaderMotor.getAcceleration();
+  private final StatusSignal<AngularVelocity> flywheelVelocity = flywheelLeaderMotor.getVelocity(false);
+  private final StatusSignal<AngularAcceleration> flywheelAcceleration = flywheelLeaderMotor.getAcceleration(false);
 
   // SysId routines
   // NOTE: the output type is amps, NOT volts (even though it says volts)
@@ -91,8 +93,29 @@ public class ShooterSubsystem extends SubsystemBase {
     flywheelFollower0Motor.getConfigurator().apply(flywheelConfig);
     flywheelFollower1Motor.getConfigurator().apply(flywheelConfig);
     flywheelFollower2Motor.getConfigurator().apply(flywheelConfig);
+
     // Max the leader update frequency so followers can respond quickly
-    flywheelLeaderMotor.getTorqueCurrent().setUpdateFrequency(1000);
+    flywheelLeaderMotor.getTorqueCurrent(false).setUpdateFrequency(1000);
+    // Keep default update frequency for used and important signals for logging
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        Hertz.of(100),
+          flywheelVelocity,
+          flywheelAcceleration,
+          flywheelLeaderMotor.getAcceleration(false),
+          flywheelLeaderMotor.getStatorCurrent(false),
+          flywheelLeaderMotor.getSupplyCurrent(false),
+          flywheelFollower0Motor.getStatorCurrent(false),
+          flywheelFollower0Motor.getSupplyCurrent(false),
+          flywheelFollower1Motor.getStatorCurrent(false),
+          flywheelFollower1Motor.getSupplyCurrent(false),
+          flywheelFollower2Motor.getStatorCurrent(false),
+          flywheelFollower2Motor.getSupplyCurrent(false));
+    // Turn unused and follower signals down, but not off, for logging
+    ParentDevice.optimizeBusUtilizationForAll(
+        flywheelLeaderMotor,
+          flywheelFollower0Motor,
+          flywheelFollower1Motor,
+          flywheelFollower2Motor);
 
     flywheelFollower0Motor.setControl(new Follower(flywheelLeaderMotor.getDeviceID(), MotorAlignmentValue.Aligned));
     flywheelFollower1Motor.setControl(new Follower(flywheelLeaderMotor.getDeviceID(), MotorAlignmentValue.Opposed));
