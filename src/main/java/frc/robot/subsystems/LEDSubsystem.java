@@ -85,9 +85,8 @@ public class LEDSubsystem extends SubsystemBase {
    * 
    * @param halfOnePattern Pattern to set on the first half of each LED strip
    * @param halfTwoPattern Pattern to set on the second half of each LED strip
-   * @return A command that will run the pattern on each LED strip continuously
    */
-  public void runPatternOnHalvesAsCommand(LEDPattern halfOnePattern, LEDPattern halfTwoPattern) {
+  public void runPatternOnHalves(LEDPattern halfOnePattern, LEDPattern halfTwoPattern) {
     halfOnePattern.applyTo(halfOneFront);
     halfTwoPattern.applyTo(halfTwoFront);
     halfOnePattern.applyTo(halfOneBack);

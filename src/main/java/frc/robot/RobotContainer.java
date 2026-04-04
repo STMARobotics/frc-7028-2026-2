@@ -126,7 +126,7 @@ public class RobotContainer {
 
     // Set up default commmands
     ledSubsystem.setDefaultCommand(new DefaultLEDCommand(ledSubsystem));
-    intakeSubsystem.setDefaultCommand(new DeployIntakeCommand(intakeSubsystem));
+    intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, ledSubsystem));
   }
 
   private void configureBindings() {
@@ -143,7 +143,7 @@ public class RobotContainer {
     // Intake controls
     controlBindings.runIntake().ifPresent(trigger -> trigger.onTrue(new IntakeCommand(intakeSubsystem, ledSubsystem)));
 
-    controlBindings.stopIntake().ifPresent(trigger -> trigger.onTrue(Commands.runOnce(() -> {
+    controlBindings.stopIntake().ifPresent(trigger -> trigger.onTrue(Commands.run(() -> {
       intakeSubsystem.stop();
       ledSubsystem.off();
     }, intakeSubsystem, ledSubsystem)));

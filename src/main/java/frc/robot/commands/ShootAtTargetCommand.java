@@ -124,7 +124,7 @@ public class ShootAtTargetCommand extends Command {
       drivetrain.setControl(swerveDriveBrake);
       feederSubsystem.feedShooter();
       indexerSubsystem.feedShooter();
-      ledSubsystem.runPatternOnHalvesAsCommand(patternOne, patternTwo);
+      ledSubsystem.runPatternOnHalves(patternOne, patternTwo);
     } else {
       drivetrain.setControl(swerveRequestFacing.withTargetDirection(headingToTarget));
       ledSubsystem.runPattern(LEDSubsystem.ledSegments(Color.kGreen, () -> aimReady, () -> shooterReady));

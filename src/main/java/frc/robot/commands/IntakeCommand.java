@@ -49,7 +49,7 @@ public class IntakeCommand extends Command {
       hasDeployed = true;
       intakeSubsytem.stopDeploy();
     }
-    ledSubsystem.runPatternOnHalvesAsCommand(patternOne, patternTwo);
+    ledSubsystem.runPatternOnHalves(patternOne, patternTwo);
   }
 
   @Override

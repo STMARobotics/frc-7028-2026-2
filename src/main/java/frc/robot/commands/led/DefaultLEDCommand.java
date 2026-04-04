@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj.LEDPattern.GradientType.kContinuous;
 import static edu.wpi.first.wpilibj.LEDPattern.gradient;
-import static edu.wpi.first.wpilibj.LEDPattern.kOff;
 import static edu.wpi.first.wpilibj.util.Color.kBlack;
 import static edu.wpi.first.wpilibj.util.Color.kBlue;
 import static edu.wpi.first.wpilibj.util.Color.kDarkRed;
@@ -17,6 +16,8 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.LEDSubsystem;
 
@@ -28,6 +29,13 @@ public class DefaultLEDCommand extends Command {
   private static final Time CANDY_CANE_SPEED = Seconds.of(0.5);
 
   private final frc.robot.subsystems.LEDSubsystem ledSubsystem;
+
+  private final LEDPattern dsAttachedPattern = candyCane(kDarkRed, kIndianRed, CANDY_CANE_SPEED);
+  private final LEDPattern disabledPattern = gradient(kContinuous, kBlue, kOrange)
+      .scrollAtRelativeSpeed(Percent.per(Second).of(75));
+  private final LEDPattern testModePattern = candyCane(kOrange, kBlack, CANDY_CANE_SPEED);
+  private final LEDPattern enabledPatternOne = LEDPattern.solid(Color.kBlue);
+  private final LEDPattern enabledPatternTwo = LEDPattern.solid(Color.kOrange);
 
   /**
    * Creates a new DefaultLEDCommand
@@ -41,17 +49,19 @@ public class DefaultLEDCommand extends Command {
 
   @Override
   public void execute() {
-    LEDPattern pattern;
     if (!DriverStation.isDSAttached()) {
-      pattern = candyCane(kDarkRed, kIndianRed, CANDY_CANE_SPEED);
+      ledSubsystem.runPattern(dsAttachedPattern);
     } else if (RobotState.isDisabled()) {
-      pattern = gradient(kContinuous, kBlue, kOrange).scrollAtRelativeSpeed(Percent.per(Second).of(75));
+      ledSubsystem.runPattern(disabledPattern);
     } else if (RobotState.isTest()) {
-      pattern = candyCane(kOrange, kBlack, CANDY_CANE_SPEED);
+      ledSubsystem.runPattern(testModePattern);
     } else {
-      pattern = kOff;
+      if (Timer.getFPGATimestamp() % 1 < 0.5) {
+        ledSubsystem.runPatternOnHalves(enabledPatternOne, enabledPatternTwo);
+      } else {
+        ledSubsystem.runPatternOnHalves(enabledPatternTwo, enabledPatternOne);
+      }
     }
-    ledSubsystem.runPattern(pattern);
   }
 
   @Override
