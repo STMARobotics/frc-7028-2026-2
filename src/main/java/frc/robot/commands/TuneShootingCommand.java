@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj.DriverStation.Alliance.Blue;
 import static frc.robot.Constants.FeederConstants.FEEDER_FEED_VELOCITY;
 import static frc.robot.Constants.IndexerConstants.INDEXER_FEED_VELOCITY;
+import static frc.robot.Constants.ShootingConstants.DEPLOY_INTAKE_TIME;
+import static frc.robot.Constants.ShootingConstants.RETRACT_INTAKE_TIME;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -43,6 +45,7 @@ public class TuneShootingCommand extends Command {
   private final Timer shootingTimer = new Timer();
 
   private boolean shooting = false;
+  private boolean retractIntake = false;
   private Translation2d hubTranslation;
 
   private MutAngularVelocity topVelocityMeasure = RotationsPerSecond.mutable(0);
@@ -75,7 +78,7 @@ public class TuneShootingCommand extends Command {
         .getEntry(INDEXER_FEED_VELOCITY.in(RotationsPerSecond));
     indexerVelocitySubscriber.set(INDEXER_FEED_VELOCITY.in(RotationsPerSecond));
 
-    addRequirements(indexerSubsystem, shooterSubsystem, feederSubsystem);
+    addRequirements(indexerSubsystem, shooterSubsystem, feederSubsystem, intakeSubsytem);
   }
 
   @Override
@@ -86,6 +89,7 @@ public class TuneShootingCommand extends Command {
         : ShootingConstants.HUB_RED;
     shootingTimer.stop();
     shootingTimer.reset();
+    retractIntake = false;
   }
 
   @Override
@@ -95,16 +99,20 @@ public class TuneShootingCommand extends Command {
 
     shooterSubsystem.setFlywheelSpeed(topVelocityMeasure.mut_replace(flywheelSubscriber.get(0.0), RotationsPerSecond));
     if (shooting || shooterSubsystem.isFlywheelAtSpeed()) {
+      shooting = true;
       shootingTimer.start();
-      if (shootingTimer.hasElapsed(Seconds.of(0.25))) {
+      if (retractIntake) {
+        retractIntake = !shootingTimer.advanceIfElapsed(DEPLOY_INTAKE_TIME.in(Seconds));
         intakeSubsytem.retractForShooting();
+      } else {
+        retractIntake = shootingTimer.advanceIfElapsed(RETRACT_INTAKE_TIME.in(Seconds));
+        intakeSubsytem.deploy();
       }
       intakeSubsytem.runIntakeForShooting();
       feederSubsystem
           .runFeeder(feederVelocityMeasure.mut_replace(feederVelocitySubscriber.get(0.0), RotationsPerSecond));
       indexerSubsystem
           .runIndexer(indexerVelocityMeasure.mut_replace(indexerVelocitySubscriber.get(0.0), RotationsPerSecond));
-      shooting = true;
     }
   }
 

@@ -7,8 +7,10 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static frc.robot.Constants.ShooterConstants.SHOOTER_OFFSET_ANGLE;
 import static frc.robot.Constants.ShootingConstants.AIM_TOLERANCE;
+import static frc.robot.Constants.ShootingConstants.DEPLOY_INTAKE_TIME;
 import static frc.robot.Constants.ShootingConstants.HEADING_P;
 import static frc.robot.Constants.ShootingConstants.HUB_SETPOINTS_BY_DISTANCE_METERS;
+import static frc.robot.Constants.ShootingConstants.RETRACT_INTAKE_TIME;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
@@ -60,6 +62,7 @@ public class ShootAtTargetCommand extends Command {
 
   private final Timer shootingTimer = new Timer();
   private boolean isShooting = false;
+  private boolean retractIntake = false;
 
   /**
    * Constructor for ShootAtTargetCommand
@@ -98,6 +101,7 @@ public class ShootAtTargetCommand extends Command {
     isShooting = false;
     shootingTimer.stop();
     shootingTimer.reset();
+    retractIntake = false;
   }
 
   @Override
@@ -115,12 +119,16 @@ public class ShootAtTargetCommand extends Command {
     var aimReady = aimError <= AIM_TOLERANCE.in(Radian);
     var shooterReady = shooterSubsystem.isFlywheelAtSpeed();
     if (isShooting || (shooterReady && aimReady)) {
+      isShooting = true;
       shootingTimer.start();
-      if (shootingTimer.hasElapsed(Seconds.of(0.25))) {
+      if (retractIntake) {
+        retractIntake = !shootingTimer.advanceIfElapsed(DEPLOY_INTAKE_TIME.in(Seconds));
         intakeSubsytem.retractForShooting();
+      } else {
+        retractIntake = shootingTimer.advanceIfElapsed(RETRACT_INTAKE_TIME.in(Seconds));
+        intakeSubsytem.deploy();
       }
       intakeSubsytem.runIntakeForShooting();
-      isShooting = true;
       drivetrain.setControl(swerveDriveBrake);
       feederSubsystem.feedShooter();
       indexerSubsystem.feedShooter();

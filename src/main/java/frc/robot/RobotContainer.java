@@ -143,10 +143,7 @@ public class RobotContainer {
     // Intake controls
     controlBindings.runIntake().ifPresent(trigger -> trigger.onTrue(new IntakeCommand(intakeSubsystem, ledSubsystem)));
 
-    controlBindings.stopIntake().ifPresent(trigger -> trigger.onTrue(Commands.run(() -> {
-      intakeSubsystem.stop();
-      ledSubsystem.off();
-    }, intakeSubsystem, ledSubsystem)));
+    controlBindings.stopIntake().ifPresent(trigger -> trigger.onTrue(intakeSubsystem.run(intakeSubsystem::stop)));
 
     controlBindings.eject().ifPresent(trigger -> trigger.whileTrue(Commands.run(() -> {
       intakeSubsystem.reverseIntake();

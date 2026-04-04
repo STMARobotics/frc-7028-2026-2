@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 import static frc.robot.Constants.FieldConstants.FIELD_WIDTH;
 
 import com.ctre.phoenix6.CANBus;
@@ -31,6 +32,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Time;
 import frc.robot.generated.TunerConstants;
 
 public final class Constants {
@@ -214,7 +216,7 @@ public final class Constants {
     public static final Angle DEPLOYED_POSITION = DEPLOY_FORWARD_LIMIT.minus(Rotations.of(0.25));
     public static final Angle RETRACTED_POSITION = DEPLOY_REVERSE_LIMIT.plus(Rotations.of(0.25));
     public static final Angle DEPLOY_TOLERANCE = Rotations.of(0.03);
-    public static final Current DEPLOY_SHOOTING_TORQUE = Amps.of(-25.0);
+    public static final Current DEPLOY_SHOOTING_TORQUE = Amps.of(-27.0);
   }
 
   public static class IndexerConstants {
@@ -228,7 +230,7 @@ public final class Constants {
 
     public static final SlotConfigs INDEXER_SLOT_CONFIGS = new SlotConfigs().withKP(0.5).withKV(0.02).withKS(4.0);
 
-    public static final AngularVelocity INDEXER_FEED_VELOCITY = RotationsPerSecond.of(60);
+    public static final AngularVelocity INDEXER_FEED_VELOCITY = RotationsPerSecond.of(90);
   }
 
   /**
@@ -268,6 +270,9 @@ public final class Constants {
   public static class ShootingConstants {
     public static final Angle AIM_TOLERANCE = Degrees.of(1.5);
     public static final double HEADING_P = 6.0;
+
+    public static final Time RETRACT_INTAKE_TIME = Seconds.of(0.6);
+    public static final Time DEPLOY_INTAKE_TIME = Seconds.of(0.25);
 
     private static InterpolatingDoubleTreeMap createShooterInterpolator() {
       var map = new InterpolatingDoubleTreeMap();
