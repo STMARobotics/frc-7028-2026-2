@@ -6,13 +6,13 @@ import static edu.wpi.first.wpilibj.DriverStation.Alliance.Blue;
 import static frc.robot.Constants.FieldConstants.isValidFieldTranslation;
 import static frc.robot.Constants.VisionConstants.ANGULAR_VELOCITY_THRESHOLD;
 import static frc.robot.Constants.VisionConstants.APRILTAG_CAMERA_NAMES;
+import static frc.robot.Constants.VisionConstants.APRILTAG_ROTATION_STD_DEV;
 import static frc.robot.Constants.VisionConstants.APRILTAG_TRANSLATION_STD_DEV;
 import static frc.robot.Constants.VisionConstants.LIMELIGHT_BLUE_PIPELINE;
 import static frc.robot.Constants.VisionConstants.LIMELIGHT_RED_PIPELINE;
 import static frc.robot.Constants.VisionConstants.ROBOT_TO_CAMERA_TRANSFORMS;
 import static frc.robot.Constants.VisionConstants.TAG_DISTANCE_THRESHOLD;
 
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -34,7 +34,6 @@ import java.util.function.Supplier;
  * It manages camera pose configuration, vision measurement consumption, and field position validation.
  * Vision measurements are fused from multiple sources and published for use by other subsystems.
  */
-@Logged(strategy = Logged.Strategy.OPT_IN)
 public class LocalizationSubsystem extends SubsystemBase {
 
   private final VisionMeasurementConsumer visionMeasurementConsumer;
@@ -132,7 +131,8 @@ public class LocalizationSubsystem extends SubsystemBase {
 
       if (isValidPoseEstimate(poseEstimate)) {
         double adjustedXYDeviation = APRILTAG_TRANSLATION_STD_DEV + (0.01 * Math.pow(poseEstimate.avgTagDist, 2));
-        Matrix<N3, N1> adjustedDeviations = VecBuilder.fill(adjustedXYDeviation, adjustedXYDeviation, Double.MAX_VALUE);
+        Matrix<N3, N1> adjustedDeviations = VecBuilder
+            .fill(adjustedXYDeviation, adjustedXYDeviation, APRILTAG_ROTATION_STD_DEV);
         visionMeasurementConsumer
             .addVisionMeasurement(poseEstimate.pose.toPose2d(), poseEstimate.timestampSeconds, adjustedDeviations);
       }

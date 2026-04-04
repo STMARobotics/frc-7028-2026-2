@@ -29,7 +29,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -39,7 +38,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 /**
  * Subsystem for the Feeder.
  */
-@Logged(strategy = Logged.Strategy.OPT_IN)
 public class FeederSubsystem extends SubsystemBase {
   private final TalonFX feederLeaderMotor = new TalonFX(DEVICE_ID_FEEDER_LEADER, CANIVORE_BUS);
   private final TalonFX feederFollowerMotor = new TalonFX(DEVICE_ID_FEEDER_FOLLOWER, CANIVORE_BUS);
@@ -76,11 +74,11 @@ public class FeederSubsystem extends SubsystemBase {
     feederLeaderMotor.getConfigurator().apply(feederTalonconfig);
     feederFollowerMotor.getConfigurator().apply(feederTalonconfig);
 
-    // Max update frequency for leader for fast following
-    feederLeaderMotor.getTorqueCurrent(false).setUpdateFrequency(Hertz.of(1000));
-    // Keep default update frequency for logging important signals
+    // Increase update frequency for leader for fast following
+    feederLeaderMotor.getTorqueCurrent(false).setUpdateFrequency(Hertz.of(200));
+    // Keep higher update frequency for logging important signals
     BaseStatusSignal.setUpdateFrequencyForAll(
-        Hertz.of(100),
+        Hertz.of(50),
           feederLeaderMotor.getVelocity(false),
           feederLeaderMotor.getStatorCurrent(false),
           feederLeaderMotor.getSupplyCurrent(false),

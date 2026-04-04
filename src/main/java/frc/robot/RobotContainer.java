@@ -71,14 +71,8 @@ public class RobotContainer {
       TunerConstants.FrontRight,
       TunerConstants.BackLeft,
       TunerConstants.BackRight);
-  @Logged
-  private final LocalizationSubsystem localizationSubsystem = new LocalizationSubsystem(
-      drivetrain::addVisionMeasurement,
-      () -> drivetrain.getState().Pose,
-      drivetrain::getIMUYawVelocity);
-  @Logged
+
   private final FeederSubsystem feederSubsystem = new FeederSubsystem();
-  @Logged
   private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
   @Logged
   private final IntakeSubsytem intakeSubsystem = new IntakeSubsytem();
@@ -116,6 +110,12 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Mode", autoChooser);
 
     configureBindings();
+    populateTestModeDashboard();
+
+    new LocalizationSubsystem(
+        drivetrain::addVisionMeasurement,
+        () -> drivetrain.getState().Pose,
+        drivetrain::getIMUYawVelocity);
 
     // Warmup PathPlanner to avoid Java pauses
     CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
@@ -181,6 +181,7 @@ public class RobotContainer {
                     feederSubsystem,
                     shooterSubsystem,
                     ledSubsystem,
+                    intakeSubsystem,
                     () -> drivetrain.getState().Pose)));
 
     controlBindings.autoShoot().ifPresent(trigger -> trigger.whileTrue(commandFactory.shootAtHub()));

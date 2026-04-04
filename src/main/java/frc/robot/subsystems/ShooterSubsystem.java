@@ -62,7 +62,7 @@ public class ShooterSubsystem extends SubsystemBase {
   // https://www.chiefdelphi.com/t/sysid-with-ctre-swerve-characterization/452631/8
   private final SysIdRoutine flywheelSysIdRoutine = new SysIdRoutine(
       new SysIdRoutine.Config(
-          Volts.of(5).per(Second),
+          Volts.of(2).per(Second),
           Volts.of(10),
           Seconds.of(10),
           state -> SignalLogger.writeString("Flywheel SysId", state.toString())),
@@ -94,14 +94,16 @@ public class ShooterSubsystem extends SubsystemBase {
     flywheelFollower1Motor.getConfigurator().apply(flywheelConfig);
     flywheelFollower2Motor.getConfigurator().apply(flywheelConfig);
 
-    // Max the leader update frequency so followers can respond quickly
-    flywheelLeaderMotor.getTorqueCurrent(false).setUpdateFrequency(1000);
-    // Keep default update frequency for used and important signals for logging
+    // Increase the leader update frequency so followers can respond quickly
+    flywheelLeaderMotor.getTorqueCurrent(false).setUpdateFrequency(Hertz.of(200));
+    // Keep higher update frequency for used and important signals for logging
     BaseStatusSignal.setUpdateFrequencyForAll(
         Hertz.of(100),
           flywheelVelocity,
           flywheelAcceleration,
-          flywheelLeaderMotor.getAcceleration(false),
+          flywheelLeaderMotor.getAcceleration(false));
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        Hertz.of(50),
           flywheelLeaderMotor.getStatorCurrent(false),
           flywheelLeaderMotor.getSupplyCurrent(false),
           flywheelFollower0Motor.getStatorCurrent(false),
@@ -167,13 +169,16 @@ public class ShooterSubsystem extends SubsystemBase {
    *
    * @return flywheel angular velocity
    */
-  @Logged(name = "Flywheel Velocity")
   public AngularVelocity getFlywheelVelocity() {
     BaseStatusSignal.refreshAll(flywheelVelocity, flywheelAcceleration);
     return BaseStatusSignal.getLatencyCompensatedValue(flywheelVelocity, flywheelAcceleration);
   }
 
-  /** Returns whether flywheel speed is within configured tolerance of the active request. */
+  /**
+   * Returns whether flywheel speed is within tolerance of the active request
+   * 
+   * @return true if flywheel is at speed, otherwise false
+   */
   @Logged
   public boolean isFlywheelAtSpeed() {
     BaseStatusSignal.refreshAll(flywheelVelocity, flywheelAcceleration);
@@ -182,17 +187,6 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelVelocityRequest.Velocity,
           currentSpeed.in(RotationsPerSecond),
           FLYWHEEL_VELOCITY_TOLERANCE.in(RotationsPerSecond));
-  }
-
-  /**
-   * Checks if the shooter is ready to shoot by verifying that yaw and pitch are at their setpoints and the flywheel is
-   * at velocity.
-   * 
-   * @return true if shooter is ready to shoot, false otherwise
-   */
-  @Logged
-  public boolean isReadyToShoot() {
-    return isFlywheelAtSpeed();
   }
 
 }

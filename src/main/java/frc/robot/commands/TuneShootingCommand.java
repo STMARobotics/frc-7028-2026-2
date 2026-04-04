@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj.DriverStation.Alliance.Blue;
 import static frc.robot.Constants.FeederConstants.FEEDER_FEED_VELOCITY;
 import static frc.robot.Constants.IndexerConstants.INDEXER_FEED_VELOCITY;
@@ -12,10 +13,12 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ShootingConstants;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
+import frc.robot.subsystems.IntakeSubsytem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import java.util.function.Supplier;
@@ -30,13 +33,14 @@ public class TuneShootingCommand extends Command {
   private final FeederSubsystem feederSubsystem;
   private final IndexerSubsystem indexerSubsystem;
   private final Supplier<Pose2d> poseSupplier;
+  private final IntakeSubsytem intakeSubsytem;
 
-  private final DoubleEntry pitchSubscriber;
   private final DoubleEntry flywheelSubscriber;
-  private final DoubleEntry yawSubscriber;
   private final DoubleEntry feederVelocitySubscriber;
   private final DoubleEntry indexerVelocitySubscriber;
   private final DoublePublisher distancePublisher;
+
+  private final Timer shootingTimer = new Timer();
 
   private boolean shooting = false;
   private Translation2d hubTranslation;
@@ -50,25 +54,23 @@ public class TuneShootingCommand extends Command {
       FeederSubsystem feederSubsystem,
       ShooterSubsystem shooterSubsystem,
       LEDSubsystem ledSubsystem,
+      IntakeSubsytem intakeSubsytem,
       Supplier<Pose2d> poseSupplier) {
 
     this.indexerSubsystem = indexerSubsystem;
     this.feederSubsystem = feederSubsystem;
     this.shooterSubsystem = shooterSubsystem;
+    this.intakeSubsytem = intakeSubsytem;
     this.poseSupplier = poseSupplier;
 
     var nt = NetworkTableInstance.getDefault();
     var table = nt.getTable("Tune Shoot");
     distancePublisher = table.getDoubleTopic("Hub Distance").publish();
-    pitchSubscriber = table.getDoubleTopic("Pitch (degrees)").getEntry(0.0);
-    pitchSubscriber.set(0.0);
     flywheelSubscriber = table.getDoubleTopic("Flywheel Velocity (RPS)").getEntry(0.0);
     flywheelSubscriber.set(0.0);
     feederVelocitySubscriber = table.getDoubleTopic("Feeder Velocity (RPS)")
         .getEntry(FEEDER_FEED_VELOCITY.in(RotationsPerSecond));
     feederVelocitySubscriber.set(FEEDER_FEED_VELOCITY.in(RotationsPerSecond));
-    yawSubscriber = table.getDoubleTopic("Yaw (Degrees)").getEntry(180.0);
-    yawSubscriber.set(180.0);
     indexerVelocitySubscriber = table.getDoubleTopic("Indexer Velocity (RPS)")
         .getEntry(INDEXER_FEED_VELOCITY.in(RotationsPerSecond));
     indexerVelocitySubscriber.set(INDEXER_FEED_VELOCITY.in(RotationsPerSecond));
@@ -82,6 +84,8 @@ public class TuneShootingCommand extends Command {
     var alliance = DriverStation.getAlliance();
     hubTranslation = (alliance.isEmpty() || alliance.get() == Blue) ? ShootingConstants.HUB_BLUE
         : ShootingConstants.HUB_RED;
+    shootingTimer.stop();
+    shootingTimer.reset();
   }
 
   @Override
@@ -91,6 +95,11 @@ public class TuneShootingCommand extends Command {
 
     shooterSubsystem.setFlywheelSpeed(topVelocityMeasure.mut_replace(flywheelSubscriber.get(0.0), RotationsPerSecond));
     if (shooting || shooterSubsystem.isFlywheelAtSpeed()) {
+      shootingTimer.start();
+      if (shootingTimer.hasElapsed(Seconds.of(0.25))) {
+        intakeSubsytem.retractForShooting();
+      }
+      intakeSubsytem.runIntakeForShooting();
       feederSubsystem
           .runFeeder(feederVelocityMeasure.mut_replace(feederVelocitySubscriber.get(0.0), RotationsPerSecond));
       indexerSubsystem
@@ -104,5 +113,7 @@ public class TuneShootingCommand extends Command {
     feederSubsystem.stop();
     indexerSubsystem.stop();
     shooterSubsystem.stop();
+    intakeSubsytem.stop();
+    shootingTimer.stop();
   }
 }

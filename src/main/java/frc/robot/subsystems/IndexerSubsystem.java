@@ -28,7 +28,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -38,7 +37,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 /**
  * Subsystem for the Indexer.
  */
-@Logged(strategy = Logged.Strategy.OPT_IN)
 public class IndexerSubsystem extends SubsystemBase {
 
   private final TalonFX indexerLeaderMotor = new TalonFX(DEVICE_ID_INDEXER_MOTOR_LEADER, CANIVORE_BUS);
@@ -80,11 +78,11 @@ public class IndexerSubsystem extends SubsystemBase {
     indexerLeaderMotor.getConfigurator().apply(indexerTalonconfig);
     indexerFollower.getConfigurator().apply(indexerTalonconfig);
 
-    // Max update frequency for leader for fast following
-    indexerLeaderMotor.getTorqueCurrent(false).setUpdateFrequency(Hertz.of(1000));
-    // Keep default update frequency for logging important signals
+    // Increase update frequency for leader for fast following
+    indexerLeaderMotor.getTorqueCurrent(false).setUpdateFrequency(Hertz.of(200));
+    // Keep higher update frequency for important signals
     BaseStatusSignal.setUpdateFrequencyForAll(
-        Hertz.of(100),
+        Hertz.of(50),
           indexerLeaderMotor.getVelocity(false),
           indexerLeaderMotor.getStatorCurrent(false),
           indexerLeaderMotor.getSupplyCurrent(false),

@@ -67,7 +67,7 @@ public class ShootCommand extends Command {
     drivetrain.setControl(swerveBrakeRequest);
 
     // Check to make sure the shooter is ready before running the indexer and feeder
-    if (isShooting || shooterSubsystem.isReadyToShoot()) {
+    if (isShooting || shooterSubsystem.isFlywheelAtSpeed()) {
       isShooting = true;
       feederSubsystem.feedShooter();
       indexerSubsystem.feedShooter();

@@ -118,7 +118,7 @@ public final class Constants {
     public static final Current FLYWHEEL_STATOR_CURRENT_LIMIT = Amps.of(170);
     public static final Current FLYWHEEL_SUPPLY_CURRENT_LIMIT = Amps.of(80);
 
-    public static final SlotConfigs FLYWHEEL_SLOT_CONFIGS = new SlotConfigs().withKP(23.0).withKS(20.0);
+    public static final SlotConfigs FLYWHEEL_SLOT_CONFIGS = new SlotConfigs().withKP(23.0).withKS(3.0);
 
     // The robot shoots out the back
     public static final Rotation2d SHOOTER_OFFSET_ANGLE = new Rotation2d(Math.PI);
@@ -135,11 +135,11 @@ public final class Constants {
     // "limelight-back" };
     public static final Transform3d[] ROBOT_TO_CAMERA_TRANSFORMS = new Transform3d[] {
         new Transform3d(
-            new Translation3d(Inches.of(-6.230084), Inches.of(14.513163), Inches.of(15.352343)),
-            new Rotation3d(0.0, -degreesToRadians(16), Math.PI / 2.0)),
-        new Transform3d(
             new Translation3d(Inches.of(-6.230084), Inches.of(-14.513163), Inches.of(15.352343)),
-            new Rotation3d(0.0, -degreesToRadians(16), -Math.PI / 2.0)), };
+            new Rotation3d(0.0, degreesToRadians(16), Math.PI / 2.0)),
+        new Transform3d(
+            new Translation3d(Inches.of(-6.230084), Inches.of(14.513163), Inches.of(15.352343)),
+            new Rotation3d(0.0, degreesToRadians(16), -Math.PI / 2.0)), };
     // new Transform3d(
     // new Translation3d(Inches.of(-10.050), Inches.of(-11.04), Inches.of(12.015)),
     // new Rotation3d(Math.PI, degreesToRadians(28), Math.PI)) };
@@ -149,6 +149,7 @@ public final class Constants {
 
     // The standard deviations of our vision estimated poses, which affect correction rate
     public static final double APRILTAG_TRANSLATION_STD_DEV = 0.05;
+    public static final double APRILTAG_ROTATION_STD_DEV = 3.0;
     public static final Matrix<N3, N1> APRILTAG_STD_DEVS = VecBuilder
         .fill(APRILTAG_TRANSLATION_STD_DEV, APRILTAG_TRANSLATION_STD_DEV, Double.MAX_VALUE);
 
@@ -176,10 +177,10 @@ public final class Constants {
     public static final int CHANNEL_ID_DEPLOY_POTENTIOMETER = 3;
 
     // Roller constants
-    public static final Current ROLLER_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(100);
+    public static final Current ROLLER_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(170);
     public static final Current ROLLER_PEAK_TORQUE_CURRENT_REVERSE = ROLLER_PEAK_TORQUE_CURRENT_FORWARD.unaryMinus();
-    public static final Current ROLLER_STATOR_CURRENT_LIMIT = Amps.of(120);
-    public static final Current ROLLER_SUPPLY_CURRENT_LIMIT = Amps.of(60);
+    public static final Current ROLLER_STATOR_CURRENT_LIMIT = Amps.of(190);
+    public static final Current ROLLER_SUPPLY_CURRENT_LIMIT = Amps.of(80);
     public static final SlotConfigs ROLLER_SLOT_CONFIGS = new SlotConfigs().withKP(12).withKS(5.1);
 
     public static final AngularVelocity ROLLER_INTAKE_VELOCITY = RotationsPerSecond.of(80.0);
@@ -191,28 +192,29 @@ public final class Constants {
     public static final Current DEPLOY_SUPPLY_CURRENT_LIMIT = Amps.of(30);
 
     // Deploy limits in motor angle
-    public static final Angle DEPLOY_REVERSE_LIMIT = Rotations.of(0.0); // Deployed
-    public static final Angle DEPLOY_FORWARD_LIMIT = Rotations.of(100); // Retracted
+    public static final Angle DEPLOY_REVERSE_LIMIT = Rotations.of(0); // Retracted
+    public static final Angle DEPLOY_FORWARD_LIMIT = Rotations.of(18.38); // Deployed
     // Deploy limits in potentiometer values
-    public static final double POTENTIOMETER_REVERSE_LIMIT = 0.0;
-    public static final double POTENTIOMETER_FORWARD_LIMIT = 1.0;
+    public static final double POTENTIOMETER_REVERSE_LIMIT = 0.568;
+    public static final double POTENTIOMETER_FORWARD_LIMIT = 0.939;
     // Calculated "full range" of the potentiometer in motor rotations, if it was capable of turning all 10 turns
     public static final Angle POTENTIOMETER_FULL_RANGE = DEPLOY_FORWARD_LIMIT.minus(DEPLOY_REVERSE_LIMIT)
         .div(POTENTIOMETER_FORWARD_LIMIT - POTENTIOMETER_REVERSE_LIMIT);
     // The offset of the potentiometer from the actual position of the intake in motor angle
-    public static final Angle POTENTIOMETER_OFFSET = Rotations.of(0.0);
+    public static final Angle POTENTIOMETER_OFFSET = Rotations.of(-28.13);
 
     public static final SlotConfigs DEPLOY_SLOT_CONFIGS = new SlotConfigs().withGravityType(GravityTypeValue.Arm_Cosine)
-        .withKP(25.0)
-        .withKS(0.6)
+        .withKP(5.0)
+        .withKS(0.0)
         .withKV(0.0);
     public static final MotionMagicConfigs DEPLOY_MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
-        .withMotionMagicAcceleration(10.0)
-        .withMotionMagicCruiseVelocity(15.0);
+        .withMotionMagicAcceleration(120.0)
+        .withMotionMagicCruiseVelocity(180.0);
 
-    public static final Angle DEPLOYED_POSITION = DEPLOY_REVERSE_LIMIT;
-    public static final Angle RETRACTED_POSITION = DEPLOY_FORWARD_LIMIT.minus(Degrees.of(2.0));
+    public static final Angle DEPLOYED_POSITION = DEPLOY_FORWARD_LIMIT.minus(Rotations.of(0.25));
+    public static final Angle RETRACTED_POSITION = DEPLOY_REVERSE_LIMIT.plus(Rotations.of(0.25));
     public static final Angle DEPLOY_TOLERANCE = Rotations.of(0.03);
+    public static final Current DEPLOY_SHOOTING_TORQUE = Amps.of(-25.0);
   }
 
   public static class IndexerConstants {
@@ -224,9 +226,9 @@ public final class Constants {
     public static final Current INDEXER_STATOR_CURRENT_LIMIT = Amps.of(80);
     public static final Current INDEXER_SUPPLY_CURRENT_LIMIT = Amps.of(50);
 
-    public static final SlotConfigs INDEXER_SLOT_CONFIGS = new SlotConfigs().withKP(5.0).withKV(0.0).withKS(50.0);
+    public static final SlotConfigs INDEXER_SLOT_CONFIGS = new SlotConfigs().withKP(0.5).withKV(0.02).withKS(4.0);
 
-    public static final AngularVelocity INDEXER_FEED_VELOCITY = RotationsPerSecond.of(20);
+    public static final AngularVelocity INDEXER_FEED_VELOCITY = RotationsPerSecond.of(60);
   }
 
   /**
@@ -236,11 +238,11 @@ public final class Constants {
     public static final int DEVICE_ID_FEEDER_LEADER = 20;
     public static final int DEVICE_ID_FEEDER_FOLLOWER = 21;
 
-    public static final Current FEEDER_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(140);
+    public static final Current FEEDER_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(100);
     public static final Current FEEDER_PEAK_TORQUE_CURRENT_REVERSE = FEEDER_PEAK_TORQUE_CURRENT_FORWARD.unaryMinus();
-    public static final Current FEEDER_STATOR_CURRENT_LIMIT = Amps.of(150);
+    public static final Current FEEDER_STATOR_CURRENT_LIMIT = Amps.of(110);
     public static final Current FEEDER_SUPPLY_CURRENT_LIMIT = Amps.of(80);
-    public static final SlotConfigs FEEDER_SLOT_CONFIGS = new SlotConfigs().withKP(5).withKS(40);
+    public static final SlotConfigs FEEDER_SLOT_CONFIGS = new SlotConfigs().withKP(3).withKS(3).withKV(0.05);
 
     public static final AngularVelocity FEEDER_FEED_VELOCITY = RotationsPerSecond.of(80);
     public static final AngularVelocity FEEDER_UNJAM_VELOCITY = RotationsPerSecond.of(-25);
@@ -269,7 +271,9 @@ public final class Constants {
 
     private static InterpolatingDoubleTreeMap createShooterInterpolator() {
       var map = new InterpolatingDoubleTreeMap();
-      map.put(0.0, 30.0);
+      map.put(2.099, 27.0);
+      map.put(5.302, 37.0);
+
       return map;
     }
 

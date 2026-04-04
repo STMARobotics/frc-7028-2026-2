@@ -14,6 +14,7 @@ import static frc.robot.Constants.IntakeConstants.DEPLOYED_POSITION;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_FORWARD_LIMIT;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_MOTION_MAGIC_CONFIGS;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_REVERSE_LIMIT;
+import static frc.robot.Constants.IntakeConstants.DEPLOY_SHOOTING_TORQUE;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_SLOT_CONFIGS;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_STATOR_CURRENT_LIMIT;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_SUPPLY_CURRENT_LIMIT;
@@ -71,7 +72,8 @@ public class IntakeSubsytem extends SubsystemBase {
   private final TalonFX deployMotor = new TalonFX(DEVICE_ID_DEPLOY_MOTOR, CANIVORE_BUS);
 
   // Motor request objects
-  private final MotionMagicVoltage deployControl = new MotionMagicVoltage(0.0).withEnableFOC(true);
+  private final MotionMagicVoltage deployProfiledControl = new MotionMagicVoltage(0.0).withEnableFOC(true);
+  private final TorqueCurrentFOC deployTorqueControl = new TorqueCurrentFOC(0.0);
   private final VelocityTorqueCurrentFOC rollerControl = new VelocityTorqueCurrentFOC(0.0);
 
   private final TorqueCurrentFOC rollerSysIdControl = new TorqueCurrentFOC(0.0);
@@ -80,8 +82,6 @@ public class IntakeSubsytem extends SubsystemBase {
   private final StatusSignal<Angle> deployPositionSignal = deployMotor.getPosition(false);
   private final StatusSignal<AngularVelocity> deployVelocitySignal = deployMotor.getVelocity(false);
 
-  // TODO set these constants, and confirm the potentiometer is in phase with the motor (zero is deployed, retracting is
-  // positive)
   @Logged(name = "Potentiometer")
   private final AnalogPotentiometer deploySensor = new AnalogPotentiometer(
       CHANNEL_ID_DEPLOY_POTENTIOMETER,
@@ -152,8 +152,10 @@ public class IntakeSubsytem extends SubsystemBase {
 
     // Configure the deploy motor
     var deployConfig = new TalonFXConfiguration();
-    deployConfig.withMotorOutput(
-        new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast).withInverted(InvertedValue.Clockwise_Positive))
+    deployConfig
+        .withMotorOutput(
+            new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast)
+                .withInverted(InvertedValue.CounterClockwise_Positive))
         .withSlot0(Slot0Configs.from(DEPLOY_SLOT_CONFIGS))
         .withMotionMagic(DEPLOY_MOTION_MAGIC_CONFIGS)
         .withCurrentLimits(
@@ -248,7 +250,7 @@ public class IntakeSubsytem extends SubsystemBase {
    */
   public void deploy() {
     deployMotor.setControl(
-        deployControl.withPosition(DEPLOYED_POSITION)
+        deployProfiledControl.withPosition(DEPLOYED_POSITION)
             .withLimitReverseMotion(getPotentiometerValue() >= DEPLOYED_POSITION.in(Rotations)));
   }
 
@@ -257,15 +259,21 @@ public class IntakeSubsytem extends SubsystemBase {
    */
   public void retract() {
     deployMotor.setControl(
-        deployControl.withPosition(RETRACTED_POSITION)
+        deployProfiledControl.withPosition(RETRACTED_POSITION)
             .withLimitReverseMotion(getPotentiometerValue() <= RETRACTED_POSITION.in(Rotations)));
   }
 
   /**
-   * Retracts the intake and runs the rollers at a slow speed to help feed fuel into the feeder
+   * Retracts the intake with a set torque to help feed fuel into the feeder while shooting
    */
   public void retractForShooting() {
-    retract();
+    deployMotor.setControl(deployTorqueControl.withOutput(DEPLOY_SHOOTING_TORQUE));
+  }
+
+  /**
+   * Spins the intake rollers at a velocity to help feed fuel into the feeder while shooting
+   */
+  public void runIntakeForShooting() {
     rollerLeaderMotor.setControl(rollerControl.withVelocity(ROLLER_INTAKE_SHOOTING_VELOCITY));
   }
 
@@ -300,7 +308,7 @@ public class IntakeSubsytem extends SubsystemBase {
   public boolean isDeployed() {
     BaseStatusSignal.refreshAll(deployPositionSignal, deployVelocitySignal);
     Angle deployPosition = BaseStatusSignal.getLatencyCompensatedValue(deployPositionSignal, deployVelocitySignal);
-    return (deployPosition.lte(DEPLOYED_POSITION) || getPotentiometerValue() <= DEPLOYED_POSITION.in(Rotations));
+    return (deployPosition.gte(DEPLOYED_POSITION) || getPotentiometerValue() >= DEPLOYED_POSITION.in(Rotations));
   }
 
   /**
@@ -312,7 +320,7 @@ public class IntakeSubsytem extends SubsystemBase {
   public boolean isRetracted() {
     BaseStatusSignal.refreshAll(deployPositionSignal, deployVelocitySignal);
     Angle deployPosition = BaseStatusSignal.getLatencyCompensatedValue(deployPositionSignal, deployVelocitySignal);
-    return (deployPosition.gte(RETRACTED_POSITION) || getPotentiometerValue() >= RETRACTED_POSITION.in(Rotations));
+    return (deployPosition.lte(RETRACTED_POSITION) || getPotentiometerValue() <= RETRACTED_POSITION.in(Rotations));
   }
 
   /**
