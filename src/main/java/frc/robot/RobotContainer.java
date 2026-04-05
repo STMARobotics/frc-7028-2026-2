@@ -110,7 +110,6 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Mode", autoChooser);
 
     configureBindings();
-    populateTestModeDashboard();
 
     new LocalizationSubsystem(
         drivetrain::addVisionMeasurement,

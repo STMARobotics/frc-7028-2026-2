@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
-import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.Utils;
@@ -12,11 +11,8 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -54,7 +50,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
   private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
   private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
   private final SysIdSwerveTranslationTorque m_translationCharacterizationTorque = new SysIdSwerveTranslationTorque();
-  private final StatusSignal<Angle> yaw = this.getPigeon2().getYaw();
   private final StatusSignal<AngularVelocity> yawVelocity = this.getPigeon2().getAngularVelocityZWorld();
 
   /*
@@ -360,39 +355,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
   }
 
   /**
-   * Gets the current yaw angle of the drivetrain from the IMU (not from the pose estimator).
-   *
-   * @return current yaw angle
-   */
-  public Angle getIMUYaw() {
-    BaseStatusSignal.refreshAll(yaw, yawVelocity);
-    return BaseStatusSignal.getLatencyCompensatedValue(yaw, yawVelocity);
-  }
-
-  /**
    * Gets the yaw angular velocity of the drivetrain from the IMU (not from the pose estimator).
    *
    * @return current yaw angular velocity
    */
   public AngularVelocity getIMUYawVelocity() {
     return yawVelocity.refresh().getValue();
-  }
-
-  /**
-   * Gets the current field-oriented chassis speeds
-   *
-   * @return field oriented chassis speeds
-   */
-  public ChassisSpeeds getCurrentFieldChassisSpeeds() {
-    var state = getState();
-    if (state == null || state.Pose == null) {
-      return new ChassisSpeeds();
-    }
-    var robotAngle = state.Pose.getRotation();
-    var chassisSpeeds = state.Speeds;
-    var fieldSpeeds = new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond)
-        .rotateBy(robotAngle);
-    return new ChassisSpeeds(fieldSpeeds.getX(), fieldSpeeds.getY(), chassisSpeeds.omegaRadiansPerSecond);
   }
 
 }

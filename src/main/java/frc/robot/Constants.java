@@ -123,7 +123,7 @@ public final class Constants {
     public static final SlotConfigs FLYWHEEL_SLOT_CONFIGS = new SlotConfigs().withKP(23.0).withKS(3.0);
 
     // The robot shoots out the back
-    public static final Rotation2d SHOOTER_OFFSET_ANGLE = new Rotation2d(Math.PI);
+    public static final Rotation2d SHOOTER_OFFSET_ANGLE = Rotation2d.kPi;
 
     public static final AngularVelocity FLYWHEEL_VELOCITY_TOLERANCE = RotationsPerSecond.of(1.5);
   }
