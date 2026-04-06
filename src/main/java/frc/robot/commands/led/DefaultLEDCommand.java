@@ -30,7 +30,7 @@ public class DefaultLEDCommand extends Command {
 
   private final frc.robot.subsystems.LEDSubsystem ledSubsystem;
 
-  private final LEDPattern dsAttachedPattern = candyCane(kDarkRed, kIndianRed, CANDY_CANE_SPEED);
+  private final LEDPattern dsDetachedPattern = candyCane(kDarkRed, kIndianRed, CANDY_CANE_SPEED);
   private final LEDPattern disabledPattern = gradient(kContinuous, kBlue, kOrange)
       .scrollAtRelativeSpeed(Percent.per(Second).of(75));
   private final LEDPattern testModePattern = candyCane(kOrange, kBlack, CANDY_CANE_SPEED);
@@ -50,7 +50,7 @@ public class DefaultLEDCommand extends Command {
   @Override
   public void execute() {
     if (!DriverStation.isDSAttached()) {
-      ledSubsystem.runPattern(dsAttachedPattern);
+      ledSubsystem.runPattern(dsDetachedPattern);
     } else if (RobotState.isDisabled()) {
       ledSubsystem.runPattern(disabledPattern);
     } else if (RobotState.isTest()) {
