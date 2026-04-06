@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj.LEDPattern.GradientType.kContinuous;
 import static edu.wpi.first.wpilibj.LEDPattern.gradient;
+import static edu.wpi.first.wpilibj.LEDPattern.solid;
 import static edu.wpi.first.wpilibj.util.Color.kBlack;
 import static edu.wpi.first.wpilibj.util.Color.kBlue;
 import static edu.wpi.first.wpilibj.util.Color.kDarkRed;
@@ -27,15 +28,14 @@ import frc.robot.subsystems.LEDSubsystem;
 public class DefaultLEDCommand extends Command {
 
   private static final Time CANDY_CANE_SPEED = Seconds.of(0.5);
-
-  private final frc.robot.subsystems.LEDSubsystem ledSubsystem;
-
-  private final LEDPattern dsDetachedPattern = candyCane(kDarkRed, kIndianRed, CANDY_CANE_SPEED);
-  private final LEDPattern disabledPattern = gradient(kContinuous, kBlue, kOrange)
+  private static final LEDPattern dsDetachedPattern = candyCane(kDarkRed, kIndianRed, CANDY_CANE_SPEED);
+  private static final LEDPattern disabledPattern = gradient(kContinuous, kBlue, kOrange)
       .scrollAtRelativeSpeed(Percent.per(Second).of(75));
-  private final LEDPattern testModePattern = candyCane(kOrange, kBlack, CANDY_CANE_SPEED);
-  private final LEDPattern enabledPatternOne = LEDPattern.solid(Color.kBlue);
-  private final LEDPattern enabledPatternTwo = LEDPattern.solid(Color.kOrange);
+  private static final LEDPattern testModePattern = candyCane(kOrange, kBlack, CANDY_CANE_SPEED);
+  private static final LEDPattern enabledPatternOne = solid(Color.kBlue);
+  private static final LEDPattern enabledPatternTwo = solid(Color.kOrange);
+
+  private final LEDSubsystem ledSubsystem;
 
   /**
    * Creates a new DefaultLEDCommand
@@ -56,7 +56,7 @@ public class DefaultLEDCommand extends Command {
     } else if (RobotState.isTest()) {
       ledSubsystem.runPattern(testModePattern);
     } else {
-      if (Timer.getFPGATimestamp() % 1 < 0.5) {
+      if (Timer.getTimestamp() % 1 < 0.5) {
         ledSubsystem.runPatternOnHalves(enabledPatternOne, enabledPatternTwo);
       } else {
         ledSubsystem.runPatternOnHalves(enabledPatternTwo, enabledPatternOne);
