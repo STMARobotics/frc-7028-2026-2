@@ -32,8 +32,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import frc.robot.Constants.OdometryConstants;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.DeployIntakeCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.RetractIntakeCommand;
@@ -65,8 +63,8 @@ public class RobotContainer {
   public final CommandSwerveDrivetrain drivetrain = new CommandSwerveDrivetrain(
       TunerConstants.DrivetrainConstants,
       0,
-      OdometryConstants.STATE_STD_DEVS,
-      VisionConstants.APRILTAG_STD_DEVS,
+      // OdometryConstants.STATE_STD_DEVS,
+      // VisionConstants.APRILTAG_STD_DEVS,
       TunerConstants.FrontLeft,
       TunerConstants.FrontRight,
       TunerConstants.BackLeft,
