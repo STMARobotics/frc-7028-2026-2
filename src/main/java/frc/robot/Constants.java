@@ -201,6 +201,10 @@ public final class Constants {
 
     public static final Angle DEPLOYED_POSITION = DEPLOY_FORWARD_LIMIT.minus(Rotations.of(0.25));
     public static final Angle RETRACTED_POSITION = DEPLOY_REVERSE_LIMIT.plus(Rotations.of(0.25));
+
+    public static final Pose3d POSE_DEPLOYED = new Pose3d(0.267, 0.0, -0.043, Rotation3d.kZero);
+    public static final Pose3d POSE_RETRACTED = new Pose3d(0.0, 0.0, 0.0, Rotation3d.kZero);
+
     public static final Angle DEPLOY_TOLERANCE = Rotations.of(0.03);
     public static final Current DEPLOY_SHOOTING_TORQUE = Amps.of(-27.0);
   }

@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Value;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.CANIVORE_BUS;
 import static frc.robot.Constants.IntakeConstants.CHANNEL_ID_DEPLOY_POTENTIOMETER;
@@ -21,6 +22,8 @@ import static frc.robot.Constants.IntakeConstants.DEPLOY_SUPPLY_CURRENT_LIMIT;
 import static frc.robot.Constants.IntakeConstants.DEVICE_ID_DEPLOY_MOTOR;
 import static frc.robot.Constants.IntakeConstants.DEVICE_ID_ROLLER_FOLLOWER;
 import static frc.robot.Constants.IntakeConstants.DEVICE_ID_ROLLER_MOTOR;
+import static frc.robot.Constants.IntakeConstants.POSE_DEPLOYED;
+import static frc.robot.Constants.IntakeConstants.POSE_RETRACTED;
 import static frc.robot.Constants.IntakeConstants.POTENTIOMETER_FULL_RANGE;
 import static frc.robot.Constants.IntakeConstants.POTENTIOMETER_OFFSET;
 import static frc.robot.Constants.IntakeConstants.RETRACTED_POSITION;
@@ -53,9 +56,11 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -112,6 +117,8 @@ public class IntakeSubsytem extends SubsystemBase {
           (volts) -> deployMotor.setControl(deploySysIdControl.withOutput(volts.in(Volts))),
           null,
           this));
+
+  private Pose3d currentPose3d = POSE_RETRACTED;
 
   /**
    * Creates a new substyem for the intake
@@ -231,6 +238,14 @@ public class IntakeSubsytem extends SubsystemBase {
         .finallyDo(this::stopDeploy);
   }
 
+  @Override
+  public void periodic() {
+    BaseStatusSignal.refreshAll(deployPositionSignal, deployVelocitySignal);
+    // Update the intake pose for AdvantageScope
+    Angle deployPosition = BaseStatusSignal.getLatencyCompensatedValue(deployPositionSignal, deployVelocitySignal);
+    currentPose3d = POSE_RETRACTED.interpolate(POSE_DEPLOYED, deployPosition.div(DEPLOY_FORWARD_LIMIT).in(Value));
+  }
+
   /**
    * Runs the intake rollers to intake fuel
    */
@@ -252,6 +267,9 @@ public class IntakeSubsytem extends SubsystemBase {
     deployMotor.setControl(
         deployProfiledControl.withPosition(DEPLOYED_POSITION)
             .withLimitReverseMotion(getPotentiometerValue() >= DEPLOYED_POSITION.in(Rotations)));
+    if (RobotBase.isSimulation()) {
+      deployMotor.setPosition(DEPLOYED_POSITION);
+    }
   }
 
   /**
@@ -261,6 +279,9 @@ public class IntakeSubsytem extends SubsystemBase {
     deployMotor.setControl(
         deployProfiledControl.withPosition(RETRACTED_POSITION)
             .withLimitReverseMotion(getPotentiometerValue() <= RETRACTED_POSITION.in(Rotations)));
+    if (RobotBase.isSimulation()) {
+      deployMotor.setPosition(RETRACTED_POSITION);
+    }
   }
 
   /**
@@ -306,7 +327,7 @@ public class IntakeSubsytem extends SubsystemBase {
    */
   @Logged
   public boolean isDeployed() {
-    BaseStatusSignal.refreshAll(deployPositionSignal, deployVelocitySignal);
+    // Signals refreshed in periodic
     Angle deployPosition = BaseStatusSignal.getLatencyCompensatedValue(deployPositionSignal, deployVelocitySignal);
     return (deployPosition.gte(DEPLOYED_POSITION) || getPotentiometerValue() >= DEPLOYED_POSITION.in(Rotations));
   }
@@ -318,9 +339,22 @@ public class IntakeSubsytem extends SubsystemBase {
    */
   @Logged
   public boolean isRetracted() {
-    BaseStatusSignal.refreshAll(deployPositionSignal, deployVelocitySignal);
+    // Signals refreshed in periodic
     Angle deployPosition = BaseStatusSignal.getLatencyCompensatedValue(deployPositionSignal, deployVelocitySignal);
     return (deployPosition.lte(RETRACTED_POSITION) || getPotentiometerValue() <= RETRACTED_POSITION.in(Rotations));
+  }
+
+  /**
+   * Gets the pose of the intake for AdvantageScope.
+   * <p>
+   * <strong>This is not intended for use in robot code.</strong>
+   * </p>
+   * 
+   * @return intake pose for AdvantageScope
+   */
+  @Logged
+  public Pose3d getPose() {
+    return currentPose3d;
   }
 
   /**
