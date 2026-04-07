@@ -45,7 +45,6 @@ public class TuneShootingCommand extends Command {
   private final Timer shootingTimer = new Timer();
 
   private boolean shooting = false;
-  private boolean retractIntake = false;
   private Translation2d hubTranslation;
 
   private MutAngularVelocity topVelocityMeasure = RotationsPerSecond.mutable(0);
@@ -89,7 +88,6 @@ public class TuneShootingCommand extends Command {
         : ShootingConstants.HUB_RED;
     shootingTimer.stop();
     shootingTimer.reset();
-    retractIntake = false;
   }
 
   @Override
@@ -101,12 +99,12 @@ public class TuneShootingCommand extends Command {
     if (shooting || shooterSubsystem.isFlywheelAtSpeed()) {
       shooting = true;
       shootingTimer.start();
-      if (retractIntake) {
-        retractIntake = !shootingTimer.advanceIfElapsed(DEPLOY_INTAKE_TIME.in(Seconds));
+      if (shootingTimer.hasElapsed(DEPLOY_INTAKE_TIME.in(Seconds))) {
         intakeSubsytem.retractForShooting();
-      } else {
-        retractIntake = shootingTimer.advanceIfElapsed(RETRACT_INTAKE_TIME.in(Seconds));
+      } else if (shootingTimer.hasElapsed(RETRACT_INTAKE_TIME.in(Seconds))) {
         intakeSubsytem.deploy();
+      } else {
+        intakeSubsytem.retractForShooting();
       }
       intakeSubsytem.runIntakeForShooting();
       feederSubsystem

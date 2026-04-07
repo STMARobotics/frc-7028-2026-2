@@ -5,19 +5,18 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.wpilibj.DriverStation.Alliance.Blue;
 import static frc.robot.Constants.FieldConstants.isValidFieldTranslation;
 import static frc.robot.Constants.VisionConstants.ANGULAR_VELOCITY_THRESHOLD;
+import static frc.robot.Constants.VisionConstants.APRILTAG_AMBIGUITY_THRESHOLD;
 import static frc.robot.Constants.VisionConstants.APRILTAG_CAMERA_NAMES;
-import static frc.robot.Constants.VisionConstants.APRILTAG_ROTATION_STD_DEV;
-import static frc.robot.Constants.VisionConstants.APRILTAG_TRANSLATION_STD_DEV;
 import static frc.robot.Constants.VisionConstants.LIMELIGHT_BLUE_PIPELINE;
 import static frc.robot.Constants.VisionConstants.LIMELIGHT_RED_PIPELINE;
+import static frc.robot.Constants.VisionConstants.MULTI_TAG_STD_DEVS;
 import static frc.robot.Constants.VisionConstants.ROBOT_TO_CAMERA_TRANSFORMS;
+import static frc.robot.Constants.VisionConstants.SINGLE_TAG_STD_DEVS;
 import static frc.robot.Constants.VisionConstants.TAG_DISTANCE_THRESHOLD;
 
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
@@ -25,6 +24,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.PoseEstimate;
 import frc.robot.VisionMeasurementConsumer;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -38,26 +39,29 @@ public class LocalizationSubsystem extends SubsystemBase {
 
   private final VisionMeasurementConsumer visionMeasurementConsumer;
   private final Supplier<AngularVelocity> robotAngularVelocitySupplier;
+  private final Map<String, StructPublisher<Pose3d>> visionPosePublishers;
 
   /**
    * Constructs a new LocalizationSubsystem.
    *
    * @param addVisionMeasurement the consumer for vision-based pose measurements
    * @param poseResetConsumer the consumer for resetting the robot's pose when the robot is disabled
-   * @param poseSupplier supplier for the robot's current pose estimate from the fused estimator
    * @param angularVelocitySupplier supplier for the robot's current angular velocity, NOT from the fused estimator but
    *          directly from the IMU
    */
   public LocalizationSubsystem(
       VisionMeasurementConsumer addVisionMeasurement,
-      Supplier<Pose2d> poseSupplier,
       Supplier<AngularVelocity> angularVelocitySupplier) {
     this.visionMeasurementConsumer = addVisionMeasurement;
     this.robotAngularVelocitySupplier = angularVelocitySupplier;
 
+    var table = NetworkTableInstance.getDefault().getTable("Localization");
+    visionPosePublishers = new HashMap<>();
     for (int i = 0; i < APRILTAG_CAMERA_NAMES.length; i++) {
+      String cameraName = APRILTAG_CAMERA_NAMES[i];
+      visionPosePublishers.put(cameraName, table.getStructTopic(cameraName, Pose3d.struct).publish());
       LimelightHelpers.setCameraPose_RobotSpace(
-          APRILTAG_CAMERA_NAMES[i],
+          cameraName,
             ROBOT_TO_CAMERA_TRANSFORMS[i].getX(),
             ROBOT_TO_CAMERA_TRANSFORMS[i].getY(),
             ROBOT_TO_CAMERA_TRANSFORMS[i].getZ(),
@@ -90,7 +94,9 @@ public class LocalizationSubsystem extends SubsystemBase {
    * @return true if the pose estimate meets basic validation criteria
    */
   private boolean isValidPoseEstimate(PoseEstimate poseEstimate) {
-    return poseEstimate != null && poseEstimate.tagCount > 0
+    return poseEstimate != null
+        && (poseEstimate.tagCount >= 2
+            || (poseEstimate.tagCount == 1 && poseEstimate.rawFiducials[0].ambiguity <= APRILTAG_AMBIGUITY_THRESHOLD))
         && isValidFieldTranslation(poseEstimate.pose.getTranslation())
         && poseEstimate.avgTagDist < TAG_DISTANCE_THRESHOLD.in(Meters);
   }
@@ -128,13 +134,12 @@ public class LocalizationSubsystem extends SubsystemBase {
 
     for (String cameraName : APRILTAG_CAMERA_NAMES) {
       PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(cameraName);
-
       if (isValidPoseEstimate(poseEstimate)) {
-        double adjustedXYDeviation = APRILTAG_TRANSLATION_STD_DEV + (0.01 * Math.pow(poseEstimate.avgTagDist, 2));
-        Matrix<N3, N1> adjustedDeviations = VecBuilder
-            .fill(adjustedXYDeviation, adjustedXYDeviation, APRILTAG_ROTATION_STD_DEV);
-        visionMeasurementConsumer
-            .addVisionMeasurement(poseEstimate.pose.toPose2d(), poseEstimate.timestampSeconds, adjustedDeviations);
+        visionPosePublishers.get(cameraName).set(poseEstimate.pose);
+        visionMeasurementConsumer.addVisionMeasurement(
+            poseEstimate.pose.toPose2d(),
+              poseEstimate.timestampSeconds,
+              poseEstimate.tagCount == 1 ? SINGLE_TAG_STD_DEVS : MULTI_TAG_STD_DEVS);
       }
     }
   }

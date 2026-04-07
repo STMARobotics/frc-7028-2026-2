@@ -62,9 +62,6 @@ public class RobotContainer {
   // without editing generated TunerConstants file
   public final CommandSwerveDrivetrain drivetrain = new CommandSwerveDrivetrain(
       TunerConstants.DrivetrainConstants,
-      0,
-      // OdometryConstants.STATE_STD_DEVS,
-      // VisionConstants.APRILTAG_STD_DEVS,
       TunerConstants.FrontLeft,
       TunerConstants.FrontRight,
       TunerConstants.BackLeft,
@@ -109,10 +106,7 @@ public class RobotContainer {
 
     configureBindings();
 
-    new LocalizationSubsystem(
-        drivetrain::addVisionMeasurement,
-        () -> drivetrain.getState().Pose,
-        drivetrain::getIMUYawVelocity);
+    new LocalizationSubsystem(drivetrain::addVisionMeasurement, drivetrain::getIMUYawVelocity);
 
     // Warmup PathPlanner to avoid Java pauses
     CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());

@@ -87,21 +87,9 @@ public final class Constants {
     /** Blue reset pose is the blue corner, bumpers against the walls, facing downfield. */
     public static final Pose3d RESET_POSE_BLUE = new Pose3d(
         new Translation3d(ROBOT_LENGTH.in(Meters) / 2.0, ROBOT_WIDTH.in(Meters) / 2.0, 0.0),
-        new Rotation3d(0.0, 0.0, 0.0));
+        new Rotation3d(0.0, 0.0, Math.PI));
     /** Red reset pose is the red corner, bumpers against the walls, facing downfield. */
     public static final Pose3d RESET_POSE_RED = new Pose3d(FlippingUtil.flipFieldPose(RESET_POSE_BLUE.toPose2d()));
-  }
-
-  /**
-   * Constants for odometry state estimation
-   */
-  public static class OdometryConstants {
-    // Trust the physics/encoders moderately
-    public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(
-        0.1, // X: 10cm error per meter (Trust wheels moderately)
-          0.1, // Y: 10cm error per meter
-          0.05 // Theta: 0.05 radians to (Trust the Pigeon heavily)
-    );
   }
 
   /**
@@ -125,7 +113,7 @@ public final class Constants {
     // The robot shoots out the back
     public static final Rotation2d SHOOTER_OFFSET_ANGLE = Rotation2d.kPi;
 
-    public static final AngularVelocity FLYWHEEL_VELOCITY_TOLERANCE = RotationsPerSecond.of(1.5);
+    public static final AngularVelocity FLYWHEEL_VELOCITY_TOLERANCE = RotationsPerSecond.of(1.0);
   }
 
   /**
@@ -137,22 +125,21 @@ public final class Constants {
     public static final Transform3d[] ROBOT_TO_CAMERA_TRANSFORMS = new Transform3d[] {
         new Transform3d(
             new Translation3d(Inches.of(-6.230084), Inches.of(-14.513163), Inches.of(15.352343)),
-            new Rotation3d(0.0, degreesToRadians(16), Math.PI / 2.0)),
+            new Rotation3d(0.0, degreesToRadians(16.0), Math.PI / 2.0)),
         new Transform3d(
             new Translation3d(Inches.of(-6.230084), Inches.of(14.513163), Inches.of(15.352343)),
-            new Rotation3d(0.0, degreesToRadians(16), -Math.PI / 2.0)),
+            new Rotation3d(0.0, degreesToRadians(16.0), -Math.PI / 2.0)),
         new Transform3d(
             new Translation3d(Inches.of(-11.1515), Inches.of(6.75), Inches.of(10.012)),
-            new Rotation3d(0.0, degreesToRadians(26), Math.PI)) };
+            new Rotation3d(0.0, degreesToRadians(26.0), Math.PI)) };
 
     public static final int LIMELIGHT_BLUE_PIPELINE = 0;
     public static final int LIMELIGHT_RED_PIPELINE = 1;
 
     // The standard deviations of our vision estimated poses, which affect correction rate
-    public static final double APRILTAG_TRANSLATION_STD_DEV = 0.05;
-    public static final double APRILTAG_ROTATION_STD_DEV = 3.0;
-    public static final Matrix<N3, N1> APRILTAG_STD_DEVS = VecBuilder
-        .fill(APRILTAG_TRANSLATION_STD_DEV, APRILTAG_TRANSLATION_STD_DEV, Double.MAX_VALUE);
+    public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(2.0, 2.0, 8.0);
+    public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1.0);
+    public static final double APRILTAG_AMBIGUITY_THRESHOLD = 0.3;
 
     /** The max average distance for AprilTag measurements to be considered valid */
     public static final Distance TAG_DISTANCE_THRESHOLD = Meters.of(3.5);
@@ -230,6 +217,8 @@ public final class Constants {
     public static final SlotConfigs INDEXER_SLOT_CONFIGS = new SlotConfigs().withKP(0.5).withKV(0.02).withKS(4.0);
 
     public static final AngularVelocity INDEXER_FEED_VELOCITY = RotationsPerSecond.of(90);
+    public static final AngularVelocity INDEXER_UNJAM_VELOCITY = RotationsPerSecond.of(-25);
+
   }
 
   /**
@@ -270,8 +259,8 @@ public final class Constants {
     public static final Angle AIM_TOLERANCE = Degrees.of(1.5);
     public static final double HEADING_P = 6.0;
 
-    public static final Time RETRACT_INTAKE_TIME = Seconds.of(0.6);
-    public static final Time DEPLOY_INTAKE_TIME = Seconds.of(0.25);
+    public static final Time RETRACT_INTAKE_TIME = Seconds.of(0.8);
+    public static final Time DEPLOY_INTAKE_TIME = Seconds.of(1.0);
 
     private static InterpolatingDoubleTreeMap createShooterInterpolator() {
       var map = new InterpolatingDoubleTreeMap();

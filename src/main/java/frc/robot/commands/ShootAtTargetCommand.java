@@ -62,7 +62,6 @@ public class ShootAtTargetCommand extends Command {
 
   private final Timer shootingTimer = new Timer();
   private boolean isShooting = false;
-  private boolean retractIntake = false;
 
   /**
    * Constructor for ShootAtTargetCommand
@@ -101,7 +100,6 @@ public class ShootAtTargetCommand extends Command {
     isShooting = false;
     shootingTimer.stop();
     shootingTimer.reset();
-    retractIntake = false;
   }
 
   @Override
@@ -121,12 +119,12 @@ public class ShootAtTargetCommand extends Command {
     if (isShooting || (shooterReady && aimReady)) {
       isShooting = true;
       shootingTimer.start();
-      if (retractIntake) {
-        retractIntake = !shootingTimer.advanceIfElapsed(DEPLOY_INTAKE_TIME.in(Seconds));
+      if (shootingTimer.hasElapsed(DEPLOY_INTAKE_TIME.in(Seconds))) {
         intakeSubsytem.retractForShooting();
-      } else {
-        retractIntake = shootingTimer.advanceIfElapsed(RETRACT_INTAKE_TIME.in(Seconds));
+      } else if (shootingTimer.hasElapsed(RETRACT_INTAKE_TIME.in(Seconds))) {
         intakeSubsytem.deploy();
+      } else {
+        intakeSubsytem.retractForShooting();
       }
       intakeSubsytem.runIntakeForShooting();
       drivetrain.setControl(swerveDriveBrake);
