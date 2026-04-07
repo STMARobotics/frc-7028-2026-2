@@ -3,13 +3,12 @@
   "robotLength": 0.776288,
   "holonomicMode": true,
   "pathFolders": [
-    "Left Double Dip",
-    "Left Gentle",
-    "Right Double Dip",
-    "Right Outpost Double Dip"
+    "Left Double Bump",
+    "Left No Bump",
+    "Left Single Bump"
   ],
   "autoFolders": [],
-  "defaultMaxVel": 5.0,
+  "defaultMaxVel": 4.0,
   "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,

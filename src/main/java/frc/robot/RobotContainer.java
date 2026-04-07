@@ -213,10 +213,10 @@ public class RobotContainer {
 
   private void configurePathPlannerCommands() {
     NamedCommands.registerCommand("Shoot", commandFactory.shootAtHub());
+    NamedCommands.registerCommand("Intake", new IntakeCommand(intakeSubsystem, ledSubsystem));
     NamedCommands.registerCommand(
-        "Intake",
-          new DeployIntakeCommand(intakeSubsystem).andThen(new IntakeCommand(intakeSubsystem, ledSubsystem)));
-    NamedCommands.registerCommand("RetractIntake", new RetractIntakeCommand(intakeSubsystem));
+        "RetractIntake",
+          new RetractIntakeCommand(intakeSubsystem).alongWith(new DefaultLEDCommand(ledSubsystem)));
     NamedCommands.registerCommand("Shuttle", commandFactory.shuttleToCorner());
   }
 

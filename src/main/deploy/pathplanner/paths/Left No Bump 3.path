@@ -1,0 +1,102 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.879233550269629,
+        "y": 7.371207722721576
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.879233550269628,
+        "y": 7.371207722721576
+      },
+      "isLocked": false,
+      "linkedName": "Left Shoot Trench"
+    },
+    {
+      "anchor": {
+        "x": 7.099677419354839,
+        "y": 6.838897849462366
+      },
+      "prevControl": {
+        "x": 6.297215078408705,
+        "y": 7.435600615806924
+      },
+      "nextControl": {
+        "x": 7.670209677419356,
+        "y": 6.414655913978495
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.484908602150537,
+        "y": 4.244682795698925
+      },
+      "prevControl": {
+        "x": 7.548301075268817,
+        "y": 4.517758064516129
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 95.0
+    },
+    {
+      "waypointRelativePos": 1.4,
+      "rotationDegrees": -90.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "RetractIntake",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "RetractIntake"
+        }
+      }
+    },
+    {
+      "name": "Intake",
+      "waypointRelativePos": 0.6862885857860813,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Intake"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": "Left No Bump",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 95.0
+  },
+  "useDefaultConstraints": true
+}

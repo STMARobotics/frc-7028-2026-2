@@ -289,6 +289,9 @@ public class IntakeSubsytem extends SubsystemBase {
    */
   public void retractForShooting() {
     deployMotor.setControl(deployTorqueControl.withOutput(DEPLOY_SHOOTING_TORQUE));
+    if (RobotBase.isSimulation()) {
+      deployMotor.setPosition(RETRACTED_POSITION);
+    }
   }
 
   /**
