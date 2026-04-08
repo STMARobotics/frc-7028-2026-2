@@ -124,7 +124,7 @@
     },
     {
       "name": "Intake",
-      "waypointRelativePos": 0.5800430725053731,
+      "waypointRelativePos": 0.3847810480976412,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -144,13 +144,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 95.0
+    "rotation": 105.00000000000001
   },
   "reversed": false,
   "folder": "Left No Bump",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 95.0
+    "rotation": 105.00000000000001
   },
   "useDefaultConstraints": true
 }

@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Double Bump 1"
+            "pathName": "Right No Bump 1"
           }
         },
         {
@@ -17,7 +17,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.5
+                  "waitTime": 3.75
                 }
               },
               {
@@ -32,26 +32,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Double Bump 2"
+            "pathName": "Right No Bump 2"
           }
         },
         {
-          "type": "deadline",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 5.0
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Shoot"
-                }
-              }
-            ]
+            "name": "Shoot"
           }
         }
       ]
