@@ -278,7 +278,8 @@ public final class Constants {
 
     private static InterpolatingDoubleTreeMap createShuttleInterpolator() {
       var map = new InterpolatingDoubleTreeMap();
-      map.put(0.0, 30.0);
+      map.put(2.0, 20.0);
+      map.put(6.0, 40.0);
       return map;
     }
 
