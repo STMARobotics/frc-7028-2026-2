@@ -19,6 +19,7 @@ import static frc.robot.Constants.IntakeConstants.DEPLOY_SHOOTING_TORQUE;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_SLOT_CONFIGS;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_STATOR_CURRENT_LIMIT;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_SUPPLY_CURRENT_LIMIT;
+import static frc.robot.Constants.IntakeConstants.DEPLOY_TOLERANCE;
 import static frc.robot.Constants.IntakeConstants.DEVICE_ID_DEPLOY_MOTOR;
 import static frc.robot.Constants.IntakeConstants.DEVICE_ID_ROLLER_FOLLOWER;
 import static frc.robot.Constants.IntakeConstants.DEVICE_ID_ROLLER_MOTOR;
@@ -332,7 +333,8 @@ public class IntakeSubsytem extends SubsystemBase {
   public boolean isDeployed() {
     // Signals refreshed in periodic
     Angle deployPosition = BaseStatusSignal.getLatencyCompensatedValue(deployPositionSignal, deployVelocitySignal);
-    return (deployPosition.gte(DEPLOYED_POSITION) || getPotentiometerValue() >= DEPLOYED_POSITION.in(Rotations));
+    return (deployPosition.gte(DEPLOYED_POSITION.minus(DEPLOY_TOLERANCE))
+        || getPotentiometerValue() >= DEPLOYED_POSITION.minus(DEPLOY_TOLERANCE).in(Rotations));
   }
 
   /**
@@ -344,7 +346,8 @@ public class IntakeSubsytem extends SubsystemBase {
   public boolean isRetracted() {
     // Signals refreshed in periodic
     Angle deployPosition = BaseStatusSignal.getLatencyCompensatedValue(deployPositionSignal, deployVelocitySignal);
-    return (deployPosition.lte(RETRACTED_POSITION) || getPotentiometerValue() <= RETRACTED_POSITION.in(Rotations));
+    return (deployPosition.lte(RETRACTED_POSITION.plus(DEPLOY_TOLERANCE))
+        || getPotentiometerValue() <= RETRACTED_POSITION.plus(DEPLOY_TOLERANCE).in(Rotations));
   }
 
   /**
