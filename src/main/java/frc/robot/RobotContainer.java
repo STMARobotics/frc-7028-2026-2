@@ -159,6 +159,7 @@ public class RobotContainer {
                     shooterSubsystem,
                     drivetrain,
                     intakeSubsystem,
+                    ledSubsystem,
                     Meters.of(2.0))));
 
     controlBindings.tuneShoot()
