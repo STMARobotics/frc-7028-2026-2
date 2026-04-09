@@ -176,8 +176,8 @@ public final class Constants {
     public static final AngularVelocity ROLLER_EJECT_VELOCITY = RotationsPerSecond.of(-30.0);
 
     // Deploy constants
-    public static final Current DEPLOY_STATOR_CURRENT_LIMIT = Amps.of(60);
-    public static final Current DEPLOY_SUPPLY_CURRENT_LIMIT = Amps.of(30);
+    public static final Current DEPLOY_STATOR_CURRENT_LIMIT = Amps.of(30);
+    public static final Current DEPLOY_SUPPLY_CURRENT_LIMIT = Amps.of(15);
 
     // Deploy limits in motor angle
     public static final Angle DEPLOY_REVERSE_LIMIT = Rotations.of(0); // Retracted
@@ -205,7 +205,7 @@ public final class Constants {
     public static final Pose3d POSE_DEPLOYED = new Pose3d(0.267, 0.0, -0.043, Rotation3d.kZero);
     public static final Pose3d POSE_RETRACTED = new Pose3d(0.0, 0.0, 0.0, Rotation3d.kZero);
 
-    public static final Angle DEPLOY_TOLERANCE = Rotations.of(0.03);
+    public static final Angle DEPLOY_TOLERANCE = Rotations.of(0.2);
     public static final Current DEPLOY_SHOOTING_TORQUE = Amps.of(-27.0);
   }
 
