@@ -176,8 +176,8 @@ public final class Constants {
     public static final AngularVelocity ROLLER_EJECT_VELOCITY = RotationsPerSecond.of(-30.0);
 
     // Deploy constants
-    public static final Current DEPLOY_STATOR_CURRENT_LIMIT = Amps.of(30);
-    public static final Current DEPLOY_SUPPLY_CURRENT_LIMIT = Amps.of(15);
+    public static final Current DEPLOY_STATOR_CURRENT_LIMIT = Amps.of(40);
+    public static final Current DEPLOY_SUPPLY_CURRENT_LIMIT = Amps.of(30);
 
     // Deploy limits in motor angle
     public static final Angle DEPLOY_REVERSE_LIMIT = Rotations.of(0); // Retracted
