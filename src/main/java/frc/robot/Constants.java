@@ -261,6 +261,7 @@ public final class Constants {
    */
   public static class ShootingConstants {
     public static final Angle AIM_TOLERANCE = Degrees.of(1.5);
+    public static final Angle ABORT_TOLERNCE = AIM_TOLERANCE.times(2.0);
     public static final double HEADING_P = 6.0;
 
     public static final Time RETRACT_INTAKE_TIME = Seconds.of(0.8);

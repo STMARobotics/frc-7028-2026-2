@@ -1,11 +1,14 @@
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.wpilibj.util.Color.kDarkViolet;
 import static frc.robot.Constants.ShooterConstants.SHOOTER_OFFSET_ANGLE;
+import static frc.robot.Constants.ShootingConstants.ABORT_TOLERNCE;
 import static frc.robot.Constants.ShootingConstants.AIM_TOLERANCE;
 import static frc.robot.Constants.ShootingConstants.DEPLOY_INTAKE_TIME;
 import static frc.robot.Constants.ShootingConstants.HEADING_P;
@@ -55,13 +58,16 @@ public class ShootAtTargetCommand extends Command {
       .withVelocityY(0.0);
 
   // LED patterns for shooting
-  private final LEDPattern patternTwo = LEDPattern.gradient(GradientType.kDiscontinuous, Color.kBlack, Color.kRed)
+  private final LEDPattern shootingPatternTwo = LEDPattern
+      .gradient(GradientType.kDiscontinuous, Color.kBlack, Color.kRed)
       .scrollAtRelativeSpeed(Percent.per(Second).of(300));
-  private final LEDPattern patternOne = patternTwo.reversed();
+  private final LEDPattern shootingPatternOne = shootingPatternTwo.reversed();
+  private final LEDPattern abortPattern = LEDPattern.solid(kDarkViolet).blink(Milliseconds.of(100));
   private final MutAngularVelocity shooterAngularVelocity = RotationsPerSecond.mutable(0);
 
   private final Timer shootingTimer = new Timer();
   private boolean isShooting = false;
+  private boolean isAborted = false;
 
   /**
    * Constructor for ShootAtTargetCommand
@@ -98,8 +104,13 @@ public class ShootAtTargetCommand extends Command {
   @Override
   public void initialize() {
     isShooting = false;
+    isAborted = false;
     shootingTimer.stop();
     shootingTimer.reset();
+    feederSubsystem.stop();
+    indexerSubsystem.stop();
+    intakeSubsytem.stop();
+    shooterSubsystem.stop();
   }
 
   @Override
@@ -110,30 +121,42 @@ public class ShootAtTargetCommand extends Command {
 
     var targetDistance = targetTranslation.getDistance(robotPose.getTranslation());
     shooterAngularVelocity.mut_replace(HUB_SETPOINTS_BY_DISTANCE_METERS.get(targetDistance), RotationsPerSecond);
-    shooterSubsystem.setFlywheelSpeed(shooterAngularVelocity);
 
     // Check to make sure the shooter is ready and the drivetrain is aimed before shooting
     var aimError = Math.abs(headingToTarget.minus(robotPose.getRotation()).getRadians());
     var aimReady = aimError <= AIM_TOLERANCE.in(Radian);
     var shooterReady = shooterSubsystem.isFlywheelAtSpeed();
     if (isShooting || (shooterReady && aimReady)) {
-      isShooting = true;
-      shootingTimer.start();
-      if (shootingTimer.hasElapsed(DEPLOY_INTAKE_TIME.in(Seconds))) {
-        intakeSubsytem.retractForShooting();
-      } else if (shootingTimer.hasElapsed(RETRACT_INTAKE_TIME.in(Seconds))) {
-        intakeSubsytem.deploy();
+      if (isAborted || aimError >= ABORT_TOLERNCE.in(Radian)) {
+        // Robot was pushed out of alignment, so abort shooting
+        isAborted = true;
+        feederSubsystem.stop();
+        indexerSubsystem.stop();
+        intakeSubsytem.stop();
+        shooterSubsystem.stop();
+        ledSubsystem.runPattern(abortPattern);
       } else {
-        intakeSubsytem.retractForShooting();
+        // Shoot
+        isShooting = true;
+        shootingTimer.start();
+        if (shootingTimer.hasElapsed(DEPLOY_INTAKE_TIME.in(Seconds))) {
+          intakeSubsytem.retractForShooting();
+        } else if (shootingTimer.hasElapsed(RETRACT_INTAKE_TIME.in(Seconds))) {
+          intakeSubsytem.deploy();
+        } else {
+          intakeSubsytem.retractForShooting();
+        }
+        feederSubsystem.feedShooter();
+        indexerSubsystem.feedShooter();
+        intakeSubsytem.runIntakeForShooting();
+        shooterSubsystem.setFlywheelSpeed(shooterAngularVelocity);
+        ledSubsystem.runPatternOnHalves(shootingPatternOne, shootingPatternTwo);
       }
-      intakeSubsytem.runIntakeForShooting();
       drivetrain.setControl(swerveDriveBrake);
-      feederSubsystem.feedShooter();
-      indexerSubsystem.feedShooter();
-      ledSubsystem.runPatternOnHalves(patternOne, patternTwo);
     } else {
       drivetrain.setControl(swerveRequestFacing.withTargetDirection(headingToTarget));
       ledSubsystem.runPattern(LEDSubsystem.ledSegments(Color.kGreen, () -> aimReady, () -> shooterReady));
+      shooterSubsystem.setFlywheelSpeed(shooterAngularVelocity);
     }
   }
 
