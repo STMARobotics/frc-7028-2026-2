@@ -17,6 +17,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -50,6 +51,7 @@ import frc.robot.subsystems.IntakeSubsytem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LocalizationSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import java.util.stream.Stream;
 
 @Logged(strategy = Logged.Strategy.OPT_IN)
 public class RobotContainer {
@@ -99,9 +101,15 @@ public class RobotContainer {
     // Configure and populate the auto command chooser with autos from PathPlanner
     configureAutoBuilder();
     configurePathPlannerCommands();
-    autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
-        "Left Double Dip",
-          stream -> stream.filter(item -> !item.getRequirements().isEmpty()));
+    autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(stream -> stream.flatMap(auto -> {
+      if (auto.getName().startsWith("Right")) {
+        var mirrored = new PathPlannerAuto(auto.getName(), true);
+        mirrored.setName(auto.getName().replaceFirst("Right", "Left"));
+        return Stream.of(auto, mirrored);
+      } else {
+        return Stream.of(auto);
+      }
+    }));
     SmartDashboard.putData("Auto Mode", autoChooser);
 
     configureBindings();
