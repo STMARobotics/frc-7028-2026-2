@@ -3,6 +3,8 @@
   "robotLength": 0.776288,
   "holonomicMode": true,
   "pathFolders": [
+    "Left No Bump",
+    "Left Bump",
     "Right No Bump"
   ],
   "autoFolders": [],
