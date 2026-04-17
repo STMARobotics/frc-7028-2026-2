@@ -34,7 +34,7 @@ public class RetractIntakeCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    intakeSubsystem.deploy();
+    intakeSubsystem.stop();
   }
 
 }

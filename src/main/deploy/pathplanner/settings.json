@@ -5,7 +5,9 @@
   "pathFolders": [
     "Left No Bump",
     "Left Bump",
-    "Right No Bump"
+    "Right No Bump",
+    "Tag Team",
+    "No Bump"
   ],
   "autoFolders": [],
   "defaultMaxVel": 4.0,

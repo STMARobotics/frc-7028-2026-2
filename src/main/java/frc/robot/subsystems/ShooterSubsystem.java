@@ -37,6 +37,7 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -181,12 +182,17 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   @Logged
   public boolean isFlywheelAtSpeed() {
-    BaseStatusSignal.refreshAll(flywheelVelocity, flywheelAcceleration);
-    AngularVelocity currentSpeed = BaseStatusSignal.getLatencyCompensatedValue(flywheelVelocity, flywheelAcceleration);
-    return MathUtil.isNear(
-        flywheelVelocityRequest.Velocity,
-          currentSpeed.in(RotationsPerSecond),
-          FLYWHEEL_VELOCITY_TOLERANCE.in(RotationsPerSecond));
+    if (RobotBase.isSimulation()) {
+      return true;
+    } else {
+      BaseStatusSignal.refreshAll(flywheelVelocity, flywheelAcceleration);
+      AngularVelocity currentSpeed = BaseStatusSignal
+          .getLatencyCompensatedValue(flywheelVelocity, flywheelAcceleration);
+      return MathUtil.isNear(
+          flywheelVelocityRequest.Velocity,
+            currentSpeed.in(RotationsPerSecond),
+            FLYWHEEL_VELOCITY_TOLERANCE.in(RotationsPerSecond));
+    }
   }
 
 }

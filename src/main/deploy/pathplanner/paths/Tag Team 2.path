@@ -1,0 +1,73 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.83670430107527,
+        "y": 5.176064516129032
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.134510752688173,
+        "y": 5.234580645161291
+      },
+      "isLocked": false,
+      "linkedName": "Tag Team End 1"
+    },
+    {
+      "anchor": {
+        "x": 1.4236129032258071,
+        "y": 5.283344086021506
+      },
+      "prevControl": {
+        "x": 3.6130913978494625,
+        "y": 5.644193548387098
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Tag Team End 2"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 70.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.5,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 155.0
+  },
+  "reversed": false,
+  "folder": "Tag Team",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 70.0
+  },
+  "useDefaultConstraints": true
+}
