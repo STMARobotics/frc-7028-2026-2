@@ -7,11 +7,11 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right No Bump 1"
+            "pathName": "Left Bump N Dump 1"
           }
         },
         {
-          "type": "deadline",
+          "type": "race",
           "data": {
             "commands": [
               {
@@ -32,13 +32,32 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right No Bump 2"
+            "pathName": "Left Bump N Dump 2"
           }
         },
         {
-          "type": "named",
+          "type": "race",
           "data": {
-            "name": "Shoot"
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.75
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Bump N Dump 3"
           }
         }
       ]

@@ -12,7 +12,7 @@
         "y": 7.384715909090909
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Left Trench Start"
     },
     {
       "anchor": {
@@ -105,7 +105,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Bump 1 End"
+      "linkedName": "Left Bump Shoot"
     }
   ],
   "rotationTargets": [
@@ -182,20 +182,14 @@
   "eventMarkers": [
     {
       "name": "Intake",
-      "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": null,
+      "waypointRelativePos": 0.12921751615217625,
+      "endWaypointRelativePos": 3.9454414931802058,
       "command": {
         "type": "named",
         "data": {
           "name": "Intake"
         }
       }
-    },
-    {
-      "name": "Shoot",
-      "waypointRelativePos": 6.0,
-      "endWaypointRelativePos": null,
-      "command": null
     }
   ],
   "globalConstraints": {
@@ -211,7 +205,7 @@
     "rotation": 125.39479584498706
   },
   "reversed": false,
-  "folder": "Left Bump",
+  "folder": "Bump",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -90.0

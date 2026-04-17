@@ -12,7 +12,7 @@
         "y": 7.4238477039730455
       },
       "isLocked": false,
-      "linkedName": "Left Bump 1 End"
+      "linkedName": "Left Bump Shoot"
     },
     {
       "anchor": {
@@ -105,7 +105,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Bump 2 End"
+      "linkedName": "Left Bump Shoot"
     }
   ],
   "rotationTargets": [
@@ -176,16 +176,15 @@
   ],
   "eventMarkers": [
     {
-      "name": "RetractIntake",
-      "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
       "name": "Intake",
-      "waypointRelativePos": 2.3482944344703784,
-      "endWaypointRelativePos": null,
-      "command": null
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": 5.220387652548478,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Intake"
+        }
+      }
     }
   ],
   "globalConstraints": {
@@ -201,7 +200,7 @@
     "rotation": 125.39479584498706
   },
   "reversed": false,
-  "folder": "Left Bump",
+  "folder": "Bump",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 125.39479584498706

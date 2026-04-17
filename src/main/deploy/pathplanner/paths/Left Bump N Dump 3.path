@@ -12,7 +12,7 @@
         "y": 6.770425779668248
       },
       "isLocked": false,
-      "linkedName": "Left Bump 2 End"
+      "linkedName": "Left Bump Shoot"
     },
     {
       "anchor": {
@@ -104,7 +104,7 @@
     },
     {
       "name": "Intake",
-      "waypointRelativePos": 2.3429084380610408,
+      "waypointRelativePos": 2.1837760229720145,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -127,7 +127,7 @@
     "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Left Bump",
+  "folder": "Bump",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 125.39479584498706

@@ -3,11 +3,9 @@
   "robotLength": 0.776288,
   "holonomicMode": true,
   "pathFolders": [
-    "Left No Bump",
-    "Left Bump",
-    "Right No Bump",
-    "Tag Team",
-    "No Bump"
+    "Bump",
+    "No Bump",
+    "Tag Team"
   ],
   "autoFolders": [],
   "defaultMaxVel": 4.0,

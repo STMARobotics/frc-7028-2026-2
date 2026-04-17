@@ -102,9 +102,9 @@ public class RobotContainer {
     configureAutoBuilder();
     configurePathPlannerCommands();
     autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(stream -> stream.flatMap(auto -> {
-      if (auto.getName().startsWith("Right")) {
+      if (auto.getName().startsWith("Left")) {
         var mirrored = new PathPlannerAuto(auto.getName(), true);
-        mirrored.setName(auto.getName().replaceFirst("Right", "Left"));
+        mirrored.setName(auto.getName().replaceFirst("Left", "Right"));
         return Stream.of(auto, mirrored);
       } else {
         return Stream.of(auto);
