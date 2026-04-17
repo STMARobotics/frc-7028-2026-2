@@ -21,6 +21,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -83,7 +84,10 @@ public final class Constants {
     /** Max angular velocity the driver can request */
     public static final AngularVelocity MAX_TELEOP_ANGULAR_VELOCITY = RotationsPerSecond.of(1.75);
     /** Multiplier for shooting in teleop to reduce driver speed while shooting */
-    public static final double SHOOT_VELOCITY_MULTIPLIER = 0.325;
+    public static final LinearVelocity MAX_SHOOTING_VELOCITY = MAX_TELEOP_VELOCITY.times(0.4);
+    public static final LinearVelocity MAX_SHUTTLING_VELOCITY = MAX_TELEOP_VELOCITY.times(0.7);
+    /** Rotate around center with intake out */
+    public static final Translation2d CENTER_OF_ROTATION = new Translation2d(Inches.of(6.0), Inches.zero());
     /** Blue reset pose is the blue corner, bumpers against the walls, facing downfield. */
     public static final Pose3d RESET_POSE_BLUE = new Pose3d(
         new Translation3d(ROBOT_LENGTH.in(Meters) / 2.0, ROBOT_WIDTH.in(Meters) / 2.0, 0.0),
@@ -110,10 +114,12 @@ public final class Constants {
 
     public static final SlotConfigs FLYWHEEL_SLOT_CONFIGS = new SlotConfigs().withKP(23.0).withKS(3.0);
 
-    // The robot shoots out the back
-    public static final Rotation2d SHOOTER_OFFSET_ANGLE = Rotation2d.kPi;
-
     public static final AngularVelocity FLYWHEEL_VELOCITY_TOLERANCE = RotationsPerSecond.of(1.0);
+
+    public static final Transform2d ROBOT_TO_SHOOTER = new Transform2d(
+        new Translation2d(Inches.of(-5.4), Inches.zero()),
+        new Rotation2d(Math.PI));
+    public static final Angle FUEL_EXIT_ANGLE = Degrees.of(70);
   }
 
   /**
@@ -266,6 +272,9 @@ public final class Constants {
 
     public static final Time RETRACT_INTAKE_TIME = Seconds.of(0.8);
     public static final Time DEPLOY_INTAKE_TIME = Seconds.of(1.0);
+
+    /** A constant multipied by the flywheel's velocity to estimate the fuel's exit velocity */
+    public static final double FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER = 0.5;
 
     private static InterpolatingDoubleTreeMap createShooterInterpolator() {
       var map = new InterpolatingDoubleTreeMap();

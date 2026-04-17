@@ -3,11 +3,12 @@ package frc.robot.commands;
 import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.Radian;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj.util.Color.kDarkViolet;
-import static frc.robot.Constants.ShooterConstants.SHOOTER_OFFSET_ANGLE;
+import static frc.robot.Constants.ShooterConstants.ROBOT_TO_SHOOTER;
 import static frc.robot.Constants.ShootingConstants.ABORT_TOLERNCE;
 import static frc.robot.Constants.ShootingConstants.AIM_TOLERANCE;
 import static frc.robot.Constants.ShootingConstants.DEPLOY_INTAKE_TIME;
@@ -44,7 +45,7 @@ public class ShootAtTargetCommand extends Command {
   private final FeederSubsystem feederSubsystem;
   private final ShooterSubsystem shooterSubsystem;
   private final CommandSwerveDrivetrain drivetrain;
-  private final IntakeSubsytem intakeSubsytem;
+  private final IntakeSubsytem intakeSubsystem;
   private final LEDSubsystem ledSubsystem;
   private final Supplier<Pose2d> robotPoseSupplier;
   private final Function<Translation2d, Translation2d> targetTranslationSelector;
@@ -93,7 +94,7 @@ public class ShootAtTargetCommand extends Command {
     this.indexerSubsystem = indexerSubsystem;
     this.shooterSubsystem = shooterSubsystem;
     this.drivetrain = drivetrain;
-    this.intakeSubsytem = intakeSubsytem;
+    this.intakeSubsystem = intakeSubsytem;
     this.ledSubsystem = ledSubsystem;
     this.robotPoseSupplier = robotPoseSupplier;
     this.targetTranslationSelector = targetTranslationSelector;
@@ -109,7 +110,7 @@ public class ShootAtTargetCommand extends Command {
     shootingTimer.reset();
     feederSubsystem.stop();
     indexerSubsystem.stop();
-    intakeSubsytem.stop();
+    intakeSubsystem.stop();
     shooterSubsystem.stop();
   }
 
@@ -117,22 +118,25 @@ public class ShootAtTargetCommand extends Command {
   public void execute() {
     var robotPose = robotPoseSupplier.get();
     var targetTranslation = targetTranslationSelector.apply(robotPose.getTranslation());
-    var headingToTarget = targetTranslation.minus(robotPose.getTranslation()).getAngle().minus(SHOOTER_OFFSET_ANGLE);
+    var headingToTarget = targetTranslation.minus(robotPose.getTranslation())
+        .getAngle()
+        .minus(ROBOT_TO_SHOOTER.getRotation());
 
-    var targetDistance = targetTranslation.getDistance(robotPose.getTranslation());
+    var shooterTranslation = ShooterSubsystem.getShooterPose(robotPose).getTranslation();
+    var targetDistance = targetTranslation.getDistance(shooterTranslation);
     shooterAngularVelocity.mut_replace(HUB_SETPOINTS_BY_DISTANCE_METERS.get(targetDistance), RotationsPerSecond);
 
     // Check to make sure the shooter is ready and the drivetrain is aimed before shooting
     var aimError = Math.abs(headingToTarget.minus(robotPose.getRotation()).getRadians());
-    var aimReady = aimError <= AIM_TOLERANCE.in(Radian);
-    var shooterReady = shooterSubsystem.isFlywheelAtSpeed();
-    if (isShooting || (shooterReady && aimReady)) {
+    var isAimReady = aimError <= AIM_TOLERANCE.in(Radians);
+    var isShooterReady = shooterSubsystem.isFlywheelAtSpeed();
+    if (isShooting || (isShooterReady && isAimReady)) {
       if (isAborted || aimError >= ABORT_TOLERNCE.in(Radian)) {
         // Robot was pushed out of alignment, so abort shooting
         isAborted = true;
         feederSubsystem.stop();
         indexerSubsystem.stop();
-        intakeSubsytem.stop();
+        intakeSubsystem.stop();
         shooterSubsystem.stop();
         ledSubsystem.runPattern(abortPattern);
       } else {
@@ -140,22 +144,22 @@ public class ShootAtTargetCommand extends Command {
         isShooting = true;
         shootingTimer.start();
         if (shootingTimer.hasElapsed(DEPLOY_INTAKE_TIME.in(Seconds))) {
-          intakeSubsytem.retractForShooting();
+          intakeSubsystem.retractForShooting();
         } else if (shootingTimer.hasElapsed(RETRACT_INTAKE_TIME.in(Seconds))) {
-          intakeSubsytem.deploy();
+          intakeSubsystem.deploy();
         } else {
-          intakeSubsytem.retractForShooting();
+          intakeSubsystem.retractForShooting();
         }
         feederSubsystem.feedShooter();
         indexerSubsystem.feedShooter();
-        intakeSubsytem.runIntakeForShooting();
+        intakeSubsystem.runIntakeForShooting();
         shooterSubsystem.setFlywheelSpeed(shooterAngularVelocity);
         ledSubsystem.runPatternOnHalves(shootingPatternOne, shootingPatternTwo);
       }
       drivetrain.setControl(swerveDriveBrake);
     } else {
       drivetrain.setControl(swerveRequestFacing.withTargetDirection(headingToTarget));
-      ledSubsystem.runPattern(LEDSubsystem.ledSegments(Color.kGreen, () -> aimReady, () -> shooterReady));
+      ledSubsystem.runPattern(LEDSubsystem.ledSegments(Color.kGreen, () -> isAimReady, () -> isShooterReady));
       shooterSubsystem.setFlywheelSpeed(shooterAngularVelocity);
     }
   }
@@ -165,7 +169,7 @@ public class ShootAtTargetCommand extends Command {
     drivetrain.setControl(new SwerveRequest.Idle());
     feederSubsystem.stop();
     indexerSubsystem.stop();
-    intakeSubsytem.stop();
+    intakeSubsystem.stop();
     ledSubsystem.off();
     shootingTimer.stop();
   }

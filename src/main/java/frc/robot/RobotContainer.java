@@ -10,6 +10,8 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.wpilibj.DriverStation.Alliance.Blue;
 import static edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward;
 import static edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse;
+import static frc.robot.Constants.TeleopDriveConstants.MAX_SHOOTING_VELOCITY;
+import static frc.robot.Constants.TeleopDriveConstants.MAX_SHUTTLING_VELOCITY;
 import static frc.robot.Constants.TeleopDriveConstants.RESET_POSE_BLUE;
 import static frc.robot.Constants.TeleopDriveConstants.RESET_POSE_RED;
 
@@ -24,6 +26,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.LEDPattern;
@@ -51,6 +54,7 @@ import frc.robot.subsystems.IntakeSubsytem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LocalizationSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 @Logged(strategy = Logged.Strategy.OPT_IN)
@@ -183,7 +187,19 @@ public class RobotContainer {
 
     controlBindings.autoShoot().ifPresent(trigger -> trigger.whileTrue(commandFactory.shootAtHub()));
 
-    controlBindings.shuttle().ifPresent(trigger -> trigger.whileTrue(commandFactory.shuttleToCorner()));
+    controlBindings.autoShootOnTheMove()
+        .ifPresent(
+            trigger -> trigger.whileTrue(
+                commandFactory.shootAtHubOnTheMove(
+                    clamp(controlBindings.translationX(), MAX_SHOOTING_VELOCITY),
+                      clamp(controlBindings.translationY(), MAX_SHOOTING_VELOCITY))));
+
+    controlBindings.shuttle()
+        .ifPresent(
+            trigger -> trigger.whileTrue(
+                commandFactory.shuttleToCornerOnTheMove(
+                    clamp(controlBindings.translationX(), MAX_SHUTTLING_VELOCITY),
+                      clamp(controlBindings.translationY(), MAX_SHUTTLING_VELOCITY))));
 
     // Idle while the robot is disabled. This ensures the configured
     // neutral mode is applied to the drive motors while disabled.
@@ -288,5 +304,29 @@ public class RobotContainer {
     SmartDashboard.putData("Shooter Flywheel Quasi Rev", shooterSubsystem.sysIdFlywheelQuasistaticCommand(kReverse));
     SmartDashboard.putData("Shooter Flywheel Dynam Fwd", shooterSubsystem.sysIdFlywheelDynamicCommand(kForward));
     SmartDashboard.putData("Shooter Flywheel Dynam Rev", shooterSubsystem.sysIdFlywheelDynamicCommand(kReverse));
+  }
+
+  /**
+   * Clamps a LinearVelocity supplier to an absolute max value.
+   * 
+   * @param value input supplier for linear velocity
+   * @param max absolute value to clamp the input to (both positive and negative)
+   * @return a supplier that provides the clamped linear velocity
+   */
+  public static Supplier<LinearVelocity> clamp(Supplier<LinearVelocity> value, LinearVelocity max) {
+    return new Supplier<LinearVelocity>() {
+      final LinearVelocity min = max.unaryMinus();
+
+      @Override
+      public LinearVelocity get() {
+        var val = value.get();
+        if (val.lt(min)) {
+          return min;
+        } else if (val.gt(max)) {
+          return max;
+        }
+        return val;
+      }
+    };
   }
 }
