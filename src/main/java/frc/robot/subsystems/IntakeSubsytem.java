@@ -14,6 +14,8 @@ import static frc.robot.Constants.IntakeConstants.CHANNEL_ID_DEPLOY_POTENTIOMETE
 import static frc.robot.Constants.IntakeConstants.DEPLOYED_POSITION;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_FORWARD_LIMIT;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_MOTION_MAGIC_CONFIGS;
+import static frc.robot.Constants.IntakeConstants.DEPLOY_PEAK_CURRENT_FORWARD;
+import static frc.robot.Constants.IntakeConstants.DEPLOY_PEAK_CURRENT_REVERSE;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_REVERSE_LIMIT;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_SHOOTING_TORQUE;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_SLOT_CONFIGS;
@@ -166,6 +168,9 @@ public class IntakeSubsytem extends SubsystemBase {
                 .withInverted(InvertedValue.CounterClockwise_Positive))
         .withSlot0(Slot0Configs.from(DEPLOY_SLOT_CONFIGS))
         .withMotionMagic(DEPLOY_MOTION_MAGIC_CONFIGS)
+        .withTorqueCurrent(
+            new TorqueCurrentConfigs().withPeakForwardTorqueCurrent(DEPLOY_PEAK_CURRENT_FORWARD)
+                .withPeakReverseTorqueCurrent(DEPLOY_PEAK_CURRENT_REVERSE))
         .withCurrentLimits(
             new CurrentLimitsConfigs().withSupplyCurrentLimit(DEPLOY_SUPPLY_CURRENT_LIMIT)
                 .withSupplyCurrentLimitEnable(true)
@@ -255,9 +260,9 @@ public class IntakeSubsytem extends SubsystemBase {
   }
 
   /**
-   * Reverses the intake rollers to eject fuel
+   * Reverses the intake rollers to eject or unjam fuel
    */
-  public void reverseIntake() {
+  public void eject() {
     rollerLeaderMotor.setControl(rollerControl.withVelocity(ROLLER_EJECT_VELOCITY));
   }
 

@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.786772727272727,
-        "y": 5.993295454545455
+        "x": 2.976476868327403,
+        "y": 5.6112218268090155
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.020689057702846,
-        "y": 6.770425779668248
+        "x": 2.2103931987575223,
+        "y": 6.388352151931808
       },
       "isLocked": false,
       "linkedName": "Left Bump Shoot"
@@ -115,7 +115,7 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 4.0,
+    "maxVelocity": 14.4,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -130,7 +130,7 @@
   "folder": "Bump",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 125.39479584498706
+    "rotation": 131.87786953788435
   },
   "useDefaultConstraints": true
 }

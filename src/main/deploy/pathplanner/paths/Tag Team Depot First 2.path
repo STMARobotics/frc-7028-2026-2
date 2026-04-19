@@ -3,158 +3,134 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.976476868327403,
-        "y": 5.6112218268090155
+        "x": 1.6506583969465654,
+        "y": 6.45344465648855
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.6497618145613955,
-        "y": 6.820555160139188
+        "x": 1.60881679389313,
+        "y": 6.712862595419848
       },
       "isLocked": false,
-      "linkedName": "Left Bump Shoot"
+      "linkedName": "Tag Team Depot First End 1"
     },
     {
       "anchor": {
-        "x": 3.764,
-        "y": 7.350913978494624
+        "x": 3.5335305343511454,
+        "y": 7.482748091603054
       },
       "prevControl": {
-        "x": 3.484098554258954,
-        "y": 7.298178923499935
+        "x": 2.454017175572519,
+        "y": 7.498549618320611
       },
       "nextControl": {
-        "x": 4.436935483870968,
-        "y": 7.4776989247311825
+        "x": 4.169950024447109,
+        "y": 7.473432412927522
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.475854838709678,
-        "y": 7.350913978494624
+        "x": 5.650715648854963,
+        "y": 7.4
       },
       "prevControl": {
-        "x": 5.059250180423911,
-        "y": 7.455065143066066
+        "x": 5.4007156488549635,
+        "y": 7.4
       },
       "nextControl": {
-        "x": 6.022005376344087,
-        "y": 7.2143763440860225
+        "x": 5.902926061762113,
+        "y": 7.4
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.84158064516129,
-        "y": 5.098043010752689
+        "x": 5.926870229007634,
+        "y": 5.616612595419847
       },
       "prevControl": {
-        "x": 5.811990102639296,
-        "y": 6.227249144672533
+        "x": 5.901765267175573,
+        "y": 6.595706106870228
       },
       "nextControl": {
-        "x": 5.852680192314592,
-        "y": 4.674472651408139
+        "x": 5.9559471393138415,
+        "y": 4.482613093477751
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.568155913978494,
-        "y": 4.5421397849462375
+        "x": 6.7051240458015275,
+        "y": 4.311154580152672
       },
       "prevControl": {
-        "x": 6.26063678326747,
-        "y": 4.5421397849462375
+        "x": 5.9135415326322045,
+        "y": 4.311154580152672
       },
       "nextControl": {
-        "x": 6.832604868918307,
-        "y": 4.5421397849462375
+        "x": 7.400500773818534,
+        "y": 4.311154580152672
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.377629032258064,
-        "y": 5.098043010752689
+        "x": 7.366221374045802,
+        "y": 5.415772900763359
       },
       "prevControl": {
-        "x": 7.394086693548387,
-        "y": 4.592122311827563
+        "x": 7.377214161605057,
+        "y": 4.855140735241376
       },
       "nextControl": {
-        "x": 7.369227796712343,
-        "y": 5.356303214565825
+        "x": 7.3578530534351145,
+        "y": 5.8425572519083975
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.568155913978494,
-        "y": 5.517408602153699
+        "x": 1.926812977099237,
+        "y": 4.771412213740458
       },
       "prevControl": {
-        "x": 7.3144914878263005,
-        "y": 5.517408602153699
-      },
-      "nextControl": {
-        "x": 5.212391938878189,
-        "y": 5.517408602153699
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.976476868327403,
-        "y": 5.6112218268090155
-      },
-      "prevControl": {
-        "x": 3.1828036836398614,
-        "y": 5.470050847911018
+        "x": 2.454017175572519,
+        "y": 5.892767175572519
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Bump Shoot"
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.2,
-      "rotationDegrees": 0.0
-    },
-    {
-      "waypointRelativePos": 1.65,
-      "rotationDegrees": -20.0
-    },
-    {
-      "waypointRelativePos": 2.5157232704402492,
+      "waypointRelativePos": 1.13,
       "rotationDegrees": -90.0
     },
     {
-      "waypointRelativePos": 2.9056603773584904,
+      "waypointRelativePos": 2.9840490797546178,
       "rotationDegrees": -90.0
     },
     {
-      "waypointRelativePos": 4.0,
+      "waypointRelativePos": 3.9901840490797875,
       "rotationDegrees": 0.0
     },
     {
-      "waypointRelativePos": 5.0,
+      "waypointRelativePos": 4.954601226993874,
       "rotationDegrees": 90.0
     }
   ],
   "constraintZones": [
     {
       "name": "Plow",
-      "minWaypointRelativePos": 2.5745062836624775,
-      "maxWaypointRelativePos": 5.4,
+      "minWaypointRelativePos": 2.7738693467337274,
+      "maxWaypointRelativePos": 5.03,
       "constraints": {
         "maxVelocity": 2.0,
         "maxAcceleration": 6.0,
@@ -166,8 +142,8 @@
     },
     {
       "name": "Bump",
-      "minWaypointRelativePos": 6.221105527638226,
-      "maxWaypointRelativePos": 6.71,
+      "minWaypointRelativePos": 5.03,
+      "maxWaypointRelativePos": 5.849246231155746,
       "constraints": {
         "maxVelocity": 2.0,
         "maxAcceleration": 6.0,
@@ -181,9 +157,20 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Intake",
+      "name": "RetractIntake",
       "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": 6.1105527638191734,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "RetractIntake"
+        }
+      }
+    },
+    {
+      "name": "Intake",
+      "waypointRelativePos": 1.5419956927494614,
+      "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
@@ -193,7 +180,7 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 14.4,
+    "maxVelocity": 4.0,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -202,13 +189,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 131.87786953788435
+    "rotation": 155.0
   },
   "reversed": false,
-  "folder": "Bump",
+  "folder": "Tag Team Depot First",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 131.87786953788435
+    "rotation": 139.39870535499549
   },
   "useDefaultConstraints": true
 }

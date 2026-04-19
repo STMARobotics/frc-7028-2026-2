@@ -5,8 +5,6 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Percent;
-import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.wpilibj.DriverStation.Alliance.Blue;
 import static edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward;
 import static edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse;
@@ -29,7 +27,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.commands.DeployIntakeCommand;
+import frc.robot.commands.EjectCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.ShootCommand;
@@ -148,14 +146,10 @@ public class RobotContainer {
 
     controlBindings.stopIntake().ifPresent(trigger -> trigger.onTrue(intakeSubsystem.run(intakeSubsystem::stop)));
 
-    controlBindings.eject().ifPresent(trigger -> trigger.whileTrue(Commands.run(() -> {
-      intakeSubsystem.reverseIntake();
-      ledSubsystem.runPattern(LEDPattern.rainbow(255, 255).scrollAtRelativeSpeed(Percent.per(Second).of(200)));
-    }, intakeSubsystem, indexerSubsystem, ledSubsystem).finallyDo(() -> {
-      intakeSubsystem.stop();
-      indexerSubsystem.stop();
-      ledSubsystem.off();
-    })));
+    controlBindings.eject()
+        .ifPresent(
+            trigger -> trigger.whileTrue(
+                new EjectCommand(intakeSubsystem, indexerSubsystem, feederSubsystem, shooterSubsystem, ledSubsystem)));
 
     controlBindings.deployIntake().ifPresent(trigger -> trigger.onTrue(new DeployIntakeCommand(intakeSubsystem)));
 

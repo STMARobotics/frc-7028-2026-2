@@ -11,6 +11,7 @@ import static frc.robot.Constants.ShooterConstants.DEVICE_ID_FLYWHEEL_FOLLOWER_0
 import static frc.robot.Constants.ShooterConstants.DEVICE_ID_FLYWHEEL_FOLLOWER_1;
 import static frc.robot.Constants.ShooterConstants.DEVICE_ID_FLYWHEEL_FOLLOWER_2;
 import static frc.robot.Constants.ShooterConstants.DEVICE_ID_FLYWHEEL_LEADER;
+import static frc.robot.Constants.ShooterConstants.FLYWHEEL_EJECT_VELOCITY;
 import static frc.robot.Constants.ShooterConstants.FLYWHEEL_PEAK_TORQUE_CURRENT_FORWARD;
 import static frc.robot.Constants.ShooterConstants.FLYWHEEL_PEAK_TORQUE_CURRENT_REVERSE;
 import static frc.robot.Constants.ShooterConstants.FLYWHEEL_SLOT_CONFIGS;
@@ -158,6 +159,13 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public void setFlywheelSpeed(AngularVelocity flywheelVelocity) {
     flywheelLeaderMotor.setControl(flywheelVelocityRequest.withVelocity(flywheelVelocity));
+  }
+
+  /**
+   * Spins the flywheel in reverse to eject balls or unjam fuel
+   */
+  public void eject() {
+    flywheelLeaderMotor.setControl(flywheelVelocityRequest.withVelocity(FLYWHEEL_EJECT_VELOCITY));
   }
 
   /**

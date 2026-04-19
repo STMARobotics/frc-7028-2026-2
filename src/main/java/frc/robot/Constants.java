@@ -115,6 +115,7 @@ public final class Constants {
     public static final SlotConfigs FLYWHEEL_SLOT_CONFIGS = new SlotConfigs().withKP(23.0).withKS(3.0);
 
     public static final AngularVelocity FLYWHEEL_VELOCITY_TOLERANCE = RotationsPerSecond.of(1.0);
+    public static final AngularVelocity FLYWHEEL_EJECT_VELOCITY = RotationsPerSecond.of(-15);
 
     public static final Transform2d ROBOT_TO_SHOOTER = new Transform2d(
         new Translation2d(Inches.of(-5.4), Inches.zero()),
@@ -184,6 +185,8 @@ public final class Constants {
     // Deploy constants
     public static final Current DEPLOY_STATOR_CURRENT_LIMIT = Amps.of(40);
     public static final Current DEPLOY_SUPPLY_CURRENT_LIMIT = Amps.of(30);
+    public static final Current DEPLOY_PEAK_CURRENT_FORWARD = Amps.of(50);
+    public static final Current DEPLOY_PEAK_CURRENT_REVERSE = DEPLOY_PEAK_CURRENT_FORWARD.unaryMinus();
 
     // Deploy limits in motor angle
     public static final Angle DEPLOY_REVERSE_LIMIT = Rotations.of(0); // Retracted
@@ -212,7 +215,7 @@ public final class Constants {
     public static final Pose3d POSE_RETRACTED = new Pose3d(0.0, 0.0, 0.0, Rotation3d.kZero);
 
     public static final Angle DEPLOY_TOLERANCE = Rotations.of(0.2);
-    public static final Current DEPLOY_SHOOTING_TORQUE = Amps.of(-27.0);
+    public static final Current DEPLOY_SHOOTING_TORQUE = Amps.of(-33.0);
   }
 
   public static class IndexerConstants {
@@ -227,7 +230,7 @@ public final class Constants {
     public static final SlotConfigs INDEXER_SLOT_CONFIGS = new SlotConfigs().withKP(0.5).withKV(0.02).withKS(4.0);
 
     public static final AngularVelocity INDEXER_FEED_VELOCITY = RotationsPerSecond.of(90);
-    public static final AngularVelocity INDEXER_UNJAM_VELOCITY = RotationsPerSecond.of(-25);
+    public static final AngularVelocity INDEXER_EJECT_VELOCITY = RotationsPerSecond.of(-25);
 
   }
 
@@ -244,8 +247,8 @@ public final class Constants {
     public static final Current FEEDER_SUPPLY_CURRENT_LIMIT = Amps.of(80);
     public static final SlotConfigs FEEDER_SLOT_CONFIGS = new SlotConfigs().withKP(3).withKS(3).withKV(0.05);
 
-    public static final AngularVelocity FEEDER_FEED_VELOCITY = RotationsPerSecond.of(80);
-    public static final AngularVelocity FEEDER_UNJAM_VELOCITY = RotationsPerSecond.of(-25);
+    public static final AngularVelocity FEEDER_FEED_VELOCITY = RotationsPerSecond.of(40);
+    public static final AngularVelocity FEEDER_EJECT_VELOCITY = RotationsPerSecond.of(-25);
   }
 
   /**

@@ -1,0 +1,109 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.458215648854962,
+        "y": 4.712833969465648
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.0983778625954197,
+        "y": 4.888568702290076
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.9,
+        "y": 5.13125
+      },
+      "prevControl": {
+        "x": 1.7786736641221377,
+        "y": 5.139618320610686
+      },
+      "nextControl": {
+        "x": 0.6500113370972554,
+        "y": 5.128869155591402
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.83,
+        "y": 6.562232824427481
+      },
+      "prevControl": {
+        "x": 0.8216316793893131,
+        "y": 5.850925572519084
+      },
+      "nextControl": {
+        "x": 0.8350526965649613,
+        "y": 6.991712032449197
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.6506583969465654,
+        "y": 6.45344465648855
+      },
+      "prevControl": {
+        "x": 1.4006583969465654,
+        "y": 6.45344465648855
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Tag Team Depot First End 1"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.1,
+      "rotationDegrees": 119.99999999999999
+    },
+    {
+      "waypointRelativePos": 1.9030674846625595,
+      "rotationDegrees": 119.99999999999999
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.8312993539124083,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 1.5,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 139.39870535499549
+  },
+  "reversed": false,
+  "folder": "Tag Team Depot First",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 127.67359333983042
+  },
+  "useDefaultConstraints": true
+}
