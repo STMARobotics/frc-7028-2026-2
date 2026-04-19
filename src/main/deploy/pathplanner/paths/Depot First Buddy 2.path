@@ -36,7 +36,7 @@
         "y": 7.4
       },
       "prevControl": {
-        "x": 5.4007156488549635,
+        "x": 5.400715648854963,
         "y": 7.4
       },
       "nextControl": {
@@ -192,7 +192,7 @@
     "rotation": 155.0
   },
   "reversed": false,
-  "folder": "Tag Team Depot First",
+  "folder": "Depot First Buddy",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 139.39870535499549
