@@ -5,11 +5,11 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Percent;
-import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.wpilibj.DriverStation.Alliance.Blue;
 import static edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward;
 import static edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse;
+import static frc.robot.Constants.TeleopDriveConstants.MAX_SHOOTING_VELOCITY;
+import static frc.robot.Constants.TeleopDriveConstants.MAX_SHUTTLING_VELOCITY;
 import static frc.robot.Constants.TeleopDriveConstants.RESET_POSE_BLUE;
 import static frc.robot.Constants.TeleopDriveConstants.RESET_POSE_RED;
 
@@ -24,9 +24,9 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.commands.DeployIntakeCommand;
+import frc.robot.commands.EjectCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.ShootCommand;
@@ -52,6 +53,7 @@ import frc.robot.subsystems.IntakeSubsytem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LocalizationSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 @Logged(strategy = Logged.Strategy.OPT_IN)
@@ -148,14 +150,10 @@ public class RobotContainer {
 
     controlBindings.stopIntake().ifPresent(trigger -> trigger.onTrue(intakeSubsystem.run(intakeSubsystem::stop)));
 
-    controlBindings.eject().ifPresent(trigger -> trigger.whileTrue(Commands.run(() -> {
-      intakeSubsystem.reverseIntake();
-      ledSubsystem.runPattern(LEDPattern.rainbow(255, 255).scrollAtRelativeSpeed(Percent.per(Second).of(200)));
-    }, intakeSubsystem, indexerSubsystem, ledSubsystem).finallyDo(() -> {
-      intakeSubsystem.stop();
-      indexerSubsystem.stop();
-      ledSubsystem.off();
-    })));
+    controlBindings.eject()
+        .ifPresent(
+            trigger -> trigger.whileTrue(
+                new EjectCommand(intakeSubsystem, indexerSubsystem, feederSubsystem, shooterSubsystem, ledSubsystem)));
 
     controlBindings.deployIntake().ifPresent(trigger -> trigger.onTrue(new DeployIntakeCommand(intakeSubsystem)));
 
@@ -187,7 +185,19 @@ public class RobotContainer {
 
     controlBindings.autoShoot().ifPresent(trigger -> trigger.whileTrue(commandFactory.shootAtHub()));
 
-    controlBindings.shuttle().ifPresent(trigger -> trigger.whileTrue(commandFactory.shuttleToCorner()));
+    controlBindings.autoShootOnTheMove()
+        .ifPresent(
+            trigger -> trigger.whileTrue(
+                commandFactory.shootAtHubOnTheMove(
+                    clamp(controlBindings.translationX(), MAX_SHOOTING_VELOCITY),
+                      clamp(controlBindings.translationY(), MAX_SHOOTING_VELOCITY))));
+
+    controlBindings.shuttle()
+        .ifPresent(
+            trigger -> trigger.whileTrue(
+                commandFactory.shuttleToCornerOnTheMove(
+                    clamp(controlBindings.translationX(), MAX_SHUTTLING_VELOCITY),
+                      clamp(controlBindings.translationY(), MAX_SHUTTLING_VELOCITY))));
 
     controlBindings.demoToss().ifPresent(trigger -> trigger.whileTrue(commandFactory.demoToss()));
 
@@ -294,5 +304,29 @@ public class RobotContainer {
     SmartDashboard.putData("Shooter Flywheel Quasi Rev", shooterSubsystem.sysIdFlywheelQuasistaticCommand(kReverse));
     SmartDashboard.putData("Shooter Flywheel Dynam Fwd", shooterSubsystem.sysIdFlywheelDynamicCommand(kForward));
     SmartDashboard.putData("Shooter Flywheel Dynam Rev", shooterSubsystem.sysIdFlywheelDynamicCommand(kReverse));
+  }
+
+  /**
+   * Clamps a LinearVelocity supplier to an absolute max value.
+   * 
+   * @param value input supplier for linear velocity
+   * @param max absolute value to clamp the input to (both positive and negative)
+   * @return a supplier that provides the clamped linear velocity
+   */
+  public static Supplier<LinearVelocity> clamp(Supplier<LinearVelocity> value, LinearVelocity max) {
+    return new Supplier<LinearVelocity>() {
+      final LinearVelocity min = max.unaryMinus();
+
+      @Override
+      public LinearVelocity get() {
+        var val = value.get();
+        if (val.lt(min)) {
+          return min;
+        } else if (val.gt(max)) {
+          return max;
+        }
+        return val;
+      }
+    };
   }
 }

@@ -117,6 +117,15 @@ public abstract class ControlBindings {
   }
 
   /**
+   * Trigger for automatic shooting on the move
+   * 
+   * @return optional trigger
+   */
+  public Optional<Trigger> autoShootOnTheMove() {
+    return Optional.empty();
+  }
+
+  /**
    * Trigger to run the shooting tuning command
    * 
    * @return optional trigger
@@ -135,6 +144,15 @@ public abstract class ControlBindings {
   }
 
   public Optional<Trigger> demoToss() {
+    return Optional.empty();
+  }
+
+  /**
+   * Trigger to shuttle on the move
+   * 
+   * @return optional trigger
+   */
+  public Optional<Trigger> shuttleOnTheMove() {
     return Optional.empty();
   }
 

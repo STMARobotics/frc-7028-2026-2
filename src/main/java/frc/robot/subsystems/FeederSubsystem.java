@@ -6,13 +6,13 @@ import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.CANIVORE_BUS;
 import static frc.robot.Constants.FeederConstants.DEVICE_ID_FEEDER_FOLLOWER;
 import static frc.robot.Constants.FeederConstants.DEVICE_ID_FEEDER_LEADER;
+import static frc.robot.Constants.FeederConstants.FEEDER_EJECT_VELOCITY;
 import static frc.robot.Constants.FeederConstants.FEEDER_FEED_VELOCITY;
 import static frc.robot.Constants.FeederConstants.FEEDER_PEAK_TORQUE_CURRENT_FORWARD;
 import static frc.robot.Constants.FeederConstants.FEEDER_PEAK_TORQUE_CURRENT_REVERSE;
 import static frc.robot.Constants.FeederConstants.FEEDER_SLOT_CONFIGS;
 import static frc.robot.Constants.FeederConstants.FEEDER_STATOR_CURRENT_LIMIT;
 import static frc.robot.Constants.FeederConstants.FEEDER_SUPPLY_CURRENT_LIMIT;
-import static frc.robot.Constants.FeederConstants.FEEDER_UNJAM_VELOCITY;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.SignalLogger;
@@ -116,10 +116,10 @@ public class FeederSubsystem extends SubsystemBase {
   }
 
   /**
-   * Spins the feeder backward to unjam the feeder
+   * Spins the feeder backward to eject or unjam fuel
    */
-  public void unjam() {
-    feederLeaderMotor.setControl(feederVelocityTorque.withVelocity(FEEDER_UNJAM_VELOCITY));
+  public void eject() {
+    feederLeaderMotor.setControl(feederVelocityTorque.withVelocity(FEEDER_EJECT_VELOCITY));
   }
 
   /**

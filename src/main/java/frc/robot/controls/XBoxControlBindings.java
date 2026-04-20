@@ -81,7 +81,7 @@ public class XBoxControlBindings extends ControlBindings {
   }
 
   @Override
-  public Optional<Trigger> autoShoot() {
+  public Optional<Trigger> autoShootOnTheMove() {
     return Optional.of(driverController.rightTrigger());
   }
 

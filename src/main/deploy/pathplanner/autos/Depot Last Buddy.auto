@@ -11,7 +11,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 2.0
+                  "waitTime": 1.5
                 }
               },
               {
@@ -26,13 +26,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Tag Team 1"
+            "pathName": "Depot Last Buddy 1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Tag Team 2"
+            "pathName": "Depot Last Buddy 2"
           }
         },
         {
@@ -61,7 +61,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Tag Team 3"
+                  "pathName": "Depot Last Buddy 3"
                 }
               },
               {

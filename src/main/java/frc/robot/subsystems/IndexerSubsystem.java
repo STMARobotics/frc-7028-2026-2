@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.Constants.CANIVORE_BUS;
 import static frc.robot.Constants.IndexerConstants.DEVICE_ID_INDEXER_MOTOR_FOLLOWER;
 import static frc.robot.Constants.IndexerConstants.DEVICE_ID_INDEXER_MOTOR_LEADER;
+import static frc.robot.Constants.IndexerConstants.INDEXER_EJECT_VELOCITY;
 import static frc.robot.Constants.IndexerConstants.INDEXER_FEED_VELOCITY;
 import static frc.robot.Constants.IndexerConstants.INDEXER_PEAK_TORQUE_CURRENT_FORWARD;
 import static frc.robot.Constants.IndexerConstants.INDEXER_PEAK_TORQUE_CURRENT_REVERSE;
@@ -110,6 +111,13 @@ public class IndexerSubsystem extends SubsystemBase {
    */
   public void feedShooter() {
     indexerLeaderMotor.setControl(indexerVelocityTorque.withVelocity(INDEXER_FEED_VELOCITY));
+  }
+
+  /**
+   * Spins the indexer in reverse to eject or unjam fuel
+   */
+  public void eject() {
+    indexerLeaderMotor.setControl(indexerVelocityTorque.withVelocity(INDEXER_EJECT_VELOCITY));
   }
 
   /**

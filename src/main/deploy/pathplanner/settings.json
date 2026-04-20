@@ -5,7 +5,8 @@
   "pathFolders": [
     "Bump",
     "No Bump",
-    "Tag Team"
+    "Depot Last Buddy",
+    "Depot First Buddy"
   ],
   "autoFolders": [],
   "defaultMaxVel": 4.0,
