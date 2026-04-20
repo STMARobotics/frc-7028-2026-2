@@ -18,7 +18,6 @@ import static frc.robot.Constants.ShooterConstants.FLYWHEEL_SLOT_CONFIGS;
 import static frc.robot.Constants.ShooterConstants.FLYWHEEL_STATOR_CURRENT_LIMIT;
 import static frc.robot.Constants.ShooterConstants.FLYWHEEL_SUPPLY_CURRENT_LIMIT;
 import static frc.robot.Constants.ShooterConstants.FLYWHEEL_VELOCITY_TOLERANCE;
-import static frc.robot.Constants.ShooterConstants.ROBOT_TO_SHOOTER;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.SignalLogger;
@@ -37,7 +36,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -203,16 +201,6 @@ public class ShooterSubsystem extends SubsystemBase {
             currentSpeed.in(RotationsPerSecond),
             FLYWHEEL_VELOCITY_TOLERANCE.in(RotationsPerSecond));
     }
-  }
-
-  /**
-   * Gets the pose of the shooter center in field coordinates.
-   * 
-   * @param robotPose the current pose of the robot
-   * @return the pose of the shooter center in field coordinates
-   */
-  public static Pose2d getShooterPose(Pose2d robotPose) {
-    return robotPose.transformBy(ROBOT_TO_SHOOTER);
   }
 
 }

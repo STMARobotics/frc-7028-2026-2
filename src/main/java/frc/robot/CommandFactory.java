@@ -4,13 +4,11 @@ import static edu.wpi.first.units.Units.Meters;
 import static frc.robot.Constants.FieldConstants.FIELD_WIDTH;
 import static frc.robot.Constants.ShootingConstants.HUB_BLUE;
 import static frc.robot.Constants.ShootingConstants.HUB_RED;
-import static frc.robot.Constants.ShootingConstants.HUB_SETPOINTS_BY_DISTANCE_METERS;
 import static frc.robot.Constants.ShootingConstants.SHUTTLE_BLUE_HIGH;
 import static frc.robot.Constants.ShootingConstants.SHUTTLE_BLUE_LOW;
 import static frc.robot.Constants.ShootingConstants.SHUTTLE_OFFSET_DISTANCE;
 import static frc.robot.Constants.ShootingConstants.SHUTTLE_RED_HIGH;
 import static frc.robot.Constants.ShootingConstants.SHUTTLE_RED_LOW;
-import static frc.robot.Constants.ShootingConstants.SHUTTLE_SETPOINTS_BY_DISTANCE_METERS;
 import static frc.robot.Constants.TeleopDriveConstants.CENTER_OF_ROTATION;
 import static frc.robot.Constants.TeleopDriveConstants.MAX_TELEOP_ANGULAR_VELOCITY;
 import static frc.robot.Constants.TeleopDriveConstants.MAX_TELEOP_VELOCITY;
@@ -25,7 +23,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.ShootAtTargetCommand;
-import frc.robot.commands.ShootOnTheMoveCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -88,30 +85,6 @@ public class CommandFactory {
   }
 
   /**
-   * Creates a command to shoot at the hub while on the move, using the provided translation suppliers for movement.
-   * 
-   * @param translationXSupplier supplier for x translation velocity
-   * @param translationYSupplier supplier for y translation velocity
-   * @return a new command to shoot at the hub on the move
-   */
-  public Command shootAtHubOnTheMove(
-      Supplier<LinearVelocity> translationXSupplier,
-      Supplier<LinearVelocity> translationYSupplier) {
-
-    return new ShootOnTheMoveCommand(
-        drivetrainSubsystem,
-        shooterSubsystem,
-        feederSubsystem,
-        indexerSubsystem,
-        intakeSubsystem,
-        ledSubsystem,
-        translationXSupplier,
-        translationYSupplier,
-        t -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? HUB_BLUE : HUB_RED,
-        HUB_SETPOINTS_BY_DISTANCE_METERS);
-  }
-
-  /**
    * Creates a command to shuttle fuel from any location to the nearest alliance-specific corner.
    * 
    * @return a new command to shuttle fuel to the corner
@@ -139,43 +112,6 @@ public class CommandFactory {
               .plus(vectorToTarget.times((distanceToTarget - SHUTTLE_OFFSET_DISTANCE.in(Meters)) / distanceToTarget));
           return adjustedTarget;
         });
-  }
-
-  /**
-   * Creates a command to shuttle fuel to the nearest alliance-specific corner while on the move, using the provided
-   * translation suppliers for movement.
-   * 
-   * @param translationXSupplier supplier for x translation velocity
-   * @param translationYSupplier supplier for y translation velocity
-   * @return a new command to shuttle fuel to the corner on the move
-   */
-  public Command shuttleToCornerOnTheMove(
-      Supplier<LinearVelocity> translationXSupplier,
-      Supplier<LinearVelocity> translationYSupplier) {
-    return new ShootOnTheMoveCommand(
-        drivetrainSubsystem,
-        shooterSubsystem,
-        feederSubsystem,
-        indexerSubsystem,
-        intakeSubsystem,
-        ledSubsystem,
-        translationXSupplier,
-        translationYSupplier,
-        targetTranslation -> {
-          Translation2d target;
-          if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
-            target = targetTranslation.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_BLUE_HIGH : SHUTTLE_BLUE_LOW;
-          } else {
-            target = targetTranslation.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_RED_HIGH : SHUTTLE_RED_LOW;
-          }
-          // Adjust the target to be "offset distance" short of target along the vector between the robot and the target
-          Translation2d vectorToTarget = target.minus(targetTranslation);
-          double distanceToTarget = vectorToTarget.getNorm();
-          Translation2d adjustedTarget = targetTranslation
-              .plus(vectorToTarget.times((distanceToTarget - SHUTTLE_OFFSET_DISTANCE.in(Meters)) / distanceToTarget));
-          return adjustedTarget;
-        },
-        SHUTTLE_SETPOINTS_BY_DISTANCE_METERS);
   }
 
   /**

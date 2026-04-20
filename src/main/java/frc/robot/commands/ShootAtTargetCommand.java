@@ -5,7 +5,7 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
-import static frc.robot.Constants.ShooterConstants.ROBOT_TO_SHOOTER;
+import static frc.robot.Constants.ShooterConstants.SHOOTER_OFFSET_ANGLE;
 import static frc.robot.Constants.ShootingConstants.AIM_TOLERANCE;
 import static frc.robot.Constants.ShootingConstants.DEPLOY_INTAKE_TIME;
 import static frc.robot.Constants.ShootingConstants.HEADING_P;
@@ -111,9 +111,7 @@ public class ShootAtTargetCommand extends Command {
   public void execute() {
     var robotPose = robotPoseSupplier.get();
     var targetTranslation = targetTranslationSelector.apply(robotPose.getTranslation());
-    var headingToTarget = targetTranslation.minus(robotPose.getTranslation())
-        .getAngle()
-        .minus(ROBOT_TO_SHOOTER.getRotation());
+    var headingToTarget = targetTranslation.minus(robotPose.getTranslation()).getAngle().minus(SHOOTER_OFFSET_ANGLE);
 
     var targetDistance = targetTranslation.getDistance(robotPose.getTranslation());
     shooterAngularVelocity.mut_replace(HUB_SETPOINTS_BY_DISTANCE_METERS.get(targetDistance), RotationsPerSecond);
