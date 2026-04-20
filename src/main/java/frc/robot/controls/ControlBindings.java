@@ -134,4 +134,8 @@ public abstract class ControlBindings {
     return Optional.empty();
   }
 
+  public Optional<Trigger> demoToss() {
+    return Optional.empty();
+  }
+
 }

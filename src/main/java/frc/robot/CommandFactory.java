@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.ShootAtTargetCommand;
+import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -82,6 +83,17 @@ public class CommandFactory {
         ledSubsystem,
         () -> drivetrainSubsystem.getState().Pose,
         t -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? HUB_BLUE : HUB_RED);
+  }
+
+  public Command demoToss() {
+    return new ShootCommand(
+        indexerSubsystem,
+        feederSubsystem,
+        shooterSubsystem,
+        drivetrainSubsystem,
+        intakeSubsystem,
+        ledSubsystem,
+        Meters.of(0.5));
   }
 
   /**
