@@ -338,10 +338,18 @@ public class IntakeSubsytem extends SubsystemBase {
    */
   @Logged
   public boolean isDeployed() {
-    // Signals refreshed in periodic
-    Angle deployPosition = BaseStatusSignal.getLatencyCompensatedValue(deployPositionSignal, deployVelocitySignal);
-    return (deployPosition.gte(DEPLOYED_POSITION.minus(DEPLOY_TOLERANCE))
+    return (getDeployPosition().gte(DEPLOYED_POSITION.minus(DEPLOY_TOLERANCE))
         || getPotentiometerValue() >= DEPLOYED_POSITION.minus(DEPLOY_TOLERANCE).in(Rotations));
+  }
+
+  /**
+   * Gets the current deploy position
+   * 
+   * @return current deploy position
+   */
+  public Angle getDeployPosition() {
+    // Signals refreshed in periodic
+    return BaseStatusSignal.getLatencyCompensatedValue(deployPositionSignal, deployVelocitySignal);
   }
 
   /**

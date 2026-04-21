@@ -10,6 +10,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static frc.robot.Constants.FieldConstants.FIELD_WIDTH;
+import static frc.robot.Constants.IntakeConstants.RETRACTED_POSITION;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -273,10 +274,12 @@ public final class Constants {
     public static final Angle AIM_TOLERANCE = Degrees.of(1.5);
     public static final double HEADING_P = 6.0;
 
+    // Parameters for the intake shooting sequence
     public static final Time RETRACT_INTAKE_DELAY = Seconds.of(0.0);
     public static final Time JAM_DEBOUNCE_TIME = Seconds.of(0.3);
     public static final AngularVelocity JAM_THRESHOLD = RotationsPerSecond.of(-40.0);
     public static final Time UNJAM_DURATION = Seconds.of(0.1);
+    public static final Angle RETRACTED_THRESHOLD = RETRACTED_POSITION;
 
     private static InterpolatingDoubleTreeMap createShooterInterpolator() {
       var map = new InterpolatingDoubleTreeMap();

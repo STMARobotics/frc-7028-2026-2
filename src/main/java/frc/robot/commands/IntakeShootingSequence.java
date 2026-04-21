@@ -4,10 +4,12 @@ import static edu.wpi.first.units.Units.Seconds;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_SHOOTING_CURRENT;
 import static frc.robot.Constants.ShootingConstants.JAM_DEBOUNCE_TIME;
 import static frc.robot.Constants.ShootingConstants.JAM_THRESHOLD;
+import static frc.robot.Constants.ShootingConstants.RETRACTED_THRESHOLD;
 import static frc.robot.Constants.ShootingConstants.RETRACT_INTAKE_DELAY;
 import static frc.robot.Constants.ShootingConstants.UNJAM_DURATION;
 
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
@@ -61,7 +63,7 @@ public class IntakeShootingSequence {
    * in command execute())
    */
   public void execute() {
-    execute(RETRACT_INTAKE_DELAY, DEPLOY_SHOOTING_CURRENT, JAM_THRESHOLD, UNJAM_DURATION);
+    execute(RETRACT_INTAKE_DELAY, DEPLOY_SHOOTING_CURRENT, JAM_THRESHOLD, UNJAM_DURATION, RETRACTED_THRESHOLD);
   }
 
   /**
@@ -72,15 +74,21 @@ public class IntakeShootingSequence {
    * @param retractCurrent the current to use when retracting the intake
    * @param jamThreshold the velocity below which we consider the intake to be jammed
    * @param unjamDuration the duration for which to unjamming
+   * @param retractedThreshold the deploy position below which we consider the intake retracted and can stop the
    */
-  public void execute(Time retractDelay, Current retractCurrent, AngularVelocity jamThreshold, Time unjamDuration) {
+  public void execute(
+      Time retractDelay,
+      Current retractCurrent,
+      AngularVelocity jamThreshold,
+      Time unjamDuration,
+      Angle retractedThreshold) {
     intakeSubsystem.runIntakeForShooting();
     retractDelayTimer.start();
     if (!retractDelayTimer.hasElapsed(retractDelay)) {
       // Don't retract for a fixed time at the start of the sequence
       return;
     }
-    if (hasRetracted || intakeSubsystem.isRetracted()) {
+    if (hasRetracted || intakeSubsystem.getDeployPosition().lte(retractedThreshold)) {
       intakeSubsystem.stopDeploy();
       hasRetracted = true;
     } else {

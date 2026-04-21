@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.wpilibj.DriverStation.Alliance.Blue;
@@ -12,6 +13,7 @@ import static frc.robot.Constants.ShootingConstants.HUB_RED;
 import static frc.robot.Constants.ShootingConstants.HUB_SETPOINTS_BY_DISTANCE_METERS;
 import static frc.robot.Constants.ShootingConstants.JAM_DEBOUNCE_TIME;
 import static frc.robot.Constants.ShootingConstants.JAM_THRESHOLD;
+import static frc.robot.Constants.ShootingConstants.RETRACTED_THRESHOLD;
 import static frc.robot.Constants.ShootingConstants.RETRACT_INTAKE_DELAY;
 import static frc.robot.Constants.ShootingConstants.UNJAM_DURATION;
 
@@ -20,6 +22,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutCurrent;
 import edu.wpi.first.units.measure.MutTime;
@@ -53,6 +56,7 @@ public class TuneShootingCommand extends Command {
   private final DoubleEntry jamDebounceSubscriber;
   private final DoubleEntry unjamDurationSubscriber;
   private final DoubleEntry jamThresholdSubscriber;
+  private final DoubleEntry retractedThresholdSubscriber;
   private final DoublePublisher distancePublisher;
 
   private boolean shooting = false;
@@ -66,6 +70,7 @@ public class TuneShootingCommand extends Command {
   private MutTime jamDebounceTime = Seconds.mutable(0);
   private MutTime unjamDuration = Seconds.mutable(0);
   private MutAngularVelocity jamThreshold = RotationsPerSecond.mutable(0);
+  private MutAngle retractedThreshold = Rotations.mutable(0);
 
   public TuneShootingCommand(
       IndexerSubsystem indexerSubsystem,
@@ -103,6 +108,8 @@ public class TuneShootingCommand extends Command {
     unjamDurationSubscriber.set(UNJAM_DURATION.in(Seconds));
     jamThresholdSubscriber = table.getDoubleTopic("Jam Threshold (RPS)").getEntry(0.0);
     jamThresholdSubscriber.set(JAM_THRESHOLD.in(RotationsPerSecond));
+    retractedThresholdSubscriber = table.getDoubleTopic("Retracted Threshold (R)").getEntry(0.0);
+    retractedThresholdSubscriber.set(RETRACTED_THRESHOLD.in(Rotations));
 
     addRequirements(indexerSubsystem, shooterSubsystem, feederSubsystem, intakeSubsytem);
   }
@@ -128,7 +135,8 @@ public class TuneShootingCommand extends Command {
           retractDelay.mut_replace(retractDelaySubscriber.get(), Seconds),
             retractCurrent.mut_replace(retractCurrentSubscriber.get(), Amps),
             jamThreshold.mut_replace(jamThresholdSubscriber.get(), RotationsPerSecond),
-            unjamDuration.mut_replace(unjamDurationSubscriber.get(), Seconds));
+            unjamDuration.mut_replace(unjamDurationSubscriber.get(), Seconds),
+            retractedThreshold.mut_replace(retractedThresholdSubscriber.get(), Rotations));
       feederSubsystem.runFeeder(feederVelocity.mut_replace(feederVelocitySubscriber.get(), RotationsPerSecond));
       indexerSubsystem.runIndexer(indexerVelocity.mut_replace(indexerVelocitySubscriber.get(), RotationsPerSecond));
     }
