@@ -4,9 +4,9 @@
   "holonomicMode": true,
   "pathFolders": [
     "Bump",
-    "Tag Team Depot First",
     "No Bump",
-    "Tag Team"
+    "Depot Last Buddy",
+    "Depot First Buddy"
   ],
   "autoFolders": [],
   "defaultMaxVel": 4.0,

@@ -39,6 +39,7 @@ import frc.robot.commands.TuneShootingCommand;
 import frc.robot.commands.led.DefaultLEDCommand;
 import frc.robot.commands.led.LEDBootAnimationCommand;
 import frc.robot.controls.ControlBindings;
+import frc.robot.controls.DemoJoystickBindings;
 import frc.robot.controls.JoystickControlBindings;
 import frc.robot.controls.XBoxControlBindings;
 import frc.robot.generated.TunerConstants;
@@ -53,6 +54,10 @@ import java.util.stream.Stream;
 
 @Logged(strategy = Logged.Strategy.OPT_IN)
 public class RobotContainer {
+
+  // Set to true and redeploy to enable demo mode
+  private static final boolean DEMO_MODE = false;
+
   private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
   /** Swerve request to apply during robot-centric path following */
   private final SwerveRequest.ApplyRobotSpeeds ppRobotSpeedsRequest = new SwerveRequest.ApplyRobotSpeeds();
@@ -90,7 +95,9 @@ public class RobotContainer {
 
   public RobotContainer() {
     // Configure control binding scheme
-    if (DriverStation.getJoystickIsXbox(0) || Robot.isSimulation()) {
+    if (DEMO_MODE) {
+      controlBindings = new DemoJoystickBindings();
+    } else if (DriverStation.getJoystickIsXbox(0) || Robot.isSimulation()) {
       controlBindings = new XBoxControlBindings();
     } else {
       controlBindings = new JoystickControlBindings();
@@ -178,6 +185,8 @@ public class RobotContainer {
     controlBindings.autoShoot().ifPresent(trigger -> trigger.whileTrue(commandFactory.shootAtHub()));
 
     controlBindings.shuttle().ifPresent(trigger -> trigger.whileTrue(commandFactory.shuttleToCorner()));
+
+    controlBindings.demoToss().ifPresent(trigger -> trigger.whileTrue(commandFactory.demoToss()));
 
     // Idle while the robot is disabled. This ensures the configured
     // neutral mode is applied to the drive motors while disabled.
