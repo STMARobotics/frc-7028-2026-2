@@ -213,7 +213,7 @@ public final class Constants {
     public static final Pose3d POSE_RETRACTED = new Pose3d(0.0, 0.0, 0.0, Rotation3d.kZero);
 
     public static final Angle DEPLOY_TOLERANCE = Rotations.of(0.2);
-    public static final Current DEPLOY_SHOOTING_TORQUE = Amps.of(-33.0);
+    public static final Current DEPLOY_SHOOTING_CURRENT = Amps.of(-33.0);
   }
 
   public static class IndexerConstants {
@@ -268,11 +268,12 @@ public final class Constants {
    */
   public static class ShootingConstants {
     public static final Angle AIM_TOLERANCE = Degrees.of(1.5);
-    public static final Angle ABORT_TOLERNCE = AIM_TOLERANCE.times(2.0);
     public static final double HEADING_P = 6.0;
 
-    public static final Time RETRACT_INTAKE_TIME = Seconds.of(0.8);
-    public static final Time DEPLOY_INTAKE_TIME = Seconds.of(1.0);
+    public static final Time RETRACT_INTAKE_DELAY = Seconds.of(0.0);
+    public static final Time JAM_DEBOUNCE_TIME = Seconds.of(0.3);
+    public static final AngularVelocity JAM_THRESHOLD = RotationsPerSecond.of(-40.0);
+    public static final Time UNJAM_DURATION = Seconds.of(0.1);
 
     private static InterpolatingDoubleTreeMap createShooterInterpolator() {
       var map = new InterpolatingDoubleTreeMap();

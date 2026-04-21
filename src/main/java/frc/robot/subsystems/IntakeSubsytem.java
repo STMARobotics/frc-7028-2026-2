@@ -17,7 +17,6 @@ import static frc.robot.Constants.IntakeConstants.DEPLOY_MOTION_MAGIC_CONFIGS;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_PEAK_CURRENT_FORWARD;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_PEAK_CURRENT_REVERSE;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_REVERSE_LIMIT;
-import static frc.robot.Constants.IntakeConstants.DEPLOY_SHOOTING_TORQUE;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_SLOT_CONFIGS;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_STATOR_CURRENT_LIMIT;
 import static frc.robot.Constants.IntakeConstants.DEPLOY_SUPPLY_CURRENT_LIMIT;
@@ -62,6 +61,7 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -291,10 +291,12 @@ public class IntakeSubsytem extends SubsystemBase {
   }
 
   /**
-   * Retracts the intake with a set torque to help feed fuel into the feeder while shooting
+   * Retracts the intake with a set current to help feed fuel into the feeder while shooting
+   * 
+   * @param current The current to apply to the deploy motor
    */
-  public void retractForShooting() {
-    deployMotor.setControl(deployTorqueControl.withOutput(DEPLOY_SHOOTING_TORQUE));
+  public void retractForShooting(Current current) {
+    deployMotor.setControl(deployTorqueControl.withOutput(current));
     if (RobotBase.isSimulation()) {
       deployMotor.setPosition(RETRACTED_POSITION);
     }
@@ -356,6 +358,15 @@ public class IntakeSubsytem extends SubsystemBase {
   }
 
   /**
+   * Gets the angular velocity of the deploy motor.
+   * 
+   * @return the angular velocity of the deploy motor
+   */
+  public AngularVelocity getDeployVelocity() {
+    return deployVelocitySignal.refresh().getValue();
+  }
+
+  /**
    * Gets the pose of the intake for AdvantageScope.
    * <p>
    * <strong>This is not intended for use in robot code.</strong>
@@ -369,8 +380,7 @@ public class IntakeSubsytem extends SubsystemBase {
   }
 
   /**
-   * Gets the position of the intake from the potentiometer. This is intended for internal use and logging, not for
-   * direct use.
+   * Gets the position of the intake from the potentiometer.
    * 
    * @return the position reading from the potentiometer
    */

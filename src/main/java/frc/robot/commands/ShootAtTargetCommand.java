@@ -4,13 +4,10 @@ import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Seconds;
 import static frc.robot.Constants.ShooterConstants.SHOOTER_OFFSET_ANGLE;
 import static frc.robot.Constants.ShootingConstants.AIM_TOLERANCE;
-import static frc.robot.Constants.ShootingConstants.DEPLOY_INTAKE_TIME;
 import static frc.robot.Constants.ShootingConstants.HEADING_P;
 import static frc.robot.Constants.ShootingConstants.HUB_SETPOINTS_BY_DISTANCE_METERS;
-import static frc.robot.Constants.ShootingConstants.RETRACT_INTAKE_TIME;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
@@ -45,6 +42,8 @@ public class ShootAtTargetCommand extends Command {
   private final LEDSubsystem ledSubsystem;
   private final Supplier<Pose2d> robotPoseSupplier;
   private final Function<Translation2d, Translation2d> targetTranslationSelector;
+  private final IntakeShootingSequence intakeShootingSequence;
+
   private final SwerveRequest.SwerveDriveBrake swerveDriveBrake = new SwerveRequest.SwerveDriveBrake();
   private final SwerveRequest.FieldCentricFacingAngle swerveRequestFacing = new SwerveRequest.FieldCentricFacingAngle()
       .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance)
@@ -92,6 +91,7 @@ public class ShootAtTargetCommand extends Command {
     this.ledSubsystem = ledSubsystem;
     this.robotPoseSupplier = robotPoseSupplier;
     this.targetTranslationSelector = targetTranslationSelector;
+    this.intakeShootingSequence = new IntakeShootingSequence(intakeSubsytem);
 
     addRequirements(feederSubsystem, indexerSubsystem, shooterSubsystem, drivetrain, intakeSubsytem, ledSubsystem);
   }
@@ -105,6 +105,7 @@ public class ShootAtTargetCommand extends Command {
     indexerSubsystem.stop();
     intakeSubsystem.stop();
     shooterSubsystem.stop();
+    intakeShootingSequence.reset();
   }
 
   @Override
@@ -123,15 +124,7 @@ public class ShootAtTargetCommand extends Command {
     var isShooterReady = shooterSubsystem.isFlywheelAtSpeed();
     if (isShooting || (isShooterReady && isAimReady)) {
       isShooting = true;
-      shootingTimer.start();
-      if (shootingTimer.hasElapsed(DEPLOY_INTAKE_TIME.in(Seconds))) {
-        intakeSubsystem.retractForShooting();
-      } else if (shootingTimer.hasElapsed(RETRACT_INTAKE_TIME.in(Seconds))) {
-        intakeSubsystem.deploy();
-      } else {
-        intakeSubsystem.retractForShooting();
-      }
-      intakeSubsystem.runIntakeForShooting();
+      intakeShootingSequence.execute();
       drivetrain.setControl(swerveDriveBrake);
       feederSubsystem.feedShooter();
       indexerSubsystem.feedShooter();
@@ -142,6 +135,7 @@ public class ShootAtTargetCommand extends Command {
     }
   }
 
+  @Override
   public void end(boolean interrupted) {
     shooterSubsystem.stop();
     drivetrain.setControl(new SwerveRequest.Idle());

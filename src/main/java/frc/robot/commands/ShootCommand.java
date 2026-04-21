@@ -4,17 +4,13 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Seconds;
-import static frc.robot.Constants.ShootingConstants.DEPLOY_INTAKE_TIME;
 import static frc.robot.Constants.ShootingConstants.HUB_SETPOINTS_BY_DISTANCE_METERS;
-import static frc.robot.Constants.ShootingConstants.RETRACT_INTAKE_TIME;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.LEDPattern.GradientType;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -32,7 +28,7 @@ public class ShootCommand extends Command {
   private final FeederSubsystem feederSubsystem;
   private final ShooterSubsystem shooterSubsystem;
   private final CommandSwerveDrivetrain drivetrain;
-  private final IntakeSubsytem intakeSubsytem;
+  private final IntakeSubsytem intakeSubsystem;
   private final LEDSubsystem ledSubsystem;
   private final AngularVelocity shooterAngularVelocity;
   private final SwerveRequest.SwerveDriveBrake swerveBrakeRequest = new SwerveRequest.SwerveDriveBrake();
@@ -42,7 +38,7 @@ public class ShootCommand extends Command {
       .scrollAtRelativeSpeed(Percent.per(Second).of(300));
   private final LEDPattern patternOne = patternTwo.reversed();
 
-  private final Timer shootingTimer = new Timer();
+  private final IntakeShootingSequence intakeShootingSequence;
   private boolean isShooting = false;
 
   /**
@@ -68,8 +64,9 @@ public class ShootCommand extends Command {
     this.indexerSubsystem = indexerSubsystem;
     this.shooterSubsystem = shooterSubsystem;
     this.drivetrain = drivetrain;
-    this.intakeSubsytem = intakeSubsytem;
+    this.intakeSubsystem = intakeSubsytem;
     this.ledSubsystem = ledSubsystem;
+    this.intakeShootingSequence = new IntakeShootingSequence(intakeSubsytem);
 
     shooterAngularVelocity = RotationsPerSecond.of(HUB_SETPOINTS_BY_DISTANCE_METERS.get(targetDistance.in(Meters)));
 
@@ -79,8 +76,11 @@ public class ShootCommand extends Command {
   @Override
   public void initialize() {
     isShooting = false;
-    shootingTimer.stop();
-    shootingTimer.reset();
+    feederSubsystem.stop();
+    indexerSubsystem.stop();
+    intakeSubsystem.stop();
+    shooterSubsystem.stop();
+    intakeShootingSequence.reset();
   }
 
   @Override
@@ -91,15 +91,7 @@ public class ShootCommand extends Command {
     // Check to make sure the shooter is ready before running the indexer and feeder
     if (isShooting || shooterSubsystem.isFlywheelAtSpeed()) {
       isShooting = true;
-      shootingTimer.start();
-      if (shootingTimer.hasElapsed(DEPLOY_INTAKE_TIME.in(Seconds))) {
-        intakeSubsytem.retractForShooting();
-      } else if (shootingTimer.hasElapsed(RETRACT_INTAKE_TIME.in(Seconds))) {
-        intakeSubsytem.deploy();
-      } else {
-        intakeSubsytem.retractForShooting();
-      }
-      intakeSubsytem.runIntakeForShooting();
+      intakeShootingSequence.execute();
       feederSubsystem.feedShooter();
       indexerSubsystem.feedShooter();
       ledSubsystem.runPatternOnHalves(patternOne, patternTwo);
@@ -108,13 +100,13 @@ public class ShootCommand extends Command {
     }
   }
 
+  @Override
   public void end(boolean interrupted) {
     shooterSubsystem.stop();
     drivetrain.setControl(new SwerveRequest.Idle());
     feederSubsystem.stop();
     indexerSubsystem.stop();
-    intakeSubsytem.stop();
+    intakeSubsystem.stop();
     ledSubsystem.off();
-    shootingTimer.stop();
   }
 }
