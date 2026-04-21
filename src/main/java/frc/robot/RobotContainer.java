@@ -58,6 +58,10 @@ import java.util.stream.Stream;
 
 @Logged(strategy = Logged.Strategy.OPT_IN)
 public class RobotContainer {
+
+  // Set to true and redeploy to enable demo mode
+  private static final boolean DEMO_MODE = false;
+
   private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
   /** Swerve request to apply during robot-centric path following */
   private final SwerveRequest.ApplyRobotSpeeds ppRobotSpeedsRequest = new SwerveRequest.ApplyRobotSpeeds();
@@ -79,7 +83,6 @@ public class RobotContainer {
   @Logged
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final LEDSubsystem ledSubsystem = new LEDSubsystem();
-  private final boolean demoMode = true;
 
   private final CommandFactory commandFactory = new CommandFactory(
       drivetrain,
@@ -96,7 +99,7 @@ public class RobotContainer {
 
   public RobotContainer() {
     // Configure control binding scheme
-    if (demoMode) {
+    if (DEMO_MODE) {
       controlBindings = new DemoJoystickBindings();
     } else if (DriverStation.getJoystickIsXbox(0) || Robot.isSimulation()) {
       controlBindings = new XBoxControlBindings();
