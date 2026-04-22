@@ -16,48 +16,64 @@
     },
     {
       "anchor": {
-        "x": 0.9,
-        "y": 5.13125
+        "x": 0.8138263358778624,
+        "y": 4.988988549618321
       },
       "prevControl": {
-        "x": 1.7786736641221377,
-        "y": 5.139618320610686
+        "x": 1.6925,
+        "y": 4.997356870229007
       },
       "nextControl": {
-        "x": 0.6500113370972554,
-        "y": 5.128869155591402
+        "x": 0.5638376729751178,
+        "y": 4.986607705209723
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.83,
-        "y": 6.562232824427481
+        "x": 1.4749236641263217,
+        "y": 7.415801526713373
       },
       "prevControl": {
-        "x": 0.8216316793893131,
-        "y": 5.850925572519084
+        "x": 0.3703053435156347,
+        "y": 7.039227099232457
       },
       "nextControl": {
-        "x": 0.8350526965649613,
-        "y": 6.991712032449197
+        "x": 1.7115512111709568,
+        "y": 7.496470008660407
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.6506583969465654,
-        "y": 6.45344465648855
+        "x": 0.6046183206148712,
+        "y": 7.541326335873679
       },
       "prevControl": {
-        "x": 1.4006583969465654,
-        "y": 6.45344465648855
+        "x": 0.8376194885001953,
+        "y": 7.6319379011624155
+      },
+      "nextControl": {
+        "x": 0.3716171527295453,
+        "y": 7.450714770584941
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.59208015267594,
+        "y": 5.265143129766808
+      },
+      "prevControl": {
+        "x": 1.6506583969507496,
+        "y": 7.055963740453832
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Tag Team Depot First End 1"
+      "linkedName": "Tag Team 1"
     }
   ],
   "rotationTargets": [
@@ -66,17 +82,25 @@
       "rotationDegrees": 119.99999999999999
     },
     {
-      "waypointRelativePos": 1.9030674846625595,
+      "waypointRelativePos": 1.621776504298005,
       "rotationDegrees": 119.99999999999999
+    },
+    {
+      "waypointRelativePos": 2.22922636103152,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 3.140401146131812,
+      "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0.8312993539124083,
-      "maxWaypointRelativePos": 2.0,
+      "maxWaypointRelativePos": 2.1,
       "constraints": {
-        "maxVelocity": 1.5,
+        "maxVelocity": 1.0,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -100,7 +124,7 @@
     "rotation": 139.39870535499549
   },
   "reversed": false,
-  "folder": "Depot First Buddy",
+  "folder": "Tag Team",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 127.67359333983042

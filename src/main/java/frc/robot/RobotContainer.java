@@ -230,6 +230,7 @@ public class RobotContainer {
         "RetractIntake",
           new RetractIntakeCommand(intakeSubsystem).alongWith(new DefaultLEDCommand(ledSubsystem)));
     NamedCommands.registerCommand("Shuttle", commandFactory.shuttleToCorner());
+    NamedCommands.registerCommand("DefaultLED", new DefaultLEDCommand(ledSubsystem));
   }
 
   public Command getAutonomousCommand() {

@@ -217,7 +217,7 @@ public final class Constants {
     public static final Pose3d POSE_RETRACTED = new Pose3d(0.0, 0.0, 0.0, Rotation3d.kZero);
 
     public static final Angle DEPLOY_TOLERANCE = Rotations.of(0.2);
-    public static final Current DEPLOY_SHOOTING_CURRENT = Amps.of(-33.0);
+    public static final Current DEPLOY_SHOOTING_CURRENT = Amps.of(-17.0);
   }
 
   public static class IndexerConstants {
@@ -231,8 +231,8 @@ public final class Constants {
 
     public static final SlotConfigs INDEXER_SLOT_CONFIGS = new SlotConfigs().withKP(0.5).withKV(0.02).withKS(4.0);
 
-    public static final AngularVelocity INDEXER_FEED_VELOCITY = RotationsPerSecond.of(90);
-    public static final AngularVelocity INDEXER_EJECT_VELOCITY = RotationsPerSecond.of(-25);
+    public static final AngularVelocity INDEXER_FEED_VELOCITY = RotationsPerSecond.of(95);
+    public static final AngularVelocity INDEXER_EJECT_VELOCITY = RotationsPerSecond.of(-80);
 
   }
 
@@ -249,7 +249,7 @@ public final class Constants {
     public static final Current FEEDER_SUPPLY_CURRENT_LIMIT = Amps.of(80);
     public static final SlotConfigs FEEDER_SLOT_CONFIGS = new SlotConfigs().withKP(3).withKS(3).withKV(0.05);
 
-    public static final AngularVelocity FEEDER_FEED_VELOCITY = RotationsPerSecond.of(40);
+    public static final AngularVelocity FEEDER_FEED_VELOCITY = RotationsPerSecond.of(95);
     public static final AngularVelocity FEEDER_EJECT_VELOCITY = RotationsPerSecond.of(-25);
   }
 
@@ -276,9 +276,9 @@ public final class Constants {
 
     // Parameters for the intake shooting sequence
     public static final Time RETRACT_INTAKE_DELAY = Seconds.of(0.0);
-    public static final Time JAM_DEBOUNCE_TIME = Seconds.of(0.3);
-    public static final AngularVelocity JAM_THRESHOLD = RotationsPerSecond.of(-40.0);
-    public static final Time UNJAM_DURATION = Seconds.of(0.1);
+    public static final Time JAM_DEBOUNCE_TIME = Seconds.of(0.2);
+    public static final AngularVelocity JAM_THRESHOLD = RotationsPerSecond.of(-3.0);
+    public static final Time UNJAM_DURATION = Seconds.of(0.25);
     public static final Angle RETRACTED_THRESHOLD = RETRACTED_POSITION;
 
     private static InterpolatingDoubleTreeMap createShooterInterpolator() {

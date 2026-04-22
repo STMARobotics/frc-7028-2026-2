@@ -1,0 +1,93 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.59208015267594,
+        "y": 5.265143129766808
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.5502385496225046,
+        "y": 5.524561068698106
+      },
+      "isLocked": false,
+      "linkedName": "Tag Team 1"
+    },
+    {
+      "anchor": {
+        "x": 1.6506583969465654,
+        "y": 7.59153625954605
+      },
+      "prevControl": {
+        "x": 1.6673950381688494,
+        "y": 7.248435114507881
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Tag Team 2"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "Plow",
+      "minWaypointRelativePos": 0.15,
+      "maxWaypointRelativePos": 0.5,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 6.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Bump",
+      "minWaypointRelativePos": 0.5,
+      "maxWaypointRelativePos": 0.9,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 6.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Intake",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "RetractIntake"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "Tag Team",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 139.39870535499549
+  },
+  "useDefaultConstraints": true
+}

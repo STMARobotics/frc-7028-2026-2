@@ -3,10 +3,9 @@
   "robotLength": 0.776288,
   "holonomicMode": true,
   "pathFolders": [
+    "Tag Team",
     "Bump",
-    "No Bump",
-    "Depot Last Buddy",
-    "Depot First Buddy"
+    "No Bump"
   ],
   "autoFolders": [],
   "defaultMaxVel": 4.0,
