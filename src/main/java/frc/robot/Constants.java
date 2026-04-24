@@ -169,8 +169,8 @@ public final class Constants {
   public static class IntakeConstants {
     // Device IDs
     public static final int DEVICE_ID_DEPLOY_MOTOR = 10;
-    public static final int DEVICE_ID_ROLLER_MOTOR = 11;
-    public static final int DEVICE_ID_ROLLER_FOLLOWER = 12;
+    public static final int DEVICE_ID_ROLLER_MOTOR = 11; // left
+    public static final int DEVICE_ID_ROLLER_FOLLOWER = 12; // right
     public static final int CHANNEL_ID_DEPLOY_POTENTIOMETER = 3;
 
     // Roller constants
