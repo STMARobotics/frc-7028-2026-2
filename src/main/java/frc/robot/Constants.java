@@ -114,7 +114,7 @@ public final class Constants {
     public static final Current FLYWHEEL_STATOR_CURRENT_LIMIT = Amps.of(170);
     public static final Current FLYWHEEL_SUPPLY_CURRENT_LIMIT = Amps.of(80);
 
-    public static final SlotConfigs FLYWHEEL_SLOT_CONFIGS = new SlotConfigs().withKP(23.0).withKS(3.0);
+    public static final SlotConfigs FLYWHEEL_SLOT_CONFIGS = new SlotConfigs().withKP(23.0).withKV(1.0).withKS(3.0);
 
     // The robot shoots out the back
     public static final Rotation2d SHOOTER_OFFSET_ANGLE = Rotation2d.kPi;
