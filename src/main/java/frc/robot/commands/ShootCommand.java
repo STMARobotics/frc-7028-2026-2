@@ -11,6 +11,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.LEDPattern.GradientType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -39,6 +40,7 @@ public class ShootCommand extends Command {
   private final LEDPattern patternOne = patternTwo.reversed();
 
   private final IntakeShootingSequence intakeShootingSequence;
+  private final Timer shootingTimer = new Timer();
   private boolean isShooting = false;
 
   /**
@@ -76,6 +78,8 @@ public class ShootCommand extends Command {
   @Override
   public void initialize() {
     isShooting = false;
+    shootingTimer.stop();
+    shootingTimer.reset();
     feederSubsystem.stop();
     indexerSubsystem.stop();
     intakeSubsystem.stop();
@@ -91,9 +95,14 @@ public class ShootCommand extends Command {
     // Check to make sure the shooter is ready before running the indexer and feeder
     if (isShooting || shooterSubsystem.isFlywheelAtSpeed()) {
       isShooting = true;
-      intakeShootingSequence.execute();
+      shootingTimer.start();
+      if (shootingTimer.hasElapsed(0.06)) {
+        indexerSubsystem.feedShooter();
+      }
+      if (shootingTimer.hasElapsed(0.06)) {
+        intakeShootingSequence.execute();
+      }
       feederSubsystem.feedShooter();
-      indexerSubsystem.feedShooter();
       ledSubsystem.runPatternOnHalves(patternOne, patternTwo);
     } else {
       ledSubsystem.off();
@@ -108,5 +117,6 @@ public class ShootCommand extends Command {
     indexerSubsystem.stop();
     intakeSubsystem.stop();
     ledSubsystem.off();
+    shootingTimer.stop();
   }
 }
