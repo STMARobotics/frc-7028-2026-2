@@ -276,7 +276,7 @@ public final class Constants {
     public static final double HEADING_P = 6.0;
 
     // Parameters for the intake shooting sequence
-    public static final Time RETRACT_INTAKE_DELAY = Seconds.of(0.24);
+    public static final Time RETRACT_INTAKE_DELAY = Seconds.of(0.18);
     public static final Time JAM_DEBOUNCE_TIME = Seconds.of(0.5);
     public static final AngularVelocity JAM_THRESHOLD = RotationsPerSecond.of(-1.0);
     public static final Time UNJAM_DURATION = Seconds.of(0.25);

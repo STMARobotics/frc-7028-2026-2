@@ -169,7 +169,7 @@ public class RobotContainer {
                     drivetrain,
                     intakeSubsystem,
                     ledSubsystem,
-                    Meters.of(3.335))));
+                    Meters.of(2.1))));
 
     controlBindings.tuneShoot()
         .ifPresent(

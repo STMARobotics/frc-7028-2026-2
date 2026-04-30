@@ -126,12 +126,14 @@ public class ShootAtTargetCommand extends Command {
       isShooting = true;
       shootingTimer.start();
       if (shootingTimer.hasElapsed(0.06)) {
+        feederSubsystem.feedShooter();
+      }
+      if (shootingTimer.hasElapsed(0.12)) {
         indexerSubsystem.feedShooter();
       }
-      if (shootingTimer.hasElapsed(0.06)) {
+      if (shootingTimer.hasElapsed(0.12)) {
         intakeShootingSequence.execute();
       }
-      feederSubsystem.feedShooter();
       drivetrain.setControl(swerveDriveBrake);
       ledSubsystem.runPatternOnHalves(shootingPatternOne, shootingPatternTwo);
     } else {
