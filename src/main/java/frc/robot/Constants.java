@@ -228,7 +228,7 @@ public final class Constants {
     public static final Current INDEXER_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(80);
     public static final Current INDEXER_PEAK_TORQUE_CURRENT_REVERSE = INDEXER_PEAK_TORQUE_CURRENT_FORWARD.unaryMinus();
     public static final Current INDEXER_STATOR_CURRENT_LIMIT = Amps.of(80);
-    public static final Current INDEXER_SUPPLY_CURRENT_LIMIT = Amps.of(50);
+    public static final Current INDEXER_SUPPLY_CURRENT_LIMIT = Amps.of(15);
 
     public static final SlotConfigs INDEXER_SLOT_CONFIGS = new SlotConfigs().withKP(0.5).withKV(0.02).withKS(4.0);
 
@@ -247,7 +247,7 @@ public final class Constants {
     public static final Current FEEDER_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(100);
     public static final Current FEEDER_PEAK_TORQUE_CURRENT_REVERSE = FEEDER_PEAK_TORQUE_CURRENT_FORWARD.unaryMinus();
     public static final Current FEEDER_STATOR_CURRENT_LIMIT = Amps.of(110);
-    public static final Current FEEDER_SUPPLY_CURRENT_LIMIT = Amps.of(80);
+    public static final Current FEEDER_SUPPLY_CURRENT_LIMIT = Amps.of(40);
     public static final SlotConfigs FEEDER_SLOT_CONFIGS = new SlotConfigs().withKP(3).withKS(3).withKV(0.05);
 
     public static final AngularVelocity FEEDER_FEED_VELOCITY = RotationsPerSecond.of(95);
@@ -276,7 +276,7 @@ public final class Constants {
     public static final double HEADING_P = 6.0;
 
     // Parameters for the intake shooting sequence
-    public static final Time RETRACT_INTAKE_DELAY = Seconds.of(0.3);
+    public static final Time RETRACT_INTAKE_DELAY = Seconds.of(0.24);
     public static final Time JAM_DEBOUNCE_TIME = Seconds.of(0.5);
     public static final AngularVelocity JAM_THRESHOLD = RotationsPerSecond.of(-1.0);
     public static final Time UNJAM_DURATION = Seconds.of(0.25);

@@ -124,10 +124,15 @@ public class ShootAtTargetCommand extends Command {
     var isShooterReady = shooterSubsystem.isFlywheelAtSpeed();
     if (isShooting || (isShooterReady && isAimReady)) {
       isShooting = true;
-      intakeShootingSequence.execute();
-      drivetrain.setControl(swerveDriveBrake);
+      shootingTimer.start();
+      if (shootingTimer.hasElapsed(0.06)) {
+        indexerSubsystem.feedShooter();
+      }
+      if (shootingTimer.hasElapsed(0.06)) {
+        intakeShootingSequence.execute();
+      }
       feederSubsystem.feedShooter();
-      indexerSubsystem.feedShooter();
+      drivetrain.setControl(swerveDriveBrake);
       ledSubsystem.runPatternOnHalves(shootingPatternOne, shootingPatternTwo);
     } else {
       drivetrain.setControl(swerveRequestFacing.withTargetDirection(headingToTarget));
