@@ -36,6 +36,7 @@ import frc.robot.commands.EjectCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.ShuttleCommand;
 import frc.robot.commands.TuneShootingCommand;
 import frc.robot.commands.led.DefaultLEDCommand;
 import frc.robot.commands.led.LEDBootAnimationCommand;
@@ -185,7 +186,16 @@ public class RobotContainer {
 
     controlBindings.autoShoot().ifPresent(trigger -> trigger.whileTrue(commandFactory.shootAtHub()));
 
-    controlBindings.shuttle().ifPresent(trigger -> trigger.whileTrue(commandFactory.shuttleToCorner()));
+    controlBindings.shuttle()
+        .ifPresent(
+            trigger -> trigger.whileTrue(
+                new ShuttleCommand(
+                    indexerSubsystem,
+                    feederSubsystem,
+                    shooterSubsystem,
+                    intakeSubsystem,
+                    ledSubsystem,
+                    Meters.of(3))));
 
     controlBindings.demoToss().ifPresent(trigger -> trigger.whileTrue(commandFactory.demoToss()));
 
