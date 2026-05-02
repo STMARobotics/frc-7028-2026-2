@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.wpilibj.DriverStation.Alliance.Blue;
 import static edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward;
@@ -236,6 +237,10 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     /* Run the path selected from the auto chooser */
     return autoChooser.getSelected();
+  }
+
+  public void autoEnd() {
+    drivetrain.setDriveSupplyCurrentLimit(Amps.of(50));
   }
 
   /** Populate the SysID dashboard controls with commands for system identification */
