@@ -36,7 +36,6 @@ import frc.robot.commands.EjectCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.RetractIntakeCommand;
 import frc.robot.commands.ShootCommand;
-import frc.robot.commands.ShuttleCommand;
 import frc.robot.commands.TuneShootingCommand;
 import frc.robot.commands.led.DefaultLEDCommand;
 import frc.robot.commands.led.LEDBootAnimationCommand;
@@ -186,16 +185,7 @@ public class RobotContainer {
 
     controlBindings.autoShoot().ifPresent(trigger -> trigger.whileTrue(commandFactory.shootAtHub()));
 
-    controlBindings.shuttle()
-        .ifPresent(
-            trigger -> trigger.whileTrue(
-                new ShuttleCommand(
-                    indexerSubsystem,
-                    feederSubsystem,
-                    shooterSubsystem,
-                    intakeSubsystem,
-                    ledSubsystem,
-                    Meters.of(3))));
+    controlBindings.shuttle().ifPresent(trigger -> trigger.whileTrue(commandFactory.shuttleToCorner()));
 
     controlBindings.demoToss().ifPresent(trigger -> trigger.whileTrue(commandFactory.demoToss()));
 
@@ -250,7 +240,7 @@ public class RobotContainer {
   }
 
   public void autoEnd() {
-    drivetrain.setDriveSupplyCurrentLimit(Amps.of(50));
+    drivetrain.setDriveSupplyCurrentLimit(Amps.of(45));
   }
 
   /** Populate the SysID dashboard controls with commands for system identification */
