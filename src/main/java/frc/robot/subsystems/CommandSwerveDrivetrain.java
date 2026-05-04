@@ -365,6 +365,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     return yawVelocity.refresh().getValue();
   }
 
+  /**
+   * Sets the supply current limit for all drive motors. This calls TalonFXConfigurator.apply(), so it may be a blocking
+   * call. It must not be called periodically, and probably shouldn't be called when the robot is enabled.
+   * 
+   * @param newLimit new supply current limit to set for all drive motors
+   */
   public void setDriveSupplyCurrentLimit(Current newLimit) {
     for (var module : getModules()) {
       var currentLimits = new CurrentLimitsConfigs();

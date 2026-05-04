@@ -239,6 +239,9 @@ public class RobotContainer {
     return autoChooser.getSelected();
   }
 
+  /**
+   * Called by {@link Robot#autonomousExit()} when auto has ended
+   */
   public void autoEnd() {
     drivetrain.setDriveSupplyCurrentLimit(Amps.of(45));
   }
