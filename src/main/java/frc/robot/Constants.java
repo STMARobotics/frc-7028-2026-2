@@ -192,7 +192,7 @@ public final class Constants {
 
     // Deploy limits in motor angle
     public static final Angle DEPLOY_REVERSE_LIMIT = Rotations.of(0); // Retracted
-    public static final Angle DEPLOY_FORWARD_LIMIT = Rotations.of(18.38); // Deployed
+    public static final Angle DEPLOY_FORWARD_LIMIT = Rotations.of(11.10); // Deployed
     // Deploy limits in potentiometer values
     public static final double POTENTIOMETER_REVERSE_LIMIT = 0.544;
     public static final double POTENTIOMETER_FORWARD_LIMIT = 0.913;
@@ -201,7 +201,7 @@ public final class Constants {
         .div(POTENTIOMETER_FORWARD_LIMIT - POTENTIOMETER_REVERSE_LIMIT);
     // The offset of the potentiometer from the actual position of the intake in motor angle
     // public static final Angle POTENTIOMETER_OFFSET = Rotations.of(-28.13);
-    public static final Angle POTENTIOMETER_OFFSET = Rotations.of(-27.09);
+    public static final Angle POTENTIOMETER_OFFSET = Rotations.of(-16.31);
 
     public static final SlotConfigs DEPLOY_SLOT_CONFIGS = new SlotConfigs().withGravityType(GravityTypeValue.Arm_Cosine)
         .withKP(5.0)
