@@ -218,7 +218,7 @@ public final class Constants {
     public static final Pose3d POSE_RETRACTED = new Pose3d(0.0, 0.0, 0.0, Rotation3d.kZero);
 
     public static final Angle DEPLOY_TOLERANCE = Rotations.of(0.2);
-    public static final Current DEPLOY_SHOOTING_CURRENT = Amps.of(-15.0);
+    public static final Current DEPLOY_SHOOTING_CURRENT = Amps.of(-29.0);
   }
 
   public static class IndexerConstants {
