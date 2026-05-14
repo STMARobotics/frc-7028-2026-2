@@ -128,7 +128,6 @@ public class RobotContainer {
     // Run the boot animation
     var bootAnimation = new LEDBootAnimationCommand(ledSubsystem);
     CommandScheduler.getInstance().schedule(bootAnimation);
-
     // Set up default commmands
     ledSubsystem.setDefaultCommand(new DefaultLEDCommand(ledSubsystem));
     intakeSubsystem.setDefaultCommand(new IntakeCommand(intakeSubsystem, ledSubsystem));
@@ -183,7 +182,7 @@ public class RobotContainer {
                     intakeSubsystem,
                     () -> drivetrain.getState().Pose)));
 
-    controlBindings.autoShoot().ifPresent(trigger -> trigger.whileTrue(commandFactory.shootAtHub()));
+    controlBindings.autoShoot().ifPresent(trigger -> trigger.whileTrue(commandFactory.shootAtHub().repeatedly()));
 
     controlBindings.shuttle().ifPresent(trigger -> trigger.whileTrue(commandFactory.shuttleToCorner()));
 
