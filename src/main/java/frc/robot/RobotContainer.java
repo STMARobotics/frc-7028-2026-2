@@ -25,6 +25,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -95,6 +96,7 @@ public class RobotContainer {
   private final ControlBindings controlBindings;
 
   public RobotContainer() {
+    RobotController.setBrownoutVoltage(6.1);
     // Configure control binding scheme
     if (DEMO_MODE) {
       controlBindings = new DemoJoystickBindings();
@@ -242,7 +244,7 @@ public class RobotContainer {
    * Called by {@link Robot#autonomousExit()} when auto has ended
    */
   public void autoEnd() {
-    drivetrain.setDriveSupplyCurrentLimit(Amps.of(45));
+    drivetrain.setDriveSupplyCurrentLimit(Amps.of(50));
   }
 
   /** Populate the SysID dashboard controls with commands for system identification */

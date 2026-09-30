@@ -107,12 +107,12 @@ public final class Constants {
     public static final int DEVICE_ID_FLYWHEEL_FOLLOWER_1 = 28; // Left side
     public static final int DEVICE_ID_FLYWHEEL_FOLLOWER_2 = 29; // Left side
 
-    public static final Current FLYWHEEL_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(160);
+    public static final Current FLYWHEEL_PEAK_TORQUE_CURRENT_FORWARD = Amps.of(140);
     // Reverse current is positive to allow for increased P for rapid recovery, while avoiding negative output when
     // there is no load. A tradeoff is that this will increase the time it takes to adjust the flywheel speed downward.
     public static final Current FLYWHEEL_PEAK_TORQUE_CURRENT_REVERSE = Amps.of(15);
     public static final Current FLYWHEEL_STATOR_CURRENT_LIMIT = Amps.of(170);
-    public static final Current FLYWHEEL_SUPPLY_CURRENT_LIMIT = Amps.of(80);
+    public static final Current FLYWHEEL_SUPPLY_CURRENT_LIMIT = Amps.of(70);
 
     public static final SlotConfigs FLYWHEEL_SLOT_CONFIGS = new SlotConfigs().withKP(23.0).withKV(1.0).withKS(3.0);
 
