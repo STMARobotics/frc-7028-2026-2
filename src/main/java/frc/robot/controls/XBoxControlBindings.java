@@ -57,22 +57,22 @@ public class XBoxControlBindings extends ControlBindings {
 
   @Override
   public Optional<Trigger> stopIntake() {
-    return Optional.of(driverController.leftBumper());
-  }
-
-  @Override
-  public Optional<Trigger> eject() {
     return Optional.of(driverController.x());
   }
 
   @Override
+  public Optional<Trigger> eject() {
+    return Optional.of(driverController.y());
+  }
+
+  @Override
   public Optional<Trigger> deployIntake() {
-    return Optional.of(driverController.povLeft());
+    return Optional.of(driverController.povUp());
   }
 
   @Override
   public Optional<Trigger> retractIntake() {
-    return Optional.of(driverController.povRight());
+    return Optional.of(driverController.leftBumper());
   }
 
   @Override
@@ -82,17 +82,12 @@ public class XBoxControlBindings extends ControlBindings {
 
   @Override
   public Optional<Trigger> autoShoot() {
-    return Optional.of(driverController.rightTrigger());
+    return Optional.of(driverController.leftTrigger());
   }
 
   @Override
   public Optional<Trigger> tuneShoot() {
-    return Optional.of(driverController.y());
-  }
-
-  @Override
-  public Optional<Trigger> shuttle() {
-    return Optional.of(driverController.b());
+    return Optional.of(driverController.back());
   }
 
   private static double squareAxis(double value) {

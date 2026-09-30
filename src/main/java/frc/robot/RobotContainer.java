@@ -42,7 +42,6 @@ import frc.robot.commands.led.DefaultLEDCommand;
 import frc.robot.commands.led.LEDBootAnimationCommand;
 import frc.robot.controls.ControlBindings;
 import frc.robot.controls.DemoJoystickBindings;
-import frc.robot.controls.JoystickControlBindings;
 import frc.robot.controls.XBoxControlBindings;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -100,10 +99,8 @@ public class RobotContainer {
     // Configure control binding scheme
     if (DEMO_MODE) {
       controlBindings = new DemoJoystickBindings();
-    } else if (DriverStation.getJoystickIsXbox(0) || Robot.isSimulation()) {
-      controlBindings = new XBoxControlBindings();
     } else {
-      controlBindings = new JoystickControlBindings();
+      controlBindings = new XBoxControlBindings();
     }
 
     // Configure and populate the auto command chooser with autos from PathPlanner
