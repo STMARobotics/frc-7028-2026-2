@@ -112,7 +112,7 @@ public final class Constants {
     // there is no load. A tradeoff is that this will increase the time it takes to adjust the flywheel speed downward.
     public static final Current FLYWHEEL_PEAK_TORQUE_CURRENT_REVERSE = Amps.of(15);
     public static final Current FLYWHEEL_STATOR_CURRENT_LIMIT = Amps.of(170);
-    public static final Current FLYWHEEL_SUPPLY_CURRENT_LIMIT = Amps.of(80);
+    public static final Current FLYWHEEL_SUPPLY_CURRENT_LIMIT = Amps.of(70);
 
     public static final SlotConfigs FLYWHEEL_SLOT_CONFIGS = new SlotConfigs().withKP(23.0).withKV(1.0).withKS(3.0);
 
@@ -217,7 +217,7 @@ public final class Constants {
     public static final Pose3d POSE_RETRACTED = new Pose3d(0.0, 0.0, 0.0, Rotation3d.kZero);
 
     public static final Angle DEPLOY_TOLERANCE = Rotations.of(0.2);
-    public static final Current DEPLOY_SHOOTING_CURRENT = Amps.of(-29.0);
+    public static final Current DEPLOY_SHOOTING_CURRENT = Amps.of(-15.0);
   }
 
   public static class IndexerConstants {

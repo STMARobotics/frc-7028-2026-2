@@ -11,7 +11,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.LEDPattern.GradientType;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -110,12 +109,6 @@ public class ShootCommand extends Command {
     } else {
       ledSubsystem.off();
     }
-  }
-
-  @Override
-  public boolean isFinished() {
-    // abort if brownout detected
-    return RobotController.isBrownedOut();
   }
 
   @Override

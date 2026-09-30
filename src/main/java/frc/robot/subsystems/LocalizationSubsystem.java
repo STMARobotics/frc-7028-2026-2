@@ -59,6 +59,7 @@ public class LocalizationSubsystem extends SubsystemBase {
     visionPosePublishers = new HashMap<>();
     for (int i = 0; i < APRILTAG_CAMERA_NAMES.length; i++) {
       String cameraName = APRILTAG_CAMERA_NAMES[i];
+      LimelightHelpers.setRewindEnabled(cameraName, true);
       visionPosePublishers.put(cameraName, table.getStructTopic(cameraName, Pose3d.struct).publish());
       LimelightHelpers.setCameraPose_RobotSpace(
           cameraName,
